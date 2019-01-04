@@ -6,7 +6,7 @@ As of January 2019, Sledgehammer is little more than Wolfram Language converted 
 
 ### Prior art
 
-While [Mthmtca][https://github.com/LegionMammal978/Mthmtca] compresses each Mathematica builtin into 4 bytes, Sledgehammer achieves this in 1.5 to 2.5 bytes. Optimized Sledgehammer code should be about 1/2 the size of Mthmtca code.
+While [Mthmtca](https://github.com/LegionMammal978/Mthmtca) compresses each Mathematica builtin into 4 bytes, Sledgehammer achieves this in 1.5 to 2.5 bytes. Optimized Sledgehammer code should be about 1/2 the size of Mthmtca code.
 
 ### Setup
 
