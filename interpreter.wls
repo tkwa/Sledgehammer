@@ -5,7 +5,8 @@
 (*Imports and setup*)
 
 
-parentPath = $InputFileName /. "" :> NotebookFileName[]
+(* Get path whether run through a notebook or wolframscript -script *)
+parentPath = $InputFileName /. "" :> NotebookFileName[];
 parentDir = DirectoryName @ parentPath;
 SetDirectory[parentDir];
 Get["save.mx", Path -> Directory[]];
@@ -20,10 +21,10 @@ $IterationLimit = 2^14;
 
 
 (* add syntax for argument order *)
-(* Converts "nthOEIS.2" to <| "call" \[Rule] nthOEIS, "arity" \[Rule] 2 *)
+(* Converts "nthOEIS.2" to <| "call" \[Rule] "nthOEIS", "arity" \[Rule] 2 *)
 nameToToken[s_String] := Module[{parts = StringSplit[s,".",2], ret},
 	Assert[Length@parts <= 2,"Malformed token"];
-	<| "call" -> Symbol@parts[[1]],
+	<| "call" -> ToExpression[parts[[1]], StandardForm, Hold],
 		"arity" -> If[Length@parts == 1, 1, ToExpression@parts[[2]]] |>
 	];
 
@@ -41,9 +42,9 @@ nextToken[code_String] := Module[{trimmedCode = StringTrim[code]},
 				{nameToToken@First@#, StringLength@First@#} ]& (* function *)
 ]];
 
-Assert[ {Map, 2} == Values@First@nextToken["Map.2  \"abc\"  MorphologicalComponents.1"]]
+Assert[ {Hold[Map], 2} == Values@First@nextToken["Map.2  \"abc\"  MorphologicalComponents.1"]]
 Assert["asdf\\jkkl" == First@nextToken["    \"asdf\\\\jkkl\" MorphologicalComponents.1   "]]
-Assert[ <|"call"->MorphologicalComponents, "arity"->1|>  == First@nextToken["MorphologicalComponents.1"]]
+Assert[ <|"call"-> Hold@MorphologicalComponents, "arity"->1|>  == First@nextToken["MorphologicalComponents.1"]]
 
 splitTokens =.
 splitTokens[""] := {}
@@ -61,11 +62,6 @@ show@"Lexer passed";
 (* ::Subsubsection:: *)
 (*Token list constructor*)
 
-
-h[n_Integer] := Part[history, -n];
-
-PrependTo[allSHTokens, <| call -> Slot, arity -> 1 |>];
-PrependTo[allSHTokens, <| call -> h, arity -> 1 |>];
 
 show[#, "Token list succeeded, length = "]& @Length@allSHTokens; (* 8324 fixed, 6k more  *)
 
@@ -92,8 +88,6 @@ idxToBits[idx_Integer] := Block[{nybs, startFrac,startCount,frac, verbose = Fals
 	startCount = cumulCounts[[nybs]] - tokenCounts[[nybs]] + 1 // show[#,"startCount = "]&;
 	frac = startFrac + (idx - startCount)*16^-nybs // show[#,"frac = "] &;
 	First@RealDigits[frac, 2, 4 * nybs, -1]];
-
-toAssociation[tok_List] := Association[ "call" -> tok[[1]], "arity" -> tok[[2]] ];
 
 tokenToBits[tok_Association, SHTokens_List: allSHTokens] := idxToBits@First@FirstPosition[SHTokens, tok];
 
@@ -123,7 +117,7 @@ compress[code_String] := compress @ splitTokens @ code;
 Assert[idxToBits[98] == First@RealDigits[9/16, 2, 4*3, -1]];
 
 (* test that a token compresses to a list *)
-Assert[ListQ@show@tokenToBits[toAssociation[{MorphologicalPerimeter,2}]]]
+Assert[ListQ@tokenToBits[toToken[{MorphologicalPerimeter,2}]]]
 
 
 show@"Compressor success";
@@ -209,7 +203,7 @@ Assert[AllTrue[bitsToToken @ tokenToBits @ # == {#,Length@tokenToBits@#}&][{"Hel
 Assert[AllTrue[ First@bitsToIdx @ Join[#,{1,0,1,0,1,0,1}]& @ idxToBits @# == # &][{1, 2, 42, 96, 97, 1337, 24601}]];
 
 (* test that a sequence of tokens is compressed and decompressed correctly *)
-Assert[AllTrue[ First@bitsToToken @ tokenToBits @# == # &][Map[toAssociation]@{{Map,2},{Times,3},{MorphologicalComponents,1}}]];
+Assert[AllTrue[ First@bitsToToken @ tokenToBits @# == # &][Map[toToken]@{{Map,2},{Times,3},{MorphologicalComponents,1}}]];
 
 (* test that code is c and C correctly; test case includes int literals, str literals, functions *)
 Assert[ (decompress@compress@# == splitTokens@# &)@"1337 42 Minus Times.2 3 IntegerDigits.2 \"abcde\" 0"];
@@ -225,30 +219,36 @@ applyToken =.
 applyToken[tok_Integer | tok_String | tok_Slot] := (
 	AppendTo[stack, tok];
 	AppendTo[history, tok];
-	If[printDebug, Echo@Activate@Map[Hold,stack]];)
+	If[printDebug, AppendTo[debugHistory,Activate@Map[Hold,stack]]];
+)
 
 applyToken[tok_Association] := Module[{call, arity, args, result},
-	call = tok["call"];
+	call = ReleaseHold@tok["call"];
 	arity = tok["arity"];
 	args = Take[stack, -arity];
 	stack = Drop[stack, -arity];
-	result = Apply[ Inactive@Evaluate@tok["call"], args ];
+	result = Apply[ Inactive@Evaluate@call, args ];
 
 	AppendTo[stack, result];
 	AppendTo[history, result];
-	If[printDebug, Echo@Activate@Map[Hold,stack]];
+	If[printDebug, AppendTo[debugHistory,Activate@Map[Hold,stack]]];
 ];
 
-execute[toks_List] := Map[applyToken,toks];
-executeVerbose[code_String] := execute @ splitTokens @ code;
-executeBinary[bits_List] := execute @ decompress @ bits;
+applyTokens[toks_List, args_List] := Block[
+	{stack = args, history = args},
+	Map[applyToken, toks];
+	stack
+];
+
+(*SetOptions[eval, "printLast" \[Rule] True]*)
+eval[toks_List, args_List, OptionsPattern[]] := Block[{stack = applyTokens[toks, args]},
+	Activate@Last@stack]
+
+evalVerbose[code_String, args_List] := eval[splitTokens@code, args];
+
+(* We need this evalBits function for code-golf scoring purposes. Therefore, evalBits takes no options. *)
+hammer[bits_List /; ContainsOnly[bits, {0,1}], args_List] := eval[decompress@bits, args]
 
 
 (* ::Subsection:: *)
 (*Testing...*)
-
-
-
-
-
-

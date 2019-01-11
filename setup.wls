@@ -1,12 +1,16 @@
 #!/usr/bin/env wolframscript
 (* ::Package:: *)
 
-
-version = "0.1.0"
+ (* version 0.1.1 *)
 time = SessionTime[];
 parentPath = $InputFileName /. "" :> NotebookFileName[];
 parentDir = DirectoryName @ parentPath;
 SetDirectory[parentDir];
+On@Assert
+
+Print@"Starting setup...";
+
+toToken[tok_List /; Length@tok == 2] := Association[ "call" -> Hold@Evaluate@tok[[1]], "arity" -> tok[[2]] ];
 
 (* Gets argument pattern from symbol e.g. Map \[Rule] {_, _., _., OptionsPattern[]} *)
 argPattern =.
@@ -15,34 +19,70 @@ argPattern[f_Symbol] := Lookup[SyntaxInformation@f, "ArgumentsPattern"];
 (* e.g. Map \[Rule] Interval[1,4] *)
 argInterval=.
 argInterval[_Missing] := Interval[] (* non-function gives empty interval *)
-argInterval[pats_List] := Count[pats, _List | _Blank | _BlankSequence] +
-	Interval[{0,
-		If[MemberQ[pats, _BlankNullSequence | _BlankSequence],
-			Infinity,
-		Count[pats, _Optional | _OptionsPattern]]}];
+argInterval[pats_List] := 
+	Count[pats, _List | _Blank | _BlankSequence] +
+		Interval[{0,
+			If[MemberQ[pats, _BlankNullSequence | _BlankSequence],
+				Infinity,
+			Count[pats, _Optional | _OptionsPattern]]}];
+			
+argInterval[f_Symbol] := argInterval @ argPattern @ f;
 
+
+(* Arities used for every function, including those with infinite args.
+If a function accepts a bounded # of args, all will be included. *)
 defaultArities = {0,1,2,3};
+
+SHArities[f_Symbol, arities_List: defaultArities] := Block[{argint = argInterval@f},
+	Union[Select[arities, IntervalMemberQ[argint, #]& ],
+		  If[Abs@Max@argint == Infinity, {}, Range@@MinMax@argint]]
+];
+
 fixedArityForms =.
-fixedArityForms[f_Symbol, possibleArities_List: defaultArities] :=
-	Select[possibleArities, IntervalMemberQ[argInterval@argPattern@f, #]&] //
-	Map[<|"call" ->  f, "arity" -> #|> &];
-	
-Assert[Length@fixedArityForms[Map,defaultArities] == 3];
+fixedArityForms[f_Symbol] :=
+	SHArities[f] // Map[<|"call" ->  Hold@Evaluate@f, "arity" -> #|> &];
 
-systemSymbols = Map[Symbol,Names["System`*"]];
-systemSymbols = Cases[systemSymbols, _Symbol];   (* only keep those that are actually symbols *)
-fnSymbols = Select[systemSymbols, SyntaxInformation@# != {} &];
+Assert[fixedArityForms[Map] //
+	Length@# == 4 && First@# == <| "call" -> Hold[Map], "arity" -> 1 |> &];
 
-(* SystemInformation is the bottleneck *)
 
-allSHTokens = Map[fixedArityForms[#, defaultArities]&, fnSymbols] // Catenate //
-	SortBy[StringLength@SymbolName@#["call"]&];
+Off[FrontEndObject::notavail, PersistenceLocation::invalid, Union::normal, NetFlatten::shdw, ResourceUpdate::shdw, $PublisherID::shdw];
+
+names = Union[
+	Names@"System`*",
+	WolframLanguageData[WolframLanguageData[], "Name"]];
+
+Print["Obtaining frequency data from Wolfram servers"]
+
+totalFreq[name_String] := (Echo@name; WolframLanguageData[name, "Frequencies"] // If[MissingQ@#, 0, Lookup[#, "All"]]&)
+
+names = names // SortBy[-totalFreq@#&];
+Print["Tokens sorted"]
+
+symbols = Map[ToExpression[#, StandardForm, Hold]&, names];
+
+Print[Length@symbols, " Total names"];
+
+headSymbols = symbols //
+	Select[SyntaxInformation@ReleaseHold@# != {} &] //
+	Select[Not@MissingQ@Lookup[SyntaxInformation@ReleaseHold@#, "ArgumentsPattern"]&];
+
+Print[Length@headSymbols, " symbols kept as possible heads"];
+
+headSHTokens = headSymbols // Map[fixedArityForms @ ReleaseHold@#&] // Catenate;
+Print[Length@headSHTokens, " head token definitions"];
+
+literalSHTokens = Map[ToExpression[#, StandardForm, Hold]&, Names[]] //
+	Select[FreeQ[Attributes @@ #, Temporary]&]
+Print[Length@literalSHTokens, " literal token definitions"]
+
+orderedComplement[u_List, a_List] := Select[u, Not@MemberQ[a, #]&];
+
+allSHTokens = Join[headSHTokens, literalSHTokens];
 
 
 DumpSave["save.mx", "Global`"];
 
-Print[Length@allSHTokens, " token definitions saved"];
+Print[Length@allSHTokens, " total token definitions saved"];
 Print["Time: ", N[SessionTime[]-time]]
-
-
 

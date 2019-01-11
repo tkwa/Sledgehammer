@@ -13,5 +13,10 @@ ShowStringCharacters->True,
 NumberMarks->True],
 FullForm]\)];
 
+under[f_Function, g_Function] := InverseFunction[g]@f@g@#&
+under[f_Function, g_] := under[f, Function@g]
+under[f_, g_] := under[Function@f, g]
+
+
 unprotect[f_Symbol] := If[MemberQ[Attributes@f,Locked], Unprotect[f],Null];
 

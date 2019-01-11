@@ -40,27 +40,31 @@ isExecute = ContainsAny[flags, Characters@"fv"];
 
 codeFile = $ScriptCommandLine[[3]];
 
-bytesToBits = Map[IntegerDigits@#, 2]& /* Join
+Assert[isVerbose];
 
 code = If[isVerbose,
-	splitTokens@ReadString@codeFile,
-	decompress@bytesToBits@BinaryReadList@codeFile];
+	splitTokens@ReadString@codeFile];
 
 (* compression should be reversible *)
 Assert[decompress@compress@code == code];
+debugHistory = {};
+If[printDebug,
+	Export["_tokenized.mx", {Length@tokenToBits@#, #} &/@code, "Table"];
+	Export["_compressed.mx", compressed = compress@code, "String"];
+	Print["Compressed code exported to debug files"];
+	codeLength = Length@compress@code;
+	Print["Code length: ", codeLength, " bits = ", N@codeLength/8, " bytes"];
+];
 
-codeLength = Length@compress@code
-If[printDebug, Print["Code length: ", codeLength, " bits = ", N@codeLength/8, " bytes"]];
-If[printDebug, Print["Tokenized code: ", code]];
-isInput = Length@$ScriptCommandLine >= 4;
-inputFile = If[isInput, $ScriptCommandLine[[4]], Null];
-input = If[isInput, ReadList@inputFile, {}];
+input = If[Length@$ScriptCommandLine >= 4,
+	ReadList@$ScriptCommandLine[[4]],
+	{}
+];
 
-stack = input;
-history = stack;
+Print@eval[code, input]
 
-execute@code;
-If[Length@stack>0,Activate@Last@stack // If[Not@suppress, Print@#]&];
+If[printDebug,
+	Export["_debugHistory.mx", debugHistory, "List"]]
 
 
 
