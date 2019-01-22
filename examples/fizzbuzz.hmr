@@ -1,1 +1,1 @@
-"Fizz" "Buzz" List.2 1 Slot 35 IntegerDigits Divisible.2 Pick.2 StringJoin "" 1 Slot Rule.2 ReplaceAll.2 Function 100 Array.2 StringRiffle
+"Fizz" "Buzz" List.2 Slot.0 35 IntegerDigits Divisible.2 Pick.2 StringJoin "" Slot.0 Rule.2 ReplaceAll.2 Function 100 Array.2 StringRiffle

@@ -1,12 +1,10 @@
 # Sledgehammer
 
-Sledgehammer is a stack-based code-golf language written in, and based on, Wolfram Language. Its goal is to minimize size of compressed source.
-
-As of January 2019, Sledgehammer is little more than Wolfram Language converted to stack-based syntax and compressed, however this syntax will be expanded.
+Sledgehammer is a code-golf language defined by a compressor and golfing library for Wolfram Language. Its goal is to minimize size of compressed source.
 
 ### Prior art
 
-While [Mthmtca](https://github.com/LegionMammal978/Mthmtca) compresses each Mathematica builtin into 4 bytes, Sledgehammer achieves this in 1.5 to 2.5 bytes. Optimized Sledgehammer code should be about 1/2 the size of Mthmtca code.
+While [Mthmtca](https://github.com/LegionMammal978/Mthmtca) compresses each Mathematica builtin into 4 bytes, Sledgehammer achieves this in 0.75 to 2.5 bytes. Optimized Sledgehammer code should be <1/2 the size of Mthmtca code.
 
 ### Setup
 
@@ -20,7 +18,7 @@ then run a program like
 
 or 
 
-    wolframscript -script hammer.wls vs examples/fizzbuzz.hmr
+    wolframscript -script hammer.wls vd examples/fizzbuzz.hmr
 
 To take input from a file, use
 
@@ -31,8 +29,8 @@ Arguments in an input file should be separated by newlines.
 Flags:
 
     v    Run verbose code from file, and check compression/decompression.
+    w    Run Wolfram-style code from file, and check compression/decompression.
     s    Suppress output of top of stack.
-
 
 Unimplemented flags:
 

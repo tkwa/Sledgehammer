@@ -1,7 +1,7 @@
 #!/usr/bin/env wolframscript
 (* ::Package:: *)
 
- (* version 0.1.1 *)
+ (* version 0.1.2 *)
 time = SessionTime[];
 parentPath = $InputFileName /. "" :> NotebookFileName[];
 parentDir = DirectoryName @ parentPath;
@@ -31,7 +31,7 @@ argInterval[f_Symbol] := argInterval @ argPattern @ f;
 
 (* Arities used for every function, including those with infinite args.
 If a function accepts a bounded # of args, all will be included. *)
-defaultArities = {0,1,2,3};
+defaultArities = {0,1,2,3,4};
 
 SHArities[f_Symbol, arities_List: defaultArities] := Block[{argint = argInterval@f},
 	Union[Select[arities, IntervalMemberQ[argint, #]& ],
@@ -48,20 +48,17 @@ Assert[fixedArityForms[Map] //
 
 Off[FrontEndObject::notavail, PersistenceLocation::invalid, Union::normal, NetFlatten::shdw, ResourceUpdate::shdw, $PublisherID::shdw];
 
-names = Union[
-	Names@"System`*",
-	WolframLanguageData[WolframLanguageData[], "Name"]];
+Print["Obtaining frequency data from Wolfram servers..."]
 
-Print["Obtaining frequency data from Wolfram servers"]
+namesfreqs = WolframLanguageData[All, {"Name","Frequencies"}] /. _Missing -> ("All" -> 10.^-8) // Map[First@# -> Lookup[Last@#, "All"]&] // Association;
+Print["Sorting tokens by frequency..."]
 
-totalFreq[name_String] := (Echo@name; WolframLanguageData[name, "Frequencies"] // If[MissingQ@#, 0, Lookup[#, "All"]]&)
-
-names = names // SortBy[-totalFreq@#&];
+names = namesfreqs // Keys;
 Print["Tokens sorted"]
 
 symbols = Map[ToExpression[#, StandardForm, Hold]&, names];
 
-Print[Length@symbols, " Total names"];
+Print[Length@symbols, " total names"];
 
 headSymbols = symbols //
 	Select[SyntaxInformation@ReleaseHold@# != {} &] //
@@ -72,17 +69,26 @@ Print[Length@headSymbols, " symbols kept as possible heads"];
 headSHTokens = headSymbols // Map[fixedArityForms @ ReleaseHold@#&] // Catenate;
 Print[Length@headSHTokens, " head token definitions"];
 
-literalSHTokens = Map[ToExpression[#, StandardForm, Hold]&, Names[]] //
-	Select[FreeQ[Attributes @@ #, Temporary]&]
+literalSHTokens = Map[ToExpression[#, StandardForm, Hold]&, Names@"System`*"] //
+	Select[FreeQ[Attributes @@ #, Temporary]&];
 Print[Length@literalSHTokens, " literal token definitions"]
 
-orderedComplement[u_List, a_List] := Select[u, Not@MemberQ[a, #]&];
+(*orderedComplement[u_List, a_List] := Select[u, Not@MemberQ[a, #]&];*)
 
-allSHTokens = Join[headSHTokens, literalSHTokens];
+allSHTokens = Join[headSHTokens, literalSHTokens] // SortBy[-
+	If[AssociationQ@#, namesfreqs[#]["call"]]&];
+
+Print["Arities: ", CountsBy[allSHTokens, If[AssociationQ@#, #["arity"], "Literal"]& ]]
 
 
 DumpSave["save.mx", "Global`"];
 
 Print[Length@allSHTokens, " total token definitions saved"];
 Print["Time: ", N[SessionTime[]-time]]
+
+
+
+
+
+
 

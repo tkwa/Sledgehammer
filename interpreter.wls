@@ -13,7 +13,10 @@ Get["save.mx", Path -> Directory[]];
 On[Assert]
 printShows = False;
 show := If[TrueQ[printShows], Echo, #&];
-$IterationLimit = 2^14;
+(*$IterationLimit = 2^14;*)
+
+(* remove \[DownArrow] later when more builtins implemented *)
+Unprotect@Slot; Slot[] := Slot[1]; Protect@Slot;
 
 
 (* ::Subsection:: *)
@@ -72,9 +75,12 @@ show[#, "Token list succeeded, length = "]& @Length@allSHTokens; (* 8324 fixed, 
 
 (*                     4    8    12    16     20    24 *)
 show@"Starting compressor";
-tokenDistribution = {1/16, 3/8, 3/16, 3/16, 1/32, 1/64};
+tokenDistribution = {
+0, 0, 0, 0, 0, 5, 5, 5,
+5, 4, 4, 4, 4, 4, 4, 4,
+2, 1, 1, 1, 1, 1, 1}/64;
 
-tokenCounts = MapIndexed[16^First@#2 * #1&, tokenDistribution];
+tokenCounts = MapIndexed[2^First@#2 * #1&, tokenDistribution];
 Assert[Total@tokenDistribution <= 7/8];
 
 cumulDistribution = Accumulate@tokenDistribution + 1/8;
@@ -86,10 +92,8 @@ idxToBits[idx_Integer] := Block[{nybs, startFrac,startCount,frac, verbose = Fals
 	nybs = 1 + Count[cumulCounts, _? (idx > # &)] // show[#,"nybs = "]&;
 	startFrac = cumulDistribution[[nybs]] - tokenDistribution[[nybs]]// show[#,"startFrac = "]&;
 	startCount = cumulCounts[[nybs]] - tokenCounts[[nybs]] + 1 // show[#,"startCount = "]&;
-	frac = startFrac + (idx - startCount)*16^-nybs // show[#,"frac = "] &;
-	First@RealDigits[frac, 2, 4 * nybs, -1]];
-
-tokenToBits[tok_Association, SHTokens_List: allSHTokens] := idxToBits@First@FirstPosition[SHTokens, tok];
+	frac = startFrac + (idx - startCount)*2^-nybs // show[#,"frac = "] &;
+	First@RealDigits[frac, 2, nybs, -1]];
 
 eliasGamma[0] := {1}
 eliasGamma[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[ConstantArray[0,Length@# - 1], #]&;
@@ -110,11 +114,23 @@ tokenToBits[str_String /; Max@ToCharacterCode@str <= 127] := Module[{len = Strin
 	Join[{0,0,0,1,0,0},varEliasDelta[len],#] &
 ];
 
+tokenToBits[tok_, SHTokens_List: allSHTokens] := idxToBits@First@FirstPosition[SHTokens, tok, $Failed, {1}];
+
 compress[toks_List] := Join @@ Map[tokenToBits] @ toks;
 compress[code_String] := compress @ splitTokens @ code;
 
-(* test that a 1.5-byte token compresses correctly *)
-Assert[idxToBits[98] == First@RealDigits[9/16, 2, 4*3, -1]];
+
+postfixtoken[expr_] := Which[
+	Depth@Head@expr == 2, <| "call" -> Head@expr, "arity" -> Length@expr |>,
+	MatchQ[expr, Hold[_String] | Hold[_Integer]], ReleaseHold@expr,
+	Depth@expr == 2, expr,
+	True, Assert[False, "Compound heads not supported"]];
+
+wToPostfix[expr_] := Map[postfixtoken, Level[
+		Map[Hold, expr, {-1}, Heads -> True],
+		{1,-2}]];
+
+wToPostfix::usage = "Converts WL code HoldComplete[...] to postfix form, fails on compound heads";
 
 (* test that a token compresses to a list *)
 Assert[ListQ@tokenToBits[toToken[{MorphologicalPerimeter,2}]]]
@@ -131,11 +147,11 @@ show@"Compressor success";
 bitsToIdx[bits_List] := Module[{frac, startFrac, startCount, nybs, lenUsed},
 	frac = FromDigits[bits, 2] / 2^(Length@bits);
 	nybs = First@FirstPosition[cumulDistribution, _?(# > frac &)];
-	lenUsed = Min[Length@bits, 4 nybs];
+	lenUsed = Min[Length@bits, nybs];
 	frac = FromDigits[Take[bits, UpTo[lenUsed]], 2] / 2^(lenUsed);
 	startFrac = cumulDistribution[[nybs]] - tokenDistribution[[nybs]];
 	startCount = cumulCounts[[nybs]] - tokenCounts[[nybs]] + 1;
-	{startCount + (frac - startFrac) * 16^nybs, lenUsed}]
+	{startCount + (frac - startFrac) * 2^(nybs), lenUsed}]
 
 (* returns n, length used *)
 unEliasGamma[bits_List] := Module[{leadingZeros = Count[First@Split@bits,0]},
@@ -208,8 +224,12 @@ Assert[AllTrue[ First@bitsToToken @ tokenToBits @# == # &][Map[toToken]@{{Map,2}
 (* test that code is c and C correctly; test case includes int literals, str literals, functions *)
 Assert[ (decompress@compress@# == splitTokens@# &)@"1337 42 Minus Times.2 3 IntegerDigits.2 \"abcde\" 0"];
 
+(* same test with w code *)
+fizzbuzz = HoldComplete@StringRiffle[Array[StringJoin[Pick[{"Fizz", "Buzz"}, Divisible[Slot[], IntegerDigits[35]]]] /. "" -> Slot[] & , 100]]
+Assert[SameQ@@{#,decompress@compress@#}&@wToPostfix@fizzbuzz]
 
-(* ::Subsection:: *)
+
+(* ::Subsection::Closed:: *)
 (*Execution*)
 
 
@@ -219,7 +239,7 @@ applyToken =.
 applyToken[tok_Integer | tok_String | tok_Slot] := (
 	AppendTo[stack, tok];
 	AppendTo[history, tok];
-	If[printDebug, AppendTo[debugHistory,Activate@Map[Hold,stack]]];
+	If[printDebug, AppendTo[debugHistory,Activate@Map[HoldForm,stack]]];
 )
 
 applyToken[tok_Association] := Module[{call, arity, args, result},
@@ -231,23 +251,27 @@ applyToken[tok_Association] := Module[{call, arity, args, result},
 
 	AppendTo[stack, result];
 	AppendTo[history, result];
-	If[printDebug, AppendTo[debugHistory,Activate@Map[Hold,stack]]];
+	If[printDebug, AppendTo[debugHistory,Activate@Map[HoldForm,stack]]];
 ];
 
-applyTokens[toks_List, args_List] := Block[
-	{stack = args, history = args},
+applyTokens[toks_List, args_List] := Block[{stack = args, history = args},
 	Map[applyToken, toks];
 	stack
 ];
 
 (*SetOptions[eval, "printLast" \[Rule] True]*)
-eval[toks_List, args_List, OptionsPattern[]] := Block[{stack = applyTokens[toks, args]},
-	Activate@Last@stack]
+eval[toks_List, args_List, makeFunction_: False, OptionsPattern[]] := If[makeFunction,
+	stack = applyTokens[toks, {}]; (Function@Activate@Last@stack) @@ args, 
+	stack = applyTokens[toks, args]; Activate@Last@stack
+];
 
 evalVerbose[code_String, args_List] := eval[splitTokens@code, args];
 
+(* when given as a Wolfram Language expression, it takes explicit arguments *)
+evalW[code_String, args_List] := Function[evalVerbose[wToPostfix]][args];
+
 (* We need this evalBits function for code-golf scoring purposes. Therefore, evalBits takes no options. *)
-hammer[bits_List /; ContainsOnly[bits, {0,1}], args_List] := eval[decompress@bits, args]
+hammer[bits_List /; ContainsOnly[bits, {0,1}], args_List] := eval[decompress@bits, args];
 
 
 (* ::Subsection:: *)

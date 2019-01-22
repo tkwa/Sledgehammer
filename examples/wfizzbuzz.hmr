@@ -1,0 +1,1 @@
+StringRiffle[Array[List@StringJoin[Pick[{"Fizz", "Buzz"}, Divisible[Slot[], {3,5}]]] /. "" -> Slot[] & , 100]]
