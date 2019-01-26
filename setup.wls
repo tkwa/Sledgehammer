@@ -1,7 +1,8 @@
 #!/usr/bin/env wolframscript
 (* ::Package:: *)
 
- (* version 0.1.2 *)
+version = "0.2.0";
+
 time = SessionTime[];
 parentPath = $InputFileName /. "" :> NotebookFileName[];
 parentDir = DirectoryName @ parentPath;
@@ -9,8 +10,6 @@ SetDirectory[parentDir];
 On@Assert
 
 Print@"Starting setup...";
-
-toToken[tok_List /; Length@tok == 2] := Association[ "call" -> Hold@Evaluate@tok[[1]], "arity" -> tok[[2]] ];
 
 (* Gets argument pattern from symbol e.g. Map \[Rule] {_, _., _., OptionsPattern[]} *)
 argPattern =.
@@ -26,69 +25,97 @@ argInterval[pats_List] :=
 				Infinity,
 			Count[pats, _Optional | _OptionsPattern]]}];
 			
-argInterval[f_Symbol] := argInterval @ argPattern @ f;
+argInterval[name_String] := argInterval @ argPattern @ Symbol@name;
 
+
+Print["Starting setup, version " , version];
 
 (* Arities used for every function, including those with infinite args.
 If a function accepts a bounded # of args, all will be included. *)
 defaultArities = {0,1,2,3,4};
 
-SHArities[f_Symbol, arities_List: defaultArities] := Block[{argint = argInterval@f},
+arities[f_Symbol, arities_List: defaultArities] := Block[{argint = argInterval@argPattern@f},
 	Union[Select[arities, IntervalMemberQ[argint, #]& ],
 		  If[Abs@Max@argint == Infinity, {}, Range@@MinMax@argint]]
 ];
 
 fixedArityForms =.
-fixedArityForms[f_Symbol] :=
-	SHArities[f] // Map[<|"call" ->  Hold@Evaluate@f, "arity" -> #|> &];
+fixedArityForms[name_String] :=
+	call[name, #]& /@ arities@Symbol@name;
 
-Assert[fixedArityForms[Map] //
-	Length@# == 4 && First@# == <| "call" -> Hold[Map], "arity" -> 1 |> &];
-
+Assert[fixedArityForms["Map"] //
+	Length@# == 4 && First@# === call["Map", 1] &];
 
 Off[FrontEndObject::notavail, PersistenceLocation::invalid, Union::normal, NetFlatten::shdw, ResourceUpdate::shdw, $PublisherID::shdw];
 
 Print["Obtaining frequency data from Wolfram servers..."]
 
 namesfreqs = WolframLanguageData[All, {"Name","Frequencies"}] /. _Missing -> ("All" -> 10.^-8) // Map[First@# -> Lookup[Last@#, "All"]&] // Association;
-Print["Sorting tokens by frequency..."]
 
 names = namesfreqs // Keys;
-Print["Tokens sorted"]
+Print[Length@names, " total names"];
 
-symbols = Map[ToExpression[#, StandardForm, Hold]&, names];
+headNames = names //
+	Select[ToExpression[#, StandardForm, SyntaxInformation] != {} & ] //
+	Select[Not@MissingQ@Lookup[ToExpression[#, StandardForm, SyntaxInformation], "ArgumentsPattern"]& ];
 
-Print[Length@symbols, " total names"];
+Print[Length@headNames, " symbols kept as possible heads"];
 
-headSymbols = symbols //
-	Select[SyntaxInformation@ReleaseHold@# != {} &] //
-	Select[Not@MissingQ@Lookup[SyntaxInformation@ReleaseHold@#, "ArgumentsPattern"]&];
-
-Print[Length@headSymbols, " symbols kept as possible heads"];
-
-headSHTokens = headSymbols // Map[fixedArityForms @ ReleaseHold@#&] // Catenate;
+headSHTokens = headNames // Map[fixedArityForms] // Catenate;
 Print[Length@headSHTokens, " head token definitions"];
 
-literalSHTokens = Map[ToExpression[#, StandardForm, Hold]&, Names@"System`*"] //
-	Select[FreeQ[Attributes @@ #, Temporary]&];
+literalSHTokens = Map[symbolLiteral, Union[Names["System`*"], Names["Combinatorica`*"]]] //
+	Select[FreeQ[Attributes @ #, Temporary]&];
 Print[Length@literalSHTokens, " literal token definitions"]
 
-(*orderedComplement[u_List, a_List] := Select[u, Not@MemberQ[a, #]&];*)
+(*orderedComplement[u_List, a_List] := Select[u, Not@MemberQ[a, #]&]; *)
+(* Adjust token frequencies *)
+toksfreqs = Join[headSHTokens, literalSHTokens] // Map[
+	# -> Switch[#,
+	_call, namesfreqs@#[[1]]^.6 * .1 * (#[[2]] /. {0->.5, 1->1, 2->1, 3->.5, 4->.25, _-> .5}),
+	_symbolLiteral, namesfreqs[First@#] * .25 /. _Missing -> 10.^-8,
+	_, Assert@False]& ];
+	
+(* Special-case literals *)
+Print["Adding special cases for literals..."]
+toksfreqs = Join[toksfreqs, { intLiteral[] -> .15, asciiLiteral[] -> .05 }];
 
-allSHTokens = Join[headSHTokens, literalSHTokens] // SortBy[-
-	If[AssociationQ@#, namesfreqs[#]["call"]]&];
+Print["Arities: ", CountsBy[Join[headSHTokens, literalSHTokens], If[Head@# === call, #[[2]], "Literal"]& ]]
 
-Print["Arities: ", CountsBy[allSHTokens, If[AssociationQ@#, #["arity"], "Literal"]& ]]
+
+(* ::Subsubsection:: *)
+(*Huffman encoding*)
+
+
+Needs["Parallel`Queue`Priority`"];
+Unprotect@Priority;Priority[r_Rule]:=-Values[r];
+
+huffmanInit::usage = "Initializes a priority queue for Huffman encoding.";
+huffmanInit[l_List] := Block[{q},
+	q = priorityQueue[];
+	Scan[EnQueue[q, #]&, l];
+	q];
+
+huffmanTree::usage = "Constructs Huffman tree from (token->weight) list.";
+huffmanTree[l_List] := Block[{q},
+	q = huffmanInit[l];
+	Do[a = DeQueue[q]; b = DeQueue[q]; EnQueue[q, {Keys@a, Keys@b}-> Values@a + Values@b],
+	Length@l - 1];
+	First@First@Normal@q ];
+
+(* The /. on the end is to save a sequence of 1s for EOF. *)
+huffmanDict::usage = "Constructs compression table from (token->weight) list. All tokens must be depth 2.";
+huffmanDict[l_List] := Association@Flatten@MapIndexed[# -> #2 - 1 &, huffmanTree@l, {-2}]/. x:{ Repeated[1]} :> RuleCondition@Append[x,0];
+
+
+
+toktree = huffmanTree@toksfreqs;
+
+tokToBitsDict = huffmanDict[toksfreqs];
+bitsToTokDict = AssociationThread[Values@#, Keys@#]&@tokToBitsDict;
 
 
 DumpSave["save.mx", "Global`"];
 
-Print[Length@allSHTokens, " total token definitions saved"];
+Print[Length@toksfreqs, " total token definitions saved"];
 Print["Time: ", N[SessionTime[]-time]]
-
-
-
-
-
-
-

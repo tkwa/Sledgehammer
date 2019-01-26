@@ -1,1 +1,1 @@
-"Fizz" "Buzz" List.2 Slot.0 35 IntegerDigits Divisible.2 Pick.2 StringJoin "" Slot.0 Rule.2 ReplaceAll.2 Function 100 Array.2 StringRiffle
+StringRiffle[Array[List@StringJoin[Pick[{"Fizz", "Buzz"}, Divisible[Slot[], {3,5}]]] /. "" -> Slot[] & , 100]]
