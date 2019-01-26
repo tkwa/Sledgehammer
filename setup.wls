@@ -9,7 +9,7 @@ parentDir = DirectoryName @ parentPath;
 SetDirectory[parentDir];
 On@Assert
 
-Print@"Starting setup...";
+Print["Starting setup, version ", version, "..."];
 
 (* Gets argument pattern from symbol e.g. Map \[Rule] {_, _., _., OptionsPattern[]} *)
 argPattern =.
@@ -27,8 +27,6 @@ argInterval[pats_List] :=
 			
 argInterval[name_String] := argInterval @ argPattern @ Symbol@name;
 
-
-Print["Starting setup, version " , version];
 
 (* Arities used for every function, including those with infinite args.
 If a function accepts a bounded # of args, all will be included. *)
@@ -65,7 +63,7 @@ headSHTokens = headNames // Map[fixedArityForms] // Catenate;
 Print[Length@headSHTokens, " head token definitions"];
 
 literalSHTokens = Map[symbolLiteral, Union[Names["System`*"], Names["Combinatorica`*"]]] //
-	Select[FreeQ[Attributes @ #, Temporary]&];
+	Select[FreeQ[Attributes @@ #, Temporary]&];
 Print[Length@literalSHTokens, " literal token definitions"]
 
 (*orderedComplement[u_List, a_List] := Select[u, Not@MemberQ[a, #]&]; *)
