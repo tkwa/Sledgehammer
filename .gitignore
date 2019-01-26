@@ -1,3 +1,6 @@
 scratch.wls
 /*.mx
 test/*
+/*.hmrc
+/*.hmrb
+/*.hmr
