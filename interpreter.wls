@@ -110,6 +110,25 @@ decodeASCIILiteral[bits_] := Module[{strLen, lenLen},
 	{#, lenLen + 7 * strLen} &
 ];
 
+toBijectiveBase[n_Integer, k_Integer] := Module[{acc = n, ret = {}, digit},
+	While[acc > 0, 
+		digit = Mod[acc-1, k] + 1;
+		PrependTo[ret, digit];
+		acc = Quotient[acc-1, k]];
+	ret
+];
+
+decodeDictLiteral[bits_] := Module[{caseBits, dict, wordData, wordList, lenUsed},
+	(* 0_ \[Rule] lower, 1_ \[Rule] upper. _0 \[Rule] no spaces, _1 \[Rule] spaces *)
+	{caseBits, bits} = TakeDrop[bits, 2];
+	dict = DictionaryLookup[];
+	{wordData, lenUsed} = unVarEliasDelta[bits, 16];
+	
+	(* Convert wordData to bijective base len(dict) *)
+	
+
+];
+
 (* returns token, length used.*)
 bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok},
 	(* try increasing prefixes until one is a key of decodeDict *)
@@ -119,7 +138,8 @@ bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok}
 		_call , {tok, lenUsed},
 		_symbolLiteral , {tok, lenUsed},
 		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed]],
-		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]]
+		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
+		_dictLiteral, {dictLiteral[#], lenUsed + #2}& @@ decodeDictLiteral[Drop[bits, lenUsed]]
 	]
 ];
 
@@ -148,17 +168,6 @@ bitsToBraille[bits_List] := StringJoin@Map[FromCharacterCode[16^^2800 + FromDigi
 brailleToBits[brs_String] := ToCharacterCode[brs, "Unicode"] - 16^^2800 // Map[Permute[IntegerDigits[#,2,8],InversePermutation@{8,7,6,2,5,4,3,1} ]&] // Flatten;
 
 (*decompress@brailleToBits@bitsToBraille@compress@wToPostfix@fizzbuzz*)
-
-
-(* test that integer literals are compressed and decompressed correctly, with correct length *)
-Assert[AllTrue[ First@bitsToToken @  tokenToBits@# == # &][ intLiteral /@ {0,1,2,42,96,97,1337,24601}]];
-
-(* test that string literals are compressed and decompressed correctly, with correct length *)
-Assert[AllTrue[bitsToToken @ tokenToBits @ # == {#,Length@tokenToBits@#}&][asciiLiteral /@ {"Hello, World!"}]];
-
-(* test that an expression decompresses even after appending 32 1s *)
-fizzbuzz = HoldComplete@StringRiffle[Array[List@StringJoin[Pick[{"Fizz", "Buzz"}, Divisible[Slot[], {3,5}]]] /. "" -> Slot[] & , 100]];
-Assert[SameQ@@{#,decompress@compress@#}&@wToPostfix@fizzbuzz]
 
 
 (* ::Subsection:: *)
@@ -197,6 +206,3 @@ eval[toks_List, args_List, makeFunction_: True, OptionsPattern[]] := Module[{f},
 
 (* ::Subsection:: *)
 (*Testing...*)
-
-
-
