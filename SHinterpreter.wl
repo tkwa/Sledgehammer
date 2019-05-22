@@ -5,10 +5,13 @@
 (*Imports and setup*)
 
 
+
 (* Get path whether run through a notebook or wolframscript -script *)
 parentPath = $InputFileName /. "" :> NotebookFileName[];
 parentDir = DirectoryName @ parentPath;
 SetDirectory[parentDir];
+
+BeginPackage["SHInterpreter`"]
 Get["save.mx", Path -> Directory[]];
 On[Assert]
 printShows = False;
@@ -17,6 +20,8 @@ show := If[TrueQ[printShows], Echo, #&];
 
 (* remove \[DownArrow] later when more builtins implemented *)
 Unprotect@Slot; Slot[] := Slot[1]; Protect@Slot;
+
+$ContextPath
 
 
 (* ::Subsection:: *)
@@ -51,6 +56,7 @@ tokenToBits[asciiLiteral[str_] /; Max@ToCharacterCode@str <= 127] := Module[{len
 
 tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found!",tok}]];
 
+(* remove all extraneous elements from tokens ending on 1s? *)
 compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
 
 
@@ -203,6 +209,4 @@ eval[toks_List, args_List, makeFunction_: True, OptionsPattern[]] := Module[{f},
 	f @@ args
 ];
 
-
-(* ::Subsection:: *)
-(*Testing...*)
+EndPackage[]

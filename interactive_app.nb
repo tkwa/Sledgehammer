@@ -1,0 +1,208 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      8616,        200]
+NotebookOptionsPosition[      8188,        184]
+NotebookOutlinePosition[      8534,        199]
+CellTagsIndexPosition[      8491,        196]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"SetDirectory", "[", " ", 
+   RowBox[{"DirectoryName", "@", 
+    RowBox[{"NotebookFileName", "[", "]"}]}], "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Get", "[", "\"\<SHInterpreter`\>\"", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"expr", "[", "c_", "]"}], ":=", 
+  RowBox[{"ToExpression", "[", 
+   RowBox[{"c", ",", " ", "InputForm", ",", " ", "HoldComplete"}], 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"pfCode", "=", 
+   RowBox[{"Dynamic", "[", 
+    RowBox[{"wToPostfix", "@", 
+     RowBox[{"expr", "@", "code"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"cmpCode", " ", "=", " ", 
+   RowBox[{"Dynamic", "[", 
+    RowBox[{"compress", "@", 
+     RowBox[{"wToPostfix", "@", 
+      RowBox[{"expr", "@", "code"}]}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"lenBits", " ", "=", " ", 
+   RowBox[{"Dynamic", "[", 
+    RowBox[{"Length", "@", 
+     RowBox[{"compress", "@", 
+      RowBox[{"wToPostfix", "@", 
+       RowBox[{"expr", "@", "code"}]}]}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"lenBytes", " ", "=", " ", 
+    RowBox[{"Dynamic", "[", 
+     RowBox[{".125", " ", "*", " ", 
+      RowBox[{"Length", "@", 
+       RowBox[{"compress", "@", 
+        RowBox[{"wToPostfix", "@", 
+         RowBox[{"expr", "@", "code"}]}]}]}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"cbs", "=", 
+    RowBox[{"{", 
+     RowBox[{"\"\<Show postfix\>\"", ",", "\"\<Show compressed\>\""}], 
+     "}"}]}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Print", "[", 
+    RowBox[{"Dynamic", "[", 
+     RowBox[{"Column", "[", 
+      RowBox[{"{", 
+       RowBox[{"\"\<Put code below:\>\"", ",", "\[IndentingNewLine]", 
+        RowBox[{"InputField", "[", 
+         RowBox[{
+          RowBox[{"Dynamic", "@", "code"}], ",", "String"}], "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"Button", "[", "\"\<Update\>\"", "]"}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"CheckboxBar", "[", 
+         RowBox[{
+          RowBox[{"Dynamic", "@", "cbs"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"\"\<Show postfix\>\"", ",", "\"\<Show compressed\>\""}], 
+           "}"}]}], "]"}], ",", "\[IndentingNewLine]", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"MemberQ", "[", 
+           RowBox[{"cbs", ",", "\"\<Show postfix\>\""}], "]"}], ",", 
+          "pfCode"}], "]"}], ",", "\[IndentingNewLine]", 
+        RowBox[{"If", "[", 
+         RowBox[{
+          RowBox[{"MemberQ", "[", 
+           RowBox[{"cbs", ",", "\"\<Show compressed\>\""}], "]"}], ",", 
+          "cmpCode"}], "]"}], ",", "\[IndentingNewLine]", 
+        RowBox[{"Style", "[", 
+         RowBox[{
+          RowBox[{"Row", "@", 
+           RowBox[{"{", 
+            RowBox[{
+            "lenBits", ",", "\"\< bits = \>\"", ",", "lenBytes", " ", ",", 
+             " ", "\"\< bytes\>\""}], "}"}]}], ",", 
+          RowBox[{"FontSize", "\[Rule]", "Larger"}]}], "]"}]}], 
+       "\[IndentingNewLine]", "}"}], "]"}], "]"}], "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]"}], "Input",
+ CellChangeTimes->{{3.7674613148730574`*^9, 3.767461317557584*^9}, {
+   3.767461364008748*^9, 3.7674613865786743`*^9}, {3.767461431823718*^9, 
+   3.767461464194298*^9}, {3.7674617646912537`*^9, 3.7674618275048046`*^9}, {
+   3.7674618610857086`*^9, 3.7674619675655727`*^9}, {3.7674620047422733`*^9, 
+   3.767462045731682*^9}, {3.767462194976065*^9, 3.767462213418771*^9}, {
+   3.767463578975291*^9, 3.767463649494282*^9}, 3.767463691401148*^9, {
+   3.767463722016713*^9, 3.7674637240182505`*^9}, {3.7674639922275553`*^9, 
+   3.7674640030918894`*^9}, {3.7674641293680687`*^9, 3.767464135973136*^9}, {
+   3.7674641659742904`*^9, 3.7674642114642315`*^9}, {3.767464252486929*^9, 
+   3.7674642721775813`*^9}, {3.7674643116510334`*^9, 
+   3.7674643221019216`*^9}, {3.767464902874652*^9, 3.767464949993264*^9}, {
+   3.767464996295643*^9, 3.7674650560815697`*^9}, {3.767465087734498*^9, 
+   3.767465312411725*^9}, {3.767465396905928*^9, 3.767465419819413*^9}, {
+   3.76746551951373*^9, 3.7674655950512347`*^9}, {3.767465695486286*^9, 
+   3.7674658296513066`*^9}, {3.7674658601985617`*^9, 3.767466059744135*^9}, {
+   3.7674661091934223`*^9, 3.767466263717037*^9}, {3.767466297229704*^9, 
+   3.7674665575736275`*^9}, {3.767466594478712*^9, 3.7674666006189756`*^9}, {
+   3.7674667152675047`*^9, 3.767466788528231*^9}, {3.76746685686872*^9, 
+   3.767466901190629*^9}, {3.767467013726942*^9, 3.7674670255639734`*^9}, {
+   3.767467181484248*^9, 3.767467192045411*^9}, {3.7674672524645452`*^9, 
+   3.767467295665216*^9}, {3.7674673574685764`*^9, 3.7674674963081846`*^9}, {
+   3.7674675289403095`*^9, 3.7674675340541325`*^9}, {3.76746757298781*^9, 
+   3.7674675874164677`*^9}, {3.76746763087671*^9, 3.767467642692244*^9}, {
+   3.7674676824478345`*^9, 3.76746770586156*^9}, {3.767467740776146*^9, 
+   3.767467741777401*^9}, {3.7674908350984564`*^9, 3.7674908982434993`*^9}, {
+   3.767490956249745*^9, 3.767490960718503*^9}, {3.7674911819334745`*^9, 
+   3.76749120742262*^9}, {3.767491239062975*^9, 3.767491271935687*^9}, {
+   3.767491311969945*^9, 3.7674913124525614`*^9}, {3.767491457025051*^9, 
+   3.767491465833515*^9}, {3.767491511152277*^9, 3.767491610387621*^9}, {
+   3.7674916786753674`*^9, 3.767491695710125*^9}, {3.7674917389783974`*^9, 
+   3.767491773622029*^9}, {3.7674918896280003`*^9, 3.767491976751356*^9}, {
+   3.7674920148435717`*^9, 3.7674920484324055`*^9}, {3.7674921611644077`*^9, 
+   3.767492176593827*^9}, {3.7674922344383235`*^9, 3.767492279946725*^9}, {
+   3.7674923480302687`*^9, 3.76749242773275*^9}, {3.767492468162644*^9, 
+   3.7674925125218925`*^9}, {3.7674925870578175`*^9, 3.767492629731082*^9}, {
+   3.767492669719041*^9, 3.767492678647958*^9}, {3.76749271652026*^9, 
+   3.7674927601610703`*^9}, {3.767492792380678*^9, 3.76749289128728*^9}, {
+   3.7674929831545315`*^9, 3.767493106105425*^9}, {3.7674931535355244`*^9, 
+   3.7674935154494314`*^9}, {3.7674935548042355`*^9, 3.767493568009781*^9}, {
+   3.7675502021197753`*^9, 3.767550223331442*^9}, {3.76755025428952*^9, 
+   3.7675502959652057`*^9}, {3.7675503619967723`*^9, 
+   3.7675505282367163`*^9}, {3.7675505993953695`*^9, 3.7675506262538643`*^9}, 
+   3.7675506781674623`*^9, {3.7675507360988398`*^9, 3.7675507391395445`*^9}, {
+   3.7675507883085337`*^9, 3.7675508060966406`*^9}, {3.767550919705526*^9, 
+   3.7675509946999006`*^9}, {3.76755129589685*^9, 
+   3.767551298257598*^9}},ExpressionUUID->"e6f65d0c-15d1-459a-85d8-\
+afacb43b0641"],
+
+Cell[BoxData[
+ DynamicBox[ToBoxes[
+   Column[{"Put code below:", 
+     InputField[
+      Dynamic[$CellContext`code], String], 
+     Button["Update"], 
+     CheckboxBar[
+      Dynamic[$CellContext`cbs], {"Show postfix", "Show compressed"}], 
+     If[
+      MemberQ[$CellContext`cbs, "Show postfix"], $CellContext`pfCode], 
+     If[
+      MemberQ[$CellContext`cbs, "Show compressed"], $CellContext`cmpCode], 
+     Style[
+      Row[{$CellContext`lenBits, " bits = ", $CellContext`lenBytes, 
+        " bytes"}], FontSize -> Larger]}], StandardForm],
+  ImageSizeCache->{381., {64., 70.}}]], "Print",
+ CellChangeTimes->{
+  3.7675504972311563`*^9, 3.7675505290088873`*^9, {3.767550600839386*^9, 
+   3.767550626950497*^9}, 3.7675507409803042`*^9, 3.767550794181467*^9, {
+   3.7675509848057814`*^9, 3.767550995857329*^9}, 
+   3.7675512999663706`*^9},ExpressionUUID->"26984fe0-a415-42df-87fe-\
+093e135dc51d"]
+}, Open  ]]
+},
+WindowSize->{949, 988},
+WindowMargins->{{Automatic, -7}, {Automatic, 0}},
+FrontEndVersion->"11.2 for Microsoft Windows (64-bit) (September 10, 2017)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 6691, 136, 409, "Input",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641"],
+Cell[7274, 160, 898, 21, 144, "Print",ExpressionUUID->"26984fe0-a415-42df-87fe-093e135dc51d"]
+}, Open  ]]
+}
+]
+*)
+

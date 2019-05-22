@@ -9,7 +9,7 @@ parentPath = $InputFileName /. "" :> NotebookFileName[];
 parentDir = DirectoryName @ parentPath;
 SetDirectory[parentDir];
 Get["save.mx", Path -> Directory[]];
-With[{printShows = False}, Get["interpreter.wls", Path -> Directory[]]]
+With[{printShows = False}, Get["SHinterpreter.wl", Path -> Directory[]]]
 On@Assert
 
 flags  = $ScriptCommandLine[[2]] // Characters;
