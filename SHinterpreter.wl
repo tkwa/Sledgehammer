@@ -1,17 +1,15 @@
-#!/usr/bin/env wolframscript
 (* ::Package:: *)
 
 (* ::Subsection:: *)
 (*Imports and setup*)
 
 
+BeginPackage["SHInterpreter`"];
 
 (* Get path whether run through a notebook or wolframscript -script *)
-parentPath = $InputFileName /. "" :> NotebookFileName[];
-parentDir = DirectoryName @ parentPath;
-SetDirectory[parentDir];
 
-BeginPackage["SHInterpreter`"]
+SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
+
 Get["save.mx", Path -> Directory[]];
 On[Assert]
 printShows = False;
@@ -20,8 +18,6 @@ show := If[TrueQ[printShows], Echo, #&];
 
 (* remove \[DownArrow] later when more builtins implemented *)
 Unprotect@Slot; Slot[] := Slot[1]; Protect@Slot;
-
-$ContextPath
 
 
 (* ::Subsection:: *)
@@ -42,16 +38,23 @@ eliasDelta[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[eliasGamma[Length@#
 
 eliasDelta[_] := Throw@"Argument to Elias Delta must be a positive integer."
 
-varEliasDelta[n_Integer /; n >= 0, k_Integer: 3] := Join[eliasDelta[Floor[n/2^k]+1], IntegerDigits[n,2,k]];
+(* Elias delta except for the lower k bits which are explicitly encoded, and the sign which is the first bit if sgnQ = True. *)
+varEliasDelta[n_Integer, k_Integer: 3, sgnQ_: True] := Module[{nn, sgn, ret},
+	If[!sgnQ, Assert[n >= 0]];
+	sgn = Boole[n < 0];
+	nn = BitXor[n, -sgn]; (* BitNot[n] if n < 0 else n *)
+	ret = Join[eliasDelta[Floor[nn/2^k]+1], IntegerDigits[nn,2,k]];
+	If[sgnQ, Join[{sgn},ret], ret]
+];
 
-(* modified Elias Delta, k=8 *)
-tokenToBits[intLiteral[n_] /; n >= 0] := Join[tokenToBits@intLiteral[],varEliasDelta[n]];
+(* modified Elias Delta, mod 2^3 *)
+tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 3, True]];
 
 (* ASCII strings packed into 7 bits per character.*)
 tokenToBits[asciiLiteral[str_] /; Max@ToCharacterCode@str <= 127] := Module[{len},
 	len = StringLength@str;
 	ToCharacterCode@str // IntegerDigits[#, 2, 7]& // Flatten //
-	Join[tokenToBits@asciiLiteral[],varEliasDelta[len],#] &
+	Join[tokenToBits@asciiLiteral[],varEliasDelta[len, 3, False],#] &
 ];
 
 tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found!",tok}]];
@@ -66,6 +69,7 @@ compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
 
 ClearAttributes[symbolLiteral, HoldFirst]
 
+postfixtoken::usage = "Converts a Held token to postfix token e.g. Hold[5] -> intLiteral[5]";
 postfixtoken[expr_] := Module[{h, name}, Which[
 	Depth@Head@expr == 2, call[SymbolName@@Unevaluated/@Head@expr,Length@expr],
 	MatchQ[expr, Hold[_String]], asciiLiteral@@expr,
@@ -100,14 +104,19 @@ unEliasDelta[bits_List] := Module[{lennp1, lenUsed},
 
 (* returns integer, length used *)
 unVarEliasDelta::usage = "Decode a variant Elias Delta bitstring";
-unVarEliasDelta[bits_List, k_Integer:3] := Module[{ndiv8p1, lenUsed},
-	{ndiv8p1, lenUsed} = unEliasDelta[bits];
-	{(ndiv8p1 - 1) * 2^k + FromDigits[ bits[[lenUsed+1 ;; lenUsed+k]], 2], lenUsed + k}
+unVarEliasDelta[bits_List, k_Integer:3, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, lenUsed, n},
+	sgn = If[sgnQ, First@bits,0];
+	rest = If[sgnQ,Rest@bits, bits];
+	{ndiv8p1, lenUsed} = unEliasDelta[rest];
+	n = (ndiv8p1 - 1) * 2^k + FromDigits[ rest[[lenUsed+1 ;; lenUsed+k]], 2];
+	n = BitXor[n,-sgn];
+	(* bits used = Elias Delta bits + low bits + sign bit *)
+	{n, lenUsed + k + Boole@sgnQ}
 ];
 
-(* ASCII literal. *)
+(* ASCII literal. (Length of string, string in packed 7 bit encoding *)
 decodeASCIILiteral[bits_] := Module[{strLen, lenLen},
-	{strLen, lenLen} = unVarEliasDelta[bits, 3];
+	{strLen, lenLen} = unVarEliasDelta[bits, 3, False];
 	Drop[bits, lenLen] //
 	Take[#, 7 * strLen]& //
 	Partition[#,7]& //
@@ -116,6 +125,7 @@ decodeASCIILiteral[bits_] := Module[{strLen, lenLen},
 	{#, lenLen + 7 * strLen} &
 ];
 
+(* put n in bijective base k *)
 toBijectiveBase[n_Integer, k_Integer] := Module[{acc = n, ret = {}, digit},
 	While[acc > 0, 
 		digit = Mod[acc-1, k] + 1;
@@ -128,7 +138,7 @@ decodeDictLiteral[bits_] := Module[{caseBits, dict, wordData, wordList, lenUsed}
 	(* 0_ \[Rule] lower, 1_ \[Rule] upper. _0 \[Rule] no spaces, _1 \[Rule] spaces *)
 	{caseBits, bits} = TakeDrop[bits, 2];
 	dict = DictionaryLookup[];
-	{wordData, lenUsed} = unVarEliasDelta[bits, 16];
+	{wordData, lenUsed} = unVarEliasDelta[bits, 16, False];
 	
 	(* Convert wordData to bijective base len(dict) *)
 	
@@ -139,13 +149,15 @@ decodeDictLiteral[bits_] := Module[{caseBits, dict, wordData, wordList, lenUsed}
 bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok},
 	(* try increasing prefixes until one is a key of decodeDict *)
 	For[lenUsed = 0, lenUsed < 32 && !KeyMemberQ[decodeDict, pfx = Take[bits, lenUsed]], lenUsed++, Null];
+	Assert[lenUsed < 32];
 	tok = decodeDict[pfx];
 	Switch[tok,
 		_call , {tok, lenUsed},
 		_symbolLiteral , {tok, lenUsed},
-		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed]],
+		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed], 3, True],
 		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
-		_dictLiteral, {dictLiteral[#], lenUsed + #2}& @@ decodeDictLiteral[Drop[bits, lenUsed]]
+		_dictLiteral, {dictLiteral[#], lenUsed + #2}& @@ decodeDictLiteral[Drop[bits, lenUsed]],
+		_, Assert[False, "Token prefix not found!"]
 	]
 ];
 
@@ -157,6 +169,7 @@ decompressNoPad[bits_List] := Module[{tok, lenUsed},
 	{tok, lenUsed} = bitsToToken[bits];
 	Prepend[tok][decompressNoPad[Drop[bits, lenUsed]]]];
 	
+(* decompress after padding with 32 implicit trailing 1 bits *)
 decompress[bits_List] := decompressNoPad[ArrayPad[bits, {0,32},1]];
 
 
