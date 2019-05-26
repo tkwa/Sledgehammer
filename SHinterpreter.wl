@@ -71,6 +71,7 @@ ClearAttributes[symbolLiteral, HoldFirst]
 
 postfixtoken::usage = "Converts a Held token to postfix token e.g. Hold[5] -> intLiteral[5]";
 postfixtoken[expr_] := Module[{h, name}, Which[
+	(* cases: call[], asciiLiteral[], intLiteral[], symbolLiteral[] *)
 	Depth@Head@expr == 2, call[SymbolName@@Unevaluated/@Head@expr,Length@expr],
 	MatchQ[expr, Hold[_String]], asciiLiteral@@expr,
 	MatchQ[expr, Hold[_Integer]], intLiteral@@expr,
@@ -84,6 +85,32 @@ wToPostfix[expr_] := Map[postfixtoken, Level[
 wToPostfix::usage = "Converts WL code HoldComplete[...] to postfix form, fails on compound heads";
 
 
+(* first item of stack \[Equal] bottom. Return new stack*)
+oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, operator},
+	(* if an operand, just return *)
+	isCall = MatchQ[next, _call];
+	If[!isCall, 
+		arity = 0; newExpr = {next[[1]]}; newExpr = HoldComplete@@newExpr,
+		
+		(* if an operator, apply to the last [arity] tokens on the stack *)
+		arity = next[[2]];
+		pops = Take[stack, -arity];
+		newExpr = {pops}; (* List is a dummy head *)
+		(* first wrap in HoldComplete *)
+		newExpr = HoldComplete@@newExpr;
+		(* now delete the inner HoldCompletes *)
+		newExpr = DeleteCases[newExpr, HoldComplete, {3}, Heads->True];
+		(* now add the operator as the head of newExpr *)
+		operator = ToExpression[next[[1]], InputForm, HoldComplete];
+		newExpr = newExpr // ReplacePart[{1,0} -> operator] // Delete[{1,0,0}] (* remove the HoldComplete *) ];
+		
+	newStack = Drop[stack, -arity] // Append[#, newExpr]&
+];
+
+wToPostfix::usage = "Converts postfix form code to WL code HoldComplete[...]";
+postfixToW[pfToks_List] := Module[{},
+	Fold[oneTokenToW, {}, pfToks] // First
+];
 
 
 (* ::Subsection:: *)

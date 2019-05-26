@@ -5,11 +5,9 @@
 (*Imports and setup*)
 
 
-parentPath = $InputFileName /. "" :> NotebookFileName[];
-parentDir = DirectoryName @ parentPath;
-SetDirectory[parentDir];
+SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]];
 Get["save.mx", Path -> Directory[]];
-With[{printShows = False}, Get["SHinterpreter.wl", Path -> Directory[]]]
+With[{printShows = False}, Get["SHinterpreter`", Path -> Directory[]]]
 On@Assert
 
 flags  = $ScriptCommandLine[[2]] // Characters;
