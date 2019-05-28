@@ -5,16 +5,16 @@
 (*Imports and setup*)
 
 
-SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]];
+SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
 Get["save.mx", Path -> Directory[]];
-With[{printShows = False}, Get["SHinterpreter`", Path -> Directory[]]]
+With[{printShows = False}, Get["SHinterpreter`", Path -> Directory[]]];
 On@Assert
 
 flags  = $ScriptCommandLine[[2]] // Characters;
 (* check flags *)
 
-validFlags = Characters@"wcbdhxn"
-badFlags = Complement[flags, validFlags]
+validFlags = Characters@"wcbdhxn";
+badFlags = Complement[flags, validFlags];
 
 Assert[Length@badFlags == 0, "Invalid flags" <> StringJoin@badFlags];
 
@@ -29,6 +29,8 @@ noExecute = MemberQ[flags, "n"];
 Assert[BooleanCountingFunction[1, 3][wform, cform, bform], "Must have exactly one of wcb flags!"];
 
 
+
+
 (* ::Subsection:: *)
 (*Execution*)
 
@@ -36,13 +38,14 @@ Assert[BooleanCountingFunction[1, 3][wform, cform, bform], "Must have exactly on
 codeFile = $ScriptCommandLine[[3]];
 
 code = Which[
-	wform, wToPostfix@ToExpression[ReadString@codeFile, InputForm, HoldComplete],
-	cform, decompress@bytesToBits@BinaryReadList@codeFile,
-	bform, decompress@brailleToBits@Import[codeFile,"Text", CharacterEncoding->"UTF8"],
+	wform, ToExpression[ReadString@codeFile, InputForm, HoldComplete],
+	cform, postfixToW@decompress@bytesToBits@BinaryReadList@codeFile,
+	bform, postfixToW@decompress@brailleToBits@Import[codeFile,"Text", CharacterEncoding->"UTF8"],
 	True, Assert[False, "Must have one of wcb flags!"]];
 
 (* compression should be reversible *)
-Assert[decompress@padTo8@compress@code == code];
+pfCode = wToPostfix@code;
+Assert[decompress@padTo8@compress@pfCode == pfCode];
 
 debugHistory = {};
 
@@ -51,7 +54,7 @@ input = If[Length@$ScriptCommandLine >= 4,
 	{}
 ];
 
-If[!noExecute, Print@eval[code, input]]
+If[!noExecute, Print@eval[code, input]];
 
 If[printDebug,
 	Print@code;

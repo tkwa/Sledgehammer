@@ -1,7 +1,7 @@
 #!/usr/bin/env wolframscript
 (* ::Package:: *)
 
-version = "0.2.0";
+version = "0.3.0";
 
 time = SessionTime[];
 parentPath = $InputFileName /. "" :> NotebookFileName[];
@@ -108,7 +108,7 @@ huffmanDict[l_List] := Association@Flatten@MapIndexed[# -> #2 - 1 &, huffmanTree
 
 
 toktree = huffmanTree@toksfreqs;
-
+tokToBit
 tokToBitsDict = huffmanDict[toksfreqs];
 bitsToTokDict = AssociationThread[Values@#, Keys@#]&@tokToBitsDict;
 

@@ -28,6 +28,16 @@ show[#, "Token list length = "]& @Length@tokToBitsDict; (* 8324 fixed, 6k more  
 
 
 (* ::Subsubsection:: *)
+(*Preprocessing*)
+
+
+(* Removes all heads that are not symbols or primitives *)
+rmCompoundHeads[expr_HoldComplete] := Module[{},
+	expr /. p_[f_][args___] :> Apply[p[f],{args}]
+];
+
+
+(* ::Subsubsection:: *)
 (*Compressor*)
 
 
@@ -89,9 +99,13 @@ wToPostfix::usage = "Converts WL code HoldComplete[...] to postfix form, fails o
 oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, operator},
 	(* if an operand, just return *)
 	isCall = MatchQ[next, _call];
-	If[!isCall, 
-		arity = 0; newExpr = {next[[1]]}; newExpr = HoldComplete@@newExpr,
-		
+	Switch[next,
+			_intLiteral | _asciiLiteral | _dictLiteral,
+		arity = 0; newExpr = next[[1]];
+			_symbolLiteral,
+		arity = 0; newExpr = ToExpression[next[[1]], InputForm, HoldComplete];
+			_call,
+		newExpr = HoldComplete@@newExpr;
 		(* if an operator, apply to the last [arity] tokens on the stack *)
 		arity = next[[2]];
 		pops = Take[stack, -arity];
@@ -102,9 +116,10 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 		newExpr = DeleteCases[newExpr, HoldComplete, {3}, Heads->True];
 		(* now add the operator as the head of newExpr *)
 		operator = ToExpression[next[[1]], InputForm, HoldComplete];
-		newExpr = newExpr // ReplacePart[{1,0} -> operator] // Delete[{1,0,0}] (* remove the HoldComplete *) ];
+		newExpr = newExpr // ReplacePart[{1,0} -> operator] // Delete[{1,0,0}] (* remove the HoldComplete *)
+		];
 		
-	newStack = Drop[stack, -arity] // Append[#, newExpr]&
+	Drop[stack, -arity] // Append[#, newExpr]&
 ];
 
 wToPostfix::usage = "Converts postfix form code to WL code HoldComplete[...]";
@@ -244,9 +259,20 @@ applyTokens[toks_List, args_List] := Block[{stack = args, history = args},
 	stack
 ];
 
-eval[toks_List, args_List, makeFunction_: True, OptionsPattern[]] := Module[{f},
+
+evalPostfix[toks_List, args_List, makeFunction_: True, OptionsPattern[]] := Module[{f},
 	f = Activate@Function@Evaluate@Last@applyTokens[toks, args];
 	f @@ args
 ];
+
+(* Evaluates a function which is wrapped in HoldComplete[] but may be missing Function[]. *)
+eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
+	f = If[expr[[1,0]] === Function, Identity@@expr, Function@@expr];
+	f @@ args
+];
+
+
+eval[HoldComplete[1],42]
+
 
 EndPackage[]
