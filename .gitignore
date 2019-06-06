@@ -1,5 +1,5 @@
 scratch.wls
-/*.mx
+/_*.mx
 test/*
 /*.hmrc
 /*.hmrb

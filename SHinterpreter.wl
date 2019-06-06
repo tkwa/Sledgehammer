@@ -5,19 +5,17 @@
 
 
 BeginPackage["SHInterpreter`"];
-
 (* Get path whether run through a notebook or wolframscript -script *)
 
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
 
-Get["save.mx", Path -> Directory[]];
+tokToBitsDict = Get["save.mx"] // Map[Rest@IntegerDigits[#,2]&];
+bitsToTokDict = AssociationThread[Values@#, Keys@#]&@tokToBitsDict;
+
 On[Assert]
 printShows = False;
 show := If[TrueQ[printShows], Echo, #&];
 (*$IterationLimit = 2^14;*)
-
-(* remove \[DownArrow] later when more builtins implemented *)
-Unprotect@Slot; Slot[] := Slot[1]; Protect@Slot;
 
 
 (* ::Subsection:: *)
@@ -33,7 +31,19 @@ show[#, "Token list length = "]& @Length@tokToBitsDict; (* 8324 fixed, 6k more  
 
 (* Removes all heads that are not symbols or primitives *)
 rmCompoundHeads[expr_HoldComplete] := Module[{},
-	expr /. p_[f_][args___] :> Apply[p[f],{args}]
+	expr //. {
+		p_[f_][x_] :> Construct[p[f], x],
+		p_[f_][args___] :> Apply[p[f],{args}]
+	}
+];
+
+preprocess=.
+preprocess[expr_HoldComplete] := Module[{},
+	expr /. {Slot[1] -> SHInterpreter`s1, Slot[2] -> SHInterpreter`s2, Slot[3] -> SHInterpreter`s3} // rmCompoundHeads
+];
+
+postprocess[expr_HoldComplete] := Module[{},
+	expr /. {s1 -> Slot[1], s2 -> Slot[2], s3 -> Slot[3]} /. {Hold[x_Slot] -> x}
 ];
 
 
@@ -60,6 +70,14 @@ varEliasDelta[n_Integer, k_Integer: 3, sgnQ_: True] := Module[{nn, sgn, ret},
 (* modified Elias Delta, mod 2^3 *)
 tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 3, True]];
 
+(* convert real numbers to digit lists *)
+tokenToBits[realLiteral[x_Real]] := Module[{str, len},
+	str = ToString[x, InputForm];
+	len = StringLength@str;
+	ToCharacterCode@str // IntegerDigits[#, 2, 7]& // Flatten //
+	Join[tokenToBits@realLiteral[],varEliasDelta[len, 3, False],#] &
+];
+
 (* ASCII strings packed into 7 bits per character.*)
 tokenToBits[asciiLiteral[str_] /; Max@ToCharacterCode@str <= 127] := Module[{len},
 	len = StringLength@str;
@@ -71,6 +89,8 @@ tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert
 
 (* remove all extraneous elements from tokens ending on 1s? *)
 compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
+compress[expr_HoldComplete] := compress@wToPostfix@rmCompoundHeads@expr;
+compress[str_String] := brailleToBits@str;
 
 
 (* ::Subsubsection:: *)
@@ -85,8 +105,9 @@ postfixtoken[expr_] := Module[{h, name}, Which[
 	Depth@Head@expr == 2, call[SymbolName@@Unevaluated/@Head@expr,Length@expr],
 	MatchQ[expr, Hold[_String]], asciiLiteral@@expr,
 	MatchQ[expr, Hold[_Integer]], intLiteral@@expr,
+	MatchQ[expr, Hold[_Real]], realLiteral@@expr,
 	Depth@expr == 2, symbolLiteral[SymbolName@@Unevaluated/@expr],
-	True, Assert[False, "Compound heads not supported"]]];
+	True, Assert[False, "Unexpected compound head"]]];
 
 wToPostfix[expr_] := Map[postfixtoken, Level[
 		Map[Hold, expr, {-1}, Heads -> True],
@@ -100,7 +121,7 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 	(* if an operand, just return *)
 	isCall = MatchQ[next, _call];
 	Switch[next,
-			_intLiteral | _asciiLiteral | _dictLiteral,
+			_intLiteral | _realLiteral | _asciiLiteral | _dictLiteral,
 		arity = 0; newExpr = next[[1]];
 			_symbolLiteral,
 		arity = 0; newExpr = ToExpression[next[[1]], InputForm, HoldComplete];
@@ -122,10 +143,12 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 	Drop[stack, -arity] // Append[#, newExpr]&
 ];
 
-wToPostfix::usage = "Converts postfix form code to WL code HoldComplete[...]";
+postfixToW::usage = "Converts postfix form code to WL code HoldComplete[...]";
 postfixToW[pfToks_List] := Module[{},
-	Fold[oneTokenToW, {}, pfToks] // First
+	Fold[oneTokenToW, {Slot[1]}, pfToks] // Last
 ];
+
+
 
 
 (* ::Subsection:: *)
@@ -156,7 +179,7 @@ unVarEliasDelta[bits_List, k_Integer:3, sgnQ_:True] := Module[{sgn, rest, ndiv8p
 	{n, lenUsed + k + Boole@sgnQ}
 ];
 
-(* ASCII literal. (Length of string, string in packed 7 bit encoding *)
+(* ASCII literal. (Length of string, string in packed 7 bit encoding) *)
 decodeASCIILiteral[bits_] := Module[{strLen, lenLen},
 	{strLen, lenLen} = unVarEliasDelta[bits, 3, False];
 	Drop[bits, lenLen] //
@@ -167,24 +190,22 @@ decodeASCIILiteral[bits_] := Module[{strLen, lenLen},
 	{#, lenLen + 7 * strLen} &
 ];
 
-(* put n in bijective base k *)
+(* Basic dictionary literal. Index in DictionaryLookup[] in increasing order of length.
+	Length <4 words are not useful to store as they're cheaper as regular string literals. *)
+decodeDictLiteral[bits_] := Module[{dict, idx, lenUsed},
+	dict = Once[DictionaryLookup[] // SortBy[StringLength] // Select[StringLength@# >= 4 &]];
+	lenUsed = Once@BitLength@Length@dict;
+	idx = Take[bits,lenUsed] // FromDigits[#,2]&;
+	{dict[[idx]],lenUsed}
+];
+
+(* for future builtins: put n in bijective base k *)
 toBijectiveBase[n_Integer, k_Integer] := Module[{acc = n, ret = {}, digit},
 	While[acc > 0, 
 		digit = Mod[acc-1, k] + 1;
 		PrependTo[ret, digit];
 		acc = Quotient[acc-1, k]];
 	ret
-];
-
-decodeDictLiteral[bits_] := Module[{caseBits, dict, wordData, wordList, lenUsed},
-	(* 0_ \[Rule] lower, 1_ \[Rule] upper. _0 \[Rule] no spaces, _1 \[Rule] spaces *)
-	{caseBits, bits} = TakeDrop[bits, 2];
-	dict = DictionaryLookup[];
-	{wordData, lenUsed} = unVarEliasDelta[bits, 16, False];
-	
-	(* Convert wordData to bijective base len(dict) *)
-	
-
 ];
 
 (* returns token, length used.*)
@@ -197,6 +218,7 @@ bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok}
 		_call , {tok, lenUsed},
 		_symbolLiteral , {tok, lenUsed},
 		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed], 3, True],
+		_realLiteral, {realLiteral[ToExpression@#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
 		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
 		_dictLiteral, {dictLiteral[#], lenUsed + #2}& @@ decodeDictLiteral[Drop[bits, lenUsed]],
 		_, Assert[False, "Token prefix not found!"]
@@ -270,9 +292,6 @@ eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
 	f = If[expr[[1,0]] === Function, Identity@@expr, Function@@expr];
 	f @@ args
 ];
-
-
-eval[HoldComplete[1],42]
 
 
 EndPackage[]
