@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     21790,        495]
-NotebookOptionsPosition[     21333,        478]
-NotebookOutlinePosition[     21676,        493]
-CellTagsIndexPosition[     21633,        490]
+NotebookDataLength[     21837,        496]
+NotebookOptionsPosition[     21380,        479]
+NotebookOutlinePosition[     21723,        494]
+CellTagsIndexPosition[     21680,        491]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -378,7 +378,7 @@ Cell[BoxData[
           If[
            MemberQ[$CellContext`cbs, "Show postfix"], $CellContext`pfCode, 
            ""], StandardForm],
-         ImageSizeCache->{107., {3., 9.}}]},
+         ImageSizeCache->{0., {0., 6.}}]},
        {
         DynamicBox[ToBoxes[
           If[
@@ -390,13 +390,13 @@ Cell[BoxData[
           If[
            MemberQ[$CellContext`cbs, "Show Braille"], $CellContext`brCode, 
            ""], StandardForm],
-         ImageSizeCache->{18., {3., 9.}}]},
+         ImageSizeCache->{0., {0., 6.}}]},
        {
         DynamicBox[ToBoxes[
           If[
            MemberQ[$CellContext`cbs, "Show decompressed"], 
            InputForm[$CellContext`decompCode], ""], StandardForm],
-         ImageSizeCache->{106., {3., 9.}}]},
+         ImageSizeCache->{0., {0., 6.}}]},
        {
         DynamicBox[ToBoxes[
           If[
@@ -424,7 +424,7 @@ Cell[BoxData[
       DefaultBaseStyle->"Column",
       GridBoxAlignment->{"Columns" -> {{Left}}},
       GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
-     "Column"]]],ExpressionUUID->"1efb38c4-8534-45b7-b806-49cc76ab3002"],
+     "Column"]]],ExpressionUUID->"bf4c49db-f665-43e3-b731-e60bde37ca58"],
   ExpressionCell[
    Panel[
     Column[{"Put code below:", 
@@ -472,8 +472,9 @@ Cell[BoxData[
    3.7687525946386642`*^9}, {3.7687531887296066`*^9, 3.76875319250032*^9}, {
    3.7687533305684505`*^9, 3.7687533319590616`*^9}, {3.7687534028817225`*^9, 
    3.768753404657937*^9}, {3.7687543893326683`*^9, 3.768754391218648*^9}, {
-   3.7687839135776377`*^9, 3.7687839142952337`*^9}},
- CellLabel->"Out[20]=",ExpressionUUID->"54dd3df8-1b5a-4876-87ec-224f9d69bae3"]
+   3.7687839135776377`*^9, 3.7687839142952337`*^9}, {3.7687864201673665`*^9, 
+   3.768786422069307*^9}},
+ CellLabel->"Out[20]=",ExpressionUUID->"1e96f419-76e3-4212-b121-699d2937f9ec"]
 }, Open  ]]
 },
 WindowSize->{958, 988},
@@ -495,7 +496,7 @@ Notebook[{
 Cell[CellGroupData[{
 Cell[580, 22, 11525, 216, 482, "Input",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641",
  InitializationCell->True],
-Cell[12108, 240, 9209, 235, 350, "Output",ExpressionUUID->"54dd3df8-1b5a-4876-87ec-224f9d69bae3"]
+Cell[12108, 240, 9256, 236, 350, "Output",ExpressionUUID->"1e96f419-76e3-4212-b121-699d2937f9ec"]
 }, Open  ]]
 }
 ]

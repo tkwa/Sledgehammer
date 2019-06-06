@@ -1,7 +1,6 @@
 #!/usr/bin/env wolframscript
 (* ::Package:: *)
 
-version = "0.4.0";
 (* Tested with Mathematica 12.0 *)
 
 (* Additional packages to pull names from *)
