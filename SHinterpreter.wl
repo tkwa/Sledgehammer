@@ -30,6 +30,9 @@ show[#, "Token list length = "]& @Length@tokToBitsDict; (* 8324 fixed, 6k more  
 (*Preprocessing*)
 
 
+
+
+
 undoIdioms[expr_HoldComplete] := Module[{},
 	expr /. {HoldPattern[#&@@x_] :> First@x}
 ];
@@ -71,7 +74,13 @@ renameSlotVars[expr_HoldComplete] := Module[{},
 		Slot[2] -> s2, 
 		Slot[3] -> s3,
 		SlotSequence[1] -> ss1}
-]
+];
+undoTokenAliases[expr_HoldComplete] := Module[{},
+	expr /. {}
+];
+(* Required order of preprocessing steps:
+renameFreeVars \[Rule] undoTokenAliases
+*)
 preprocess=.
 preprocess[expr_HoldComplete] := 
 	expr // rmDeprecatedTokens // undoIdioms // rmCompoundHeads // fixIllegalCalls // renameFreeVars // renameSlotVars;

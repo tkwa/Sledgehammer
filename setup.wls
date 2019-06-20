@@ -56,7 +56,8 @@ arityFreqFactors = {0->.25, 1->1, 2->1, 3->.5, 4->.25, 5->.125, 6->.0625, x_Inte
 symbolLiteralFreqFactor = .2;
 
 (* These frequencies represent token frequencies rather than WL symbol frequencies. *)
-modelFreqs =  Get["C:\\Users\\Thomas\\Documents\\Wolfram Mathematica\\Sledgehammer Dev\\modelfreqs.mx"] // KeyDrop["Stop"];
+SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
+modelFreqs =  Get["modelfreqs.mx"] // KeyDrop["Stop"];
 specialCaseFreqs = <| |>;
 
 time = SessionTime[];
