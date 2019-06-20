@@ -1,4 +1,5 @@
 scratch.wls
+setup.wls
 /_*.mx
 test/*
 /*.hmrc

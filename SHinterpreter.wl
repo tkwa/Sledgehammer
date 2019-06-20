@@ -9,8 +9,9 @@ BeginPackage["SHInterpreter`"];
 
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
 
-tokToBitsDict = Get["save.mx"] // Map[Rest@IntegerDigits[#,2]&];
+tokToBitsDict = Get["compression_dict.mx"] // Map[Rest@IntegerDigits[#,2]&];
 bitsToTokDict = AssociationThread[Values@#, Keys@#]&@tokToBitsDict;
+toks = Keys[tokToBitsDict];
 
 On[Assert]
 printShows = False;
@@ -29,18 +30,52 @@ show[#, "Token list length = "]& @Length@tokToBitsDict; (* 8324 fixed, 6k more  
 (*Preprocessing*)
 
 
-(* Removes all heads that are not symbols or primitives *)
+undoIdioms[expr_HoldComplete] := Module[{},
+	expr /. {HoldPattern[#&@@x_] :> First@x}
+];
+
+(* Removes all heads that are not symbols or primitives. *)
 rmCompoundHeads[expr_HoldComplete] := Module[{},
 	expr //. {
-		p_[f_][x_] :> Construct[p[f], x],
-		p_[f_][args___] :> Apply[p[f],{args}]
+		p_[f___][x_] :> Construct[p[f], x],
+		p_[f___][args___] :> Apply[p[f],{args}]
 	}
 ];
 
-preprocess=.
-preprocess[expr_HoldComplete] := Module[{},
-	expr /. {Slot[1] -> SHInterpreter`s1, Slot[2] -> SHInterpreter`s2, Slot[3] -> SHInterpreter`s3} // rmCompoundHeads
+(* Restructures illegal argument patterns and certain special cases of non-function heads. 
+   To do: replace user-defined variable heads with Construct or Apply *)
+fixIllegalCalls[expr_HoldComplete] := Module[{}, 
+	expr /.
+		{f_Symbol[args_SlotSequence] /; 
+			MemberQ[toks, symbolLiteral[SymbolName@f]] &&
+			Not@MemberQ[toks, call[SymbolName@f, 1]] :> Apply[f, {args}],
+		(imm:_Integer|_String)[args___] :> Apply[imm, {args}] }
 ];
+rmDeprecatedTokens[expr_HoldComplete] := Module[{},
+	expr /. 
+		{HoldPattern[Random[]] :> RandomReal[],
+		HoldPattern@Date[] :> DateList[]}
+];
+freeVars[expr_HoldComplete] := Module[{contexts = {"System`", "Combinatorica`"}},
+    DeleteDuplicates@Cases[expr, s_Symbol /; Not@MemberQ[contexts, Context@s] -> HoldPattern[s], {-1}, Heads-> True]
+];
+(* May fail on expressions that already contain HoldComplete[_Symbol].
+	May fail on expressions that rely on manipulating symbols. 
+	May fail on expressions that contain more than 16 free variables. *)
+renameFreeVars[expr_HoldComplete] := Module[{vars = freeVars@expr, newvars},
+	newvars = ToExpression[#, StandardForm, HoldComplete]&@Array["x" <> ToString@#&, Length@vars];
+	Replace[expr /. Thread[vars -> newvars], HoldComplete[s_Symbol] -> s, {-2}, Heads->True]
+];
+renameSlotVars[expr_HoldComplete] := Module[{},
+	expr /. {Slot[1] -> s1, 
+		Slot[2] -> s2, 
+		Slot[3] -> s3,
+		SlotSequence[1] -> ss1}
+]
+preprocess=.
+preprocess[expr_HoldComplete] := 
+	expr // rmDeprecatedTokens // undoIdioms // rmCompoundHeads // fixIllegalCalls // renameFreeVars // renameSlotVars;
+
 
 postprocess[expr_HoldComplete] := Module[{},
 	expr /. {s1 -> Slot[1], s2 -> Slot[2], s3 -> Slot[3]} /. {Hold[x_Slot] -> x}
@@ -71,25 +106,26 @@ varEliasDelta[n_Integer, k_Integer: 3, sgnQ_: True] := Module[{nn, sgn, ret},
 tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 3, True]];
 
 (* convert real numbers to digit lists *)
-tokenToBits[realLiteral[x_Real]] := Module[{str, len},
+tokenToBits[realLiteral[x_Real]] := Module[{str, len, bits},
 	str = ToString[x, InputForm];
 	len = StringLength@str;
-	ToCharacterCode@str // IntegerDigits[#, 2, 7]& // Flatten //
-	Join[tokenToBits@realLiteral[],varEliasDelta[len, 3, False],#] &
+	bits = ToCharacterCode@str // IntegerDigits[#, 2, 7]& // Flatten;
+	Join[tokenToBits@realLiteral[], varEliasDelta[len, 3, False], bits]
 ];
 
 (* ASCII strings packed into 7 bits per character.*)
-tokenToBits[asciiLiteral[str_] /; Max@ToCharacterCode@str <= 127] := Module[{len},
+tokenToBits[asciiLiteral[str_] /; Max@ToCharacterCode@str <= 127] := Module[{len, bits},
 	len = StringLength@str;
-	ToCharacterCode@str // IntegerDigits[#, 2, 7]& // Flatten //
-	Join[tokenToBits@asciiLiteral[],varEliasDelta[len, 3, False],#] &
+	bits = ToCharacterCode@str // IntegerDigits[#, 2, 7]& // Flatten;
+	Join[tokenToBits@asciiLiteral[], varEliasDelta[len, 3, False], bits]
 ];
 
-tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found!",tok}]];
+tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found: " tok}]];
 
 (* remove all extraneous elements from tokens ending on 1s? *)
 compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
-compress[expr_HoldComplete] := compress@wToPostfix@rmCompoundHeads@expr;
+compress[expr_HoldComplete] := Check[compress@wToPostfix@preprocess@expr,
+Throw[{"Could not compress expression", expr}]] ;
 compress[str_String] := brailleToBits@str;
 
 
@@ -102,7 +138,7 @@ ClearAttributes[symbolLiteral, HoldFirst]
 postfixtoken::usage = "Converts a Held token to postfix token e.g. Hold[5] -> intLiteral[5]";
 postfixtoken[expr_] := Module[{h, name}, Which[
 	(* cases: call[], asciiLiteral[], intLiteral[], symbolLiteral[] *)
-	Depth@Head@expr == 2, call[SymbolName@@Unevaluated/@Head@expr,Length@expr],
+	MatchQ[Head@expr, Hold[_Symbol]], call[SymbolName@@Unevaluated/@Head@expr,Length@expr],
 	MatchQ[expr, Hold[_String]], asciiLiteral@@expr,
 	MatchQ[expr, Hold[_Integer]], intLiteral@@expr,
 	MatchQ[expr, Hold[_Real]], realLiteral@@expr,
@@ -221,7 +257,7 @@ bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok}
 		_realLiteral, {realLiteral[ToExpression@#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
 		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
 		_dictLiteral, {dictLiteral[#], lenUsed + #2}& @@ decodeDictLiteral[Drop[bits, lenUsed]],
-		_, Assert[False, "Token prefix not found!"]
+		_, Throw["Token prefix not found!"]
 	]
 ];
 
@@ -229,6 +265,7 @@ bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok}
 decompressNoPad[{}] := {}
 decompressNoPad[{Repeated[1]}] := {};
 
+(* Currently O(length^2)! Fix! *)
 decompressNoPad[bits_List] := Module[{tok, lenUsed},
 	{tok, lenUsed} = bitsToToken[bits];
 	Prepend[tok][decompressNoPad[Drop[bits, lenUsed]]]];

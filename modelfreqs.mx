@@ -1,0 +1,383 @@
+<|intLiteral[] -> 0.14939731857972424, symbolLiteral["s1"] -> 
+  0.08640160712677228, call["Function", 1] -> 0.0607129682311673, 
+ symbolLiteral["x1"] -> 0.05476848980904385, "Stop" -> 0.04457795537111791, 
+ call["Set", 2] -> 0.03629814614030307, call["Times", 2] -> 
+  0.035236632136352454, symbolLiteral["x2"] -> 0.032264392925290715, 
+ call["Plus", 2] -> 0.02355997809289566, symbolLiteral["x3"] -> 
+  0.021436950084994414, call["Power", 2] -> 0.018464710873932685, 
+ call["List", 2] -> 0.018252408073142563, symbolLiteral["x4"] -> 
+  0.014643260459710454, call["Map", 2] -> 0.014430957658920334, 
+ asciiLiteral[] -> 0.011949395523928, call["List", 1] -> 
+  0.010821810045488227, symbolLiteral["s2"] -> 0.00891108483837712, 
+ call["Pattern", 2] -> 0.008698782037586993, 
+ call["Apply", 2] -> 0.008698782037586993, 
+ call["Part", 2] -> 0.00827417643600674, 
+ call["x1", 1] -> 0.007849570834426499, call["List", 3] -> 
+  0.00721266243205613, call["Blank", 0] -> 0.007000359631266005, 
+ call["Construct", 2] -> 0.0063634512288956325, 
+ call["Rule", 2] -> 0.006151148428105509, call["Range", 1] -> 
+  0.006151148428105509, symbolLiteral["x5"] -> 0.005938845627315387, 
+ call["CompoundExpression", 2] -> 0.00551424002573514, 
+ call["Less", 2] -> 0.005089634424154888, call["Equal", 2] -> 
+  0.005089634424154888, symbolLiteral["x6"] -> 0.0048773316233647656, 
+ call["SlotSequence", 1] -> 0.004452726021784519, 
+ call["If", 3] -> 0.004452726021784519, 
+ call["Tr", 1] -> 0.004240423220994395, call["SetDelayed", 2] -> 
+  0.0038158176194141484, call["Table", 2] -> 0.0038158176194141484, 
+ call["Select", 2] -> 0.0033912120178338995, 
+ call["Plus", 3] -> 0.0031789092170437776, call["Greater", 2] -> 
+  0.0031789092170437776, symbolLiteral["Null"] -> 0.0031789092170437776, 
+ call["Min", 1] -> 0.0031789092170437776, call["ReplaceAll", 2] -> 
+  0.0031789092170437776, call["CompoundExpression", 3] -> 
+  0.002966606416253654, call["Times", 3] -> 0.002966606416253654, 
+ call["Apply", 3] -> 0.002754303615463531, 
+ call["List", 0] -> 0.002542000814673405, call["RuleDelayed", 2] -> 
+  0.002542000814673405, call["Condition", 2] -> 0.002542000814673405, 
+ call["Length", 1] -> 0.002542000814673405, 
+ call["Max", 1] -> 0.002542000814673405, call["Range", 2] -> 
+  0.002542000814673405, symbolLiteral["s3"] -> 0.002542000814673405, 
+ call["Mod", 2] -> 0.0023296980138832837, call["Increment", 1] -> 
+  0.0023296980138832837, symbolLiteral["x7"] -> 0.0023296980138832837, 
+ call["Composition", 2] -> 0.0023296980138832837, 
+ call["FreeQ", 2] -> 0.0023296980138832837, 
+ realLiteral[] -> 0.0022114013915413904, call["Unequal", 2] -> 
+  0.0021173952130931605, call["Slot", 1] -> 0.0021173952130931605, 
+ call["Tuples", 2] -> 0.0021173952130931605, 
+ call["Join", 2] -> 0.0021173952130931605, 
+ call["Or", 2] -> 0.0021173952130931605, call["And", 2] -> 
+  0.0021173952130931605, call["StringJoin", 2] -> 0.001905092412303034, 
+ call["Part", 3] -> 0.001905092412303034, call["ReplaceRepeated", 2] -> 
+  0.001905092412303034, call["Do", 2] -> 0.001905092412303034, 
+ symbolLiteral["x9"] -> 0.001905092412303034, 
+ call["x2", 2] -> 0.001905092412303034, call["Factorial", 1] -> 
+  0.001905092412303034, call["Nest", 3] -> 0.0016927896115129103, 
+ call["First", 1] -> 0.0016927896115129103, 
+ call["Span", 2] -> 0.0016927896115129103, call["Flatten", 1] -> 
+  0.0016927896115129103, symbolLiteral["Join"] -> 0.0014804868107227865, 
+ call["Last", 1] -> 0.0014804868107227865, call["Reverse", 1] -> 
+  0.0014804868107227865, call["Position", 2] -> 0.0014804868107227865, 
+ symbolLiteral["Reverse"] -> 0.0014804868107227865, 
+ call["LessEqual", 2] -> 0.0014804868107227865, 
+ call["Array", 2] -> 0.0014804868107227865, 
+ call["Not", 1] -> 0.0012681840099326637, 
+ call["Dot", 2] -> 0.0012681840099326637, call["BlankSequence", 0] -> 
+  0.0012681840099326637, call["Print", 1] -> 0.0012681840099326637, 
+ symbolLiteral["Sort"] -> 0.0012681840099326637, 
+ call["x2", 1] -> 0.0012681840099326637, 
+ call["x1", 2] -> 0.0012681840099326637, call["BlankNullSequence", 0] -> 
+  0.0012681840099326637, call["IntegerDigits", 2] -> 0.0012681840099326637, 
+ call["PrimeQ", 1] -> 0.0010558812091425395, 
+ call["Count", 2] -> 0.0010558812091425395, 
+ call["x6", 2] -> 0.0010558812091425395, symbolLiteral["x10"] -> 
+  0.0010558812091425395, call["While", 2] -> 0.0010558812091425395, 
+ call["Repeated", 1] -> 0.0010558812091425395, 
+ call["x5", 2] -> 0.0010558812091425395, call["Check", 2] -> 
+  0.0010558812091425395, call["If", 2] -> 0.0010558812091425395, 
+ call["FromDigits", 2] -> 0.0010558812091425395, 
+ call["Partition", 2] -> 0.0010558812091425395, 
+ call["Sort", 1] -> 0.0010558812091425395, call["IntegerDigits", 1] -> 
+  0.0010558812091425395, call["GatherBy", 2] -> 0.0008435784083524161, 
+ call["StringTake", 2] -> 0.0008435784083524161, 
+ call["x3", 1] -> 0.0008435784083524161, symbolLiteral["I"] -> 
+  0.0008435784083524161, call["Flatten", 2] -> 0.0008435784083524161, 
+ call["x4", 2] -> 0.0008435784083524161, symbolLiteral["List"] -> 
+  0.0008435784083524161, call["Sqrt", 1] -> 0.0008435784083524161, 
+ call["Divisors", 1] -> 0.0008435784083524161, 
+ call["Characters", 1] -> 0.0008435784083524161, 
+ symbolLiteral["All"] -> 0.0008435784083524161, 
+ call["Log", 1] -> 0.0008435784083524161, call["Complement", 2] -> 
+  0.0008435784083524161, call["x7", 2] -> 0.0008435784083524161, 
+ symbolLiteral["Last"] -> 0.0008435784083524161, 
+ call["List", 4] -> 0.0008435784083524161, symbolLiteral["x8"] -> 
+  0.0008435784083524161, symbolLiteral["Tr"] -> 0.0008435784083524161, 
+ symbolLiteral["Length"] -> 0.0008435784083524161, 
+ call["CompoundExpression", 4] -> 0.0008435784083524161, 
+ call["N", 2] -> 0.0008435784083524161, call["FromDigits", 1] -> 
+  0.0008435784083524161, symbolLiteral["IntegerDigits"] -> 
+  0.0008435784083524161, call["Subsets", 2] -> 0.0008435784083524161, 
+ call["StringJoin", 3] -> 0.0006312756075622922, 
+ call["For", 3] -> 0.0006312756075622922, call["Cases", 2] -> 
+  0.0006312756075622922, call["CompoundExpression", 5] -> 
+  0.0006312756075622922, call["LetterNumber", 1] -> 0.0006312756075622922, 
+ call["Alphabet", 0] -> 0.0006312756075622922, 
+ call["Tally", 1] -> 0.0006312756075622922, call["PreIncrement", 1] -> 
+  0.0006312756075622922, call["CompoundExpression", 6] -> 
+  0.0006312756075622922, call["FoldList", 1] -> 0.0006312756075622922, 
+ call["Less", 3] -> 0.0006312756075622922, symbolLiteral["Times"] -> 
+  0.0006312756075622922, call["x5", 1] -> 0.0006312756075622922, 
+ call["x8", 1] -> 0.0006312756075622922, symbolLiteral["Range"] -> 
+  0.0006312756075622922, call["MapAll", 2] -> 0.0006312756075622922, 
+ call["StringReplace", 2] -> 0.0006312756075622922, 
+ call["Differences", 1] -> 0.0006312756075622922, 
+ call["Union", 1] -> 0.0006312756075622922, call["ToExpression", 1] -> 
+  0.0006312756075622922, call["Rest", 1] -> 0.0006312756075622922, 
+ symbolLiteral["Binomial"] -> 0.0006312756075622922, 
+ call["N", 1] -> 0.0006312756075622922, call["Riffle", 2] -> 
+  0.0006312756075622922, call["StringExpression", 2] -> 
+  0.0006312756075622922, symbolLiteral["ToString"] -> 0.0006312756075622922, 
+ call["Floor", 1] -> 0.0006312756075622922, symbolLiteral["Integers"] -> 
+  0.0006312756075622922, call["Outer", 4] -> 0.0006312756075622922, 
+ call["Table", 3] -> 0.0006312756075622922, call["ImportString", 2] -> 
+  0.00034764985977005935, call["IntegerString", 3] -> 0.00034764985977005935, 
+ call["SameQ", 2] -> 0.00034764985977005935, call["Permutations", 1] -> 
+  0.00034764985977005935, call["Ratios", 1] -> 0.00034764985977005935, 
+ call["Plus", 4] -> 0.00034764985977005935, symbolLiteral["LessEqual"] -> 
+  0.00034764985977005935, call["GreaterEqual", 2] -> 0.00034764985977005935, 
+ symbolLiteral["FromDigits"] -> 0.00034764985977005935, 
+ call["Binomial", 2] -> 0.00034764985977005935, 
+ call["NumberExpand", 2] -> 0.00034764985977005935, 
+ call["Span", 3] -> 0.00034764985977005935, 
+ call["UpTo", 1] -> 0.00034764985977005935, call["IntegerName", 1] -> 
+  0.00034764985977005935, call["Drop", 2] -> 0.00034764985977005935, 
+ call["IdentityMatrix", 1] -> 0.00034764985977005935, 
+ call["ArrayPad", 2] -> 0.00034764985977005935, 
+ call["Subsets", 1] -> 0.00034764985977005935, 
+ symbolLiteral["RandomChoice"] -> 0.00034764985977005935, 
+ call["SortBy", 1] -> 0.00034764985977005935, 
+ call["Solve", 3] -> 0.00034764985977005935, 
+ call["Log2", 1] -> 0.00034764985977005935, symbolLiteral["EvenQ"] -> 
+  0.00034764985977005935, call["List", 6] -> 0.00034764985977005935, 
+ call["x7", 1] -> 0.00034764985977005935, call["RandomChoice", 1] -> 
+  0.00034764985977005935, call["Nearest", 2] -> 0.00034764985977005935, 
+ symbolLiteral["Plus"] -> 0.00034764985977005935, 
+ call["AddTo", 2] -> 0.00034764985977005935, 
+ call["Boole", 1] -> 0.00034764985977005935, symbolLiteral["Modulus"] -> 
+  0.00034764985977005935, symbolLiteral["Thread"] -> 0.00034764985977005935, 
+ call["List", 5] -> 0.00034764985977005935, call["Alternatives", 2] -> 
+  0.00034764985977005935, call["StringJoin", 1] -> 0.00034764985977005935, 
+ call["PatternTest", 2] -> 0.00034764985977005935, 
+ call["StringLength", 1] -> 0.00034764985977005935, 
+ call["Plus", 1] -> 0.00034764985977005935, 
+ call["Print", 2] -> 0.00034764985977005935, symbolLiteral["Transpose"] -> 
+  0.00034764985977005935, call["CellularAutomaton", 3] -> 
+  0.00034764985977005935, call["For", 4] -> 0.00034764985977005935, 
+ call["x2", 3] -> 0.00034764985977005935, symbolLiteral["CoprimeQ"] -> 
+  0.00034764985977005935, call["RealDigits", 1] -> 0.00034764985977005935, 
+ call["Map", 1] -> 0.00034764985977005935, symbolLiteral["E"] -> 
+  0.00034764985977005935, call["Times", 4] -> 0.00034764985977005935, 
+ symbolLiteral["Print"] -> 0.00034764985977005935, 
+ call["Transpose", 1] -> 0.00034764985977005935, 
+ call["Most", 1] -> 0.00034764985977005935, call["MaximalBy", 2] -> 
+  0.00034764985977005935, call["Do", 3] -> 0.00034764985977005935, 
+ call["DuplicateFreeQ", 1] -> 0.00034764985977005935, 
+ call["Except", 1] -> 0.00034764985977005935, 
+ call["SortBy", 2] -> 0.00034764985977005935, 
+ call["x11", 2] -> 0.00034764985977005935, 
+ call["Grid", 1] -> 0.00034764985977005935, 
+ call["BitXor", 2] -> 0.00034764985977005935, 
+ call["x4", 1] -> 0.00034764985977005935, call["IntegerPartitions", 2] -> 
+  0.00034764985977005935, call["Nearest", 3] -> 0.00023369036244624253, 
+ symbolLiteral["Less"] -> 0.00023369036244624253, 
+ call["DivisorSigma", 2] -> 0.00023369036244624253, 
+ symbolLiteral["Tan"] -> 0.00023369036244624253, 
+ symbolLiteral["ConvexHullMesh"] -> 0.00023369036244624253, 
+ call["Intersection", 2] -> 0.00023369036244624253, 
+ call["Diagonal", 2] -> 0.00023369036244624253, 
+ symbolLiteral["Pi"] -> 0.00023369036244624253, 
+ call["Take", 2] -> 0.00023369036244624253, call["LatticeReduce", 1] -> 
+  0.00023369036244624253, call["IntegerName", 2] -> 0.00023369036244624253, 
+ call["Array", 3] -> 0.00023369036244624253, 
+ call["Reverse", 2] -> 0.00023369036244624253, 
+ symbolLiteral["Append"] -> 0.00023369036244624253, 
+ symbolLiteral["InverseFunction"] -> 0.00023369036244624253, 
+ call["Module", 2] -> 0.00023369036244624253, 
+ call["CurrentScreenImage", 0] -> 0.00023369036244624253, 
+ call["Interpreter", 1] -> 0.00023369036244624253, 
+ call["Insert", 3] -> 0.00023369036244624253, 
+ call["Tuples", 1] -> 0.00023369036244624253, 
+ call["x4", 3] -> 0.00023369036244624253, call["Split", 1] -> 
+  0.00023369036244624253, call["NumberDecompose", 2] -> 
+  0.00023369036244624253, symbolLiteral["Rule"] -> 0.00023369036244624253, 
+ call["FindInstance", 3] -> 0.00023369036244624253, 
+ call["PixelValue", 2] -> 0.00023369036244624253, 
+ call["Sum", 2] -> 0.00023369036244624253, symbolLiteral["$Output"] -> 
+  0.00023369036244624253, symbolLiteral["Part"] -> 0.00023369036244624253, 
+ symbolLiteral["ToExpression"] -> 0.00023369036244624253, 
+ symbolLiteral["OddQ"] -> 0.00023369036244624253, 
+ call["IntegerPartitions", 4] -> 0.00023369036244624253, 
+ call["NestWhileList", 3] -> 0.00023369036244624253, 
+ symbolLiteral["FromCharacterCode"] -> 0.00023369036244624253, 
+ call["Last", 2] -> 0.00023369036244624253, 
+ call["Round", 2] -> 0.00023369036244624253, call["Alternatives", 4] -> 
+  0.00023369036244624253, call["List", 10] -> 0.00023369036244624253, 
+ call["TwoWayRule", 2] -> 0.00023369036244624253, 
+ call["Im", 1] -> 0.00023369036244624253, call["BitXor", 3] -> 
+  0.00023369036244624253, call["IntegerDigits", 3] -> 0.00023369036244624253, 
+ call["BarcodeImage", 2] -> 0.00023369036244624253, 
+ call["DayCount", 3] -> 0.00023369036244624253, 
+ call["IntegerString", 2] -> 0.00023369036244624253, 
+ call["PolynomialMod", 3] -> 0.00023369036244624253, 
+ call["RomanNumeral", 1] -> 0.00023369036244624253, 
+ call["BoundingRegion", 1] -> 0.00023369036244624253, 
+ call["IntegerPartitions", 3] -> 0.00023369036244624253, 
+ call["StringRiffle", 1] -> 0.00023369036244624253, 
+ call["VertexDelete", 2] -> 0.00023369036244624253, 
+ symbolLiteral["StringReverse"] -> 0.00023369036244624253, 
+ call["MatchQ", 1] -> 0.00023369036244624253, 
+ call["ImageData", 2] -> 0.00023369036244624253, 
+ call["Commonest", 1] -> 0.00023369036244624253, 
+ call["StringMatchQ", 1] -> 0.00023369036244624253, 
+ call["Eigenvalues", 1] -> 0.00023369036244624253, 
+ symbolLiteral["CharacterRange"] -> 0.00023369036244624253, 
+ call["Unitize", 1] -> 0.00023369036244624253, 
+ call["Scale", 2] -> 0.00023369036244624253, 
+ call["Print", 5] -> 0.00023369036244624253, 
+ call["Norm", 1] -> 0.00023369036244624253, call["Graphics", 1] -> 
+  0.00023369036244624253, symbolLiteral["CharacterCounts"] -> 
+  0.00023369036244624253, call["GridGraph", 1] -> 0.00023369036244624253, 
+ call["RotateRight", 2] -> 0.00023369036244624253, 
+ call["IntegerQ", 1] -> 0.00023369036244624253, 
+ call["PowersRepresentations", 3] -> 0.00023369036244624253, 
+ call["Interval", 1] -> 0.00023369036244624253, 
+ call["Prime", 1] -> 0.00023369036244624253, symbolLiteral["Take"] -> 
+  0.00023369036244624253, symbolLiteral["Order"] -> 0.00023369036244624253, 
+ call["NextPrime", 2] -> 0.00023369036244624253, 
+ symbolLiteral["IntegerName"] -> 0.00023369036244624253, 
+ symbolLiteral["Intersection"] -> 0.00023369036244624253, 
+ call["DivideBy", 2] -> 0.00023369036244624253, 
+ call["Names", 1] -> 0.00023369036244624253, 
+ call["Solve", 2] -> 0.00023369036244624253, 
+ call["Polygon", 1] -> 0.00023369036244624253, 
+ call["IntegerPartitions", 1] -> 0.00023369036244624253, 
+ call["OddQ", 1] -> 0.00023369036244624253, 
+ call["Total", 2] -> 0.00023369036244624253, call["ThueMorse", 1] -> 
+  0.00023369036244624253, symbolLiteral["RandomInteger"] -> 
+  0.00023369036244624253, symbolLiteral["Unequal"] -> 0.00023369036244624253, 
+ symbolLiteral["Capitalize"] -> 0.00023369036244624253, 
+ call["Ordering", 1] -> 0.00023369036244624253, 
+ symbolLiteral["Cosh"] -> 0.00023369036244624253, 
+ call["IrreduciblePolynomialQ", 2] -> 0.00023369036244624253, 
+ symbolLiteral["Area"] -> 0.00023369036244624253, 
+ call["Inverse", 1] -> 0.00023369036244624253, 
+ call["ToString", 1] -> 0.00023369036244624253, 
+ symbolLiteral["$ScriptCommandLine"] -> 0.00023369036244624253, 
+ call["x1", 3] -> 0.00023369036244624253, call["MaximalBy", 3] -> 
+  0.00023369036244624253, symbolLiteral["FormatType"] -> 
+  0.00023369036244624253, symbolLiteral["SpearmanRho"] -> 
+  0.00023369036244624253, symbolLiteral["StartOfString"] -> 
+  0.00023369036244624253, call["RandomInteger", 0] -> 0.00023369036244624253, 
+ call["Equal", 3] -> 0.00023369036244624253, symbolLiteral["Today"] -> 
+  0.00023369036244624253, call["ContinuedFraction", 1] -> 
+  0.00023369036244624253, call["BoundingRegion", 2] -> 
+  0.00023369036244624253, symbolLiteral["Tanh"] -> 0.00023369036244624253, 
+ call["Lookup", 3] -> 0.00023369036244624253, 
+ call["RepeatedNull", 1] -> 0.00023369036244624253, 
+ symbolLiteral["EditDistance"] -> 0.00023369036244624253, 
+ call["List", 7] -> 0.00023369036244624253, call["Animate", 2] -> 
+  0.00023369036244624253, call["Symbol", 1] -> 0.00023369036244624253, 
+ symbolLiteral["EuclideanDistance"] -> 0.00023369036244624253, 
+ symbolLiteral["IntervalUnion"] -> 0.00023369036244624253, 
+ call["FindPath", 2] -> 0.00023369036244624253, 
+ call["Count", 3] -> 0.00023369036244624253, 
+ call["BlockMap", 4] -> 0.00023369036244624253, 
+ call["Det", 1] -> 0.00023369036244624253, call["Erosion", 2] -> 
+  0.00023369036244624253, call["PeanoCurve", 1] -> 0.00023369036244624253, 
+ call["StringDrop", 2] -> 0.00023369036244624253, 
+ call["BlockMap", 3] -> 0.00023369036244624253, 
+ call["RegionMember", 2] -> 0.00023369036244624253, 
+ call["Partition", 4] -> 0.00023369036244624253, 
+ symbolLiteral["Reals"] -> 0.00023369036244624253, 
+ symbolLiteral["Nothing"] -> 0.00023369036244624253, 
+ call["StringCount", 2] -> 0.00023369036244624253, 
+ symbolLiteral["Total"] -> 0.00023369036244624253, 
+ call["Volume", 1] -> 0.00023369036244624253, 
+ call["Image", 2] -> 0.00023369036244624253, call["VertexDegree", 1] -> 
+  0.00023369036244624253, symbolLiteral["Cos"] -> 0.00023369036244624253, 
+ call["Sow", 2] -> 0.00023369036244624253, call["LengthWhile", 2] -> 
+  0.00023369036244624253, symbolLiteral["x12"] -> 0.00023369036244624253, 
+ call["CoefficientList", 2] -> 0.00023369036244624253, 
+ symbolLiteral["Characters"] -> 0.00023369036244624253, 
+ call["Image", 1] -> 0.00023369036244624253, call["Fibonacci", 1] -> 
+  0.00023369036244624253, call["FoldList", 3] -> 0.00023369036244624253, 
+ call["Range", 3] -> 0.00023369036244624253, 
+ call["Union", 3] -> 0.00023369036244624253, 
+ call["Min", 2] -> 0.00023369036244624253, call["Factorial2", 1] -> 
+  0.00023369036244624253, symbolLiteral["LCM"] -> 0.00023369036244624253, 
+ symbolLiteral["GCD"] -> 0.00023369036244624253, 
+ symbolLiteral["DatePlus"] -> 0.00023369036244624253, 
+ symbolLiteral["FindClique"] -> 0.00023369036244624253, 
+ call["FindPath", 3] -> 0.00023369036244624253, 
+ call["Counts", 1] -> 0.00023369036244624253, 
+ call["Ceiling", 1] -> 0.00023369036244624253, 
+ call["Max", 2] -> 0.00023369036244624253, 
+ call["Graph", 1] -> 0.00023369036244624253, symbolLiteral["PrimeOmega"] -> 
+  0.00023369036244624253, call["FixedPointList", 2] -> 
+  0.00023369036244624253, call["DeleteCases", 2] -> 0.00023369036244624253, 
+ call["ImageCrop", 1] -> 0.00023369036244624253, 
+ call["AssociationThread", 1] -> 0.00023369036244624253, 
+ symbolLiteral["ArrayPad"] -> 0.00023369036244624253, 
+ symbolLiteral["Equal"] -> 0.00023369036244624253, 
+ symbolLiteral["Round"] -> 0.00023369036244624253, 
+ call["PowerMod", 3] -> 0.00023369036244624253, 
+ symbolLiteral["AppendTo"] -> 0.00023369036244624253, 
+ symbolLiteral["StringReplace"] -> 0.00023369036244624253, 
+ call["Mod", 3] -> 0.00023369036244624253, call["SetOptions", 2] -> 
+  0.00023369036244624253, symbolLiteral["Union"] -> 0.00023369036244624253, 
+ call["FailureQ", 1] -> 0.00023369036244624253, 
+ symbolLiteral["RotateLeft"] -> 0.00023369036244624253, 
+ call["x3", 2] -> 0.00023369036244624253, call["While", 1] -> 
+  0.00023369036244624253, call["FrobeniusSolve", 2] -> 
+  0.00023369036244624253, symbolLiteral["InsertLinebreaks"] -> 
+  0.00023369036244624253, call["StringSplit", 1] -> 0.00023369036244624253, 
+ symbolLiteral["Sqrt"] -> 0.00023369036244624253, 
+ call["Append", 2] -> 0.00023369036244624253, symbolLiteral["Fibonacci"] -> 
+  0.00023369036244624253, call["Abs", 1] -> 0.00023369036244624253, 
+ symbolLiteral["RGBColor"] -> 0.00023369036244624253, 
+ call["NextPrime", 1] -> 0.00023369036244624253, 
+ call["Nearest", 1] -> 0.00023369036244624253, 
+ call["UnsameQ", 2] -> 0.00023369036244624253, 
+ call["Inequality", 5] -> 0.00023369036244624253, 
+ call["MapThread", 2] -> 0.00023369036244624253, 
+ symbolLiteral["False"] -> 0.00023369036244624253, 
+ call["NumberQ", 1] -> 0.00023369036244624253, 
+ call["KnightTourGraph", 2] -> 0.00023369036244624253, 
+ call["SparseArray", 3] -> 0.00023369036244624253, 
+ call["DayName", 1] -> 0.00023369036244624253, 
+ call["MinimalBy", 2] -> 0.00023369036244624253, 
+ call["FromRomanNumeral", 1] -> 0.00023369036244624253, 
+ call["Fold", 1] -> 0.00023369036244624253, 
+ symbolLiteral["UndirectedEdge"] -> 0.00023369036244624253, 
+ call["Get", 1] -> 0.00023369036244624253, symbolLiteral["DayRange"] -> 
+  0.00023369036244624253, call["BitAnd", 2] -> 0.00023369036244624253, 
+ call["IntegerReverse", 1] -> 0.00023369036244624253, 
+ call["RandomSample", 2] -> 0.00023369036244624253, 
+ call["PreDecrement", 1] -> 0.00023369036244624253, 
+ symbolLiteral["Greater"] -> 0.00023369036244624253, 
+ symbolLiteral["Subsets"] -> 0.00023369036244624253, 
+ symbolLiteral["Sin"] -> 0.00023369036244624253, 
+ symbolLiteral["Or"] -> 0.00023369036244624253, 
+ call["Total", 1] -> 0.00023369036244624253, 
+ call["Break", 1] -> 0.00023369036244624253, 
+ call["x4", 5] -> 0.00023369036244624253, call["MapThread", 3] -> 
+  0.00023369036244624253, call["StringExpression", 3] -> 
+  0.00023369036244624253, call["NumberExpand", 1] -> 0.00023369036244624253, 
+ call["Blank", 1] -> 0.00023369036244624253, 
+ call["TakeList", 2] -> 0.00023369036244624253, 
+ symbolLiteral["IntegerLength"] -> 0.00023369036244624253, 
+ call["StringRiffle", 2] -> 0.00023369036244624253, 
+ call["Median", 1] -> 0.00023369036244624253, 
+ call["MemberQ", 2] -> 0.00023369036244624253, 
+ symbolLiteral["Permutations"] -> 0.00023369036244624253, 
+ call["StringPartition", 2] -> 0.00023369036244624253, 
+ symbolLiteral["GoldenRatio"] -> 0.00023369036244624253, 
+ symbolLiteral["DirichletConvolve"] -> 0.00023369036244624253, 
+ call["Reap", 2] -> 0.00023369036244624253, 
+ call["Beta", 2] -> 0.00023369036244624253, call["Inequality", 7] -> 
+  0.00023369036244624253, call["Dimensions", 1] -> 0.00023369036244624253, 
+ call["PrependTo", 2] -> 0.00023369036244624253, 
+ symbolLiteral["Prime"] -> 0.00023369036244624253, 
+ call["Decrement", 1] -> 0.00023369036244624253, 
+ call["FromContinuedFraction", 1] -> 0.00023369036244624253, 
+ symbolLiteral["Rest"] -> 0.00023369036244624253, 
+ symbolLiteral["x11"] -> 0.00023369036244624253, 
+ call["Join", 3] -> 0.00023369036244624253, symbolLiteral["Table"] -> 
+  0.00023369036244624253, call["List", 9] -> 0.00023369036244624253, 
+ call["GraphEmbedding", 1] -> 0.00023369036244624253, 
+ call["PrimitiveRoot", 1] -> 0.00023369036244624253, 
+ symbolLiteral["Sinh"] -> 0.00023369036244624253, 
+ symbolLiteral["Max"] -> 0.00023369036244624253, 
+ symbolLiteral["OutputForm"] -> 0.00023369036244624253, 
+ call["StringCases", 2] -> 0.00023369036244624253, 
+ call["BinaryReadList", 1] -> 0.00023369036244624253, 
+ call["MatchQ", 2] -> 0.00023369036244624253, 
+ call["Thread", 1] -> 0.00023369036244624253|>
