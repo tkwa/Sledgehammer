@@ -5,9 +5,11 @@
 
 
 BeginPackage["SHInterpreter`"];
-(* Get path whether run through a notebook or wolframscript -script *)
+$RecursionLimit = 4096;
 
+(* Get path whether run through a notebook or wolframscript -script *)
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
+(* Needs["SHUtils`"] *)
 
 tokToBitsDict = Get["compression_dict.mx"] // Map[Rest@IntegerDigits[#,2]&];
 bitsToTokDict = AssociationThread[Values@#, Keys@#]&@tokToBitsDict;
@@ -30,8 +32,12 @@ show[#, "Token list length = "]& @Length@tokToBitsDict; (* 8324 fixed, 6k more  
 (*Preprocessing*)
 
 
-
-
+fixStrings[expr_HoldComplete] := Module[{},
+	expr /. s_String :> RuleCondition[StringReplace[s, Thread[
+		{"\!", "\@", "\%", "\^", "\&", "\*", "\(", "\+", "\/", "\_"} -> 
+		{"\\!", "\\@", "\\%", "\\^", "\\&", "\\*", "\\(", "\\+", "\\/", "\\_"}
+	]]]
+];
 
 undoIdioms[expr_HoldComplete] := Module[{},
 	expr /. {HoldPattern[#&@@x_] :> First@x}
@@ -49,9 +55,9 @@ rmCompoundHeads[expr_HoldComplete] := Module[{},
    To do: replace user-defined variable heads with Construct or Apply *)
 fixIllegalCalls[expr_HoldComplete] := Module[{}, 
 	expr /.
-		{f_Symbol[args_SlotSequence] /; 
+		{  f_Symbol[ss_SlotSequence] /; 
 			MemberQ[toks, symbolLiteral[SymbolName@f]] &&
-			Not@MemberQ[toks, call[SymbolName@f, 1]] :> Apply[f, {args}],
+			Not@MemberQ[toks, call[SymbolName@f, 1]] :> Apply[f, {ss}] , 
 		(imm:_Integer|_String)[args___] :> Apply[imm, {args}] }
 ];
 rmDeprecatedTokens[expr_HoldComplete] := Module[{},
@@ -67,7 +73,7 @@ freeVars[expr_HoldComplete] := Module[{contexts = {"System`", "Combinatorica`"}}
 	May fail on expressions that contain more than 16 free variables. *)
 renameFreeVars[expr_HoldComplete] := Module[{vars = freeVars@expr, newvars},
 	newvars = ToExpression[#, StandardForm, HoldComplete]&@Array["x" <> ToString@#&, Length@vars];
-	Replace[expr /. Thread[vars -> newvars], HoldComplete[s_Symbol] -> s, {-2}, Heads->True]
+	Replace[expr /. Thread[vars -> newvars], HoldComplete[s_Symbol] -> s, {2, Infinity}, Heads->True]
 ];
 renameSlotVars[expr_HoldComplete] := Module[{},
 	expr /. {Slot[1] -> s1, 
@@ -75,15 +81,27 @@ renameSlotVars[expr_HoldComplete] := Module[{},
 		Slot[3] -> s3,
 		SlotSequence[1] -> ss1}
 ];
+(* Often in PPCG, there is a CompoundExpression with all but the last being assigning system names to variables. *)
 undoTokenAliases[expr_HoldComplete] := Module[{},
-	expr /. {}
+	FixedPoint[
+		Replace[
+			{HoldComplete@CompoundExpression[Set[var_Symbol, symb_Symbol], rest___] :> (HoldComplete@CompoundExpression@rest /. var -> symb),
+			HoldComplete@Function@CompoundExpression[Set[var_Symbol, symb_Symbol], rest___] :> (HoldComplete@Function@CompoundExpression@rest /. var -> symb)
+			}],
+		expr] /. 
+	HoldComplete[CompoundExpression[e_]] :> HoldComplete[e]
 ];
 (* Required order of preprocessing steps:
-renameFreeVars \[Rule] undoTokenAliases
+undoTokenAliases \[Rule] renameFreeVars (so free vars are contiguous x1-xn)
 *)
 preprocess=.
 preprocess[expr_HoldComplete] := 
-	expr // rmDeprecatedTokens // undoIdioms // rmCompoundHeads // fixIllegalCalls // renameFreeVars // renameSlotVars;
+	expr // RightComposition[fixStrings, rmDeprecatedTokens, 
+	undoIdioms, 
+	rmCompoundHeads, 
+	fixIllegalCalls, 
+	renameFreeVars, 
+	renameSlotVars, undoTokenAliases];
 
 
 postprocess[expr_HoldComplete] := Module[{},
@@ -132,14 +150,19 @@ tokenToBits[asciiLiteral[str_] /; Max@ToCharacterCode@str <= 127] := Module[{len
 tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found: " tok}]];
 
 (* remove all extraneous elements from tokens ending on 1s? *)
+compress=.
 compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
 compress[expr_HoldComplete] := Check[compress@wToPostfix@preprocess@expr,
-Throw[{"Could not compress expression", expr}]] ;
+Throw[{"Could not compress expression", expr}]];
+
+compressedLength=.
+compressedLength[expr: _HoldComplete | _List] := Length @ compress @ expr;
+
 compress[str_String] := brailleToBits@str;
 
 
 (* ::Subsubsection:: *)
-(*Lexer/parser*)
+(*Parser (converts between WL expressions and list of postfix tokens)*)
 
 
 ClearAttributes[symbolLiteral, HoldFirst]
@@ -152,8 +175,10 @@ postfixtoken[expr_] := Module[{h, name}, Which[
 	MatchQ[expr, Hold[_Integer]], intLiteral@@expr,
 	MatchQ[expr, Hold[_Real]], realLiteral@@expr,
 	Depth@expr == 2, symbolLiteral[SymbolName@@Unevaluated/@expr],
-	True, Assert[False, "Unexpected compound head"]]];
+	Depth@expr == 1, Throw[{"Unexpected token", expr}],
+	True, Throw["Unexpected compound head", expr]]];
 
+(* Uses WL's expression structure to get tokens in order of evaluation, then converts each to postfix. *)
 wToPostfix[expr_] := Map[postfixtoken, Level[
 		Map[Hold, expr, {-1}, Heads -> True],
 		{1,-2}]];
@@ -161,13 +186,19 @@ wToPostfix[expr_] := Map[postfixtoken, Level[
 wToPostfix::usage = "Converts WL code HoldComplete[...] to postfix form, fails on compound heads";
 
 
-(* first item of stack \[Equal] bottom. Return new stack*)
+(* ::Subsubsection:: *)
+(*Unparser (converts postfix tokens back to WL expressions)*)
+
+
+(* Takes the current stack and the next postfix token, and returns the new stack.
+first item of stack \[Equal] bottom. 
+This is O(len * stack_depth). Fix? *)
 oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, operator},
 	(* if an operand, just return *)
 	isCall = MatchQ[next, _call];
 	Switch[next,
 			_intLiteral | _realLiteral | _asciiLiteral | _dictLiteral,
-		arity = 0; newExpr = next[[1]];
+		arity = 0; newExpr = HoldComplete @@ {next[[1]]};
 			_symbolLiteral,
 		arity = 0; newExpr = ToExpression[next[[1]], InputForm, HoldComplete];
 			_call,
@@ -175,25 +206,23 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 		(* if an operator, apply to the last [arity] tokens on the stack *)
 		arity = next[[2]];
 		pops = Take[stack, -arity];
-		newExpr = {pops}; (* List is a dummy head *)
-		(* first wrap in HoldComplete *)
-		newExpr = HoldComplete@@newExpr;
-		(* now delete the inner HoldCompletes *)
+		(* replace head with HoldComplete *)
+		newExpr = HoldComplete@@{pops};
+		(* delete the inner HoldCompletes *)
 		newExpr = DeleteCases[newExpr, HoldComplete, {3}, Heads->True];
-		(* now add the operator as the head of newExpr *)
+		(* add the operator as the head of newExpr *)
 		operator = ToExpression[next[[1]], InputForm, HoldComplete];
-		newExpr = newExpr // ReplacePart[{1,0} -> operator] // Delete[{1,0,0}] (* remove the HoldComplete *)
+		newExpr = newExpr // ReplacePart[{1,0} -> operator] // Delete[{1,0,0}] (* remove the HoldComplete on the head *)
 		];
 		
 	Drop[stack, -arity] // Append[#, newExpr]&
 ];
 
-postfixToW::usage = "Converts postfix form code to WL code HoldComplete[...]";
-postfixToW[pfToks_List] := Module[{},
-	Fold[oneTokenToW, {Slot[1]}, pfToks] // Last
+postfixToW::usage = "Converts postfix form code to WL code HoldComplete[...]. Throws an error when more than one item is left on the stack.";
+postfixToW[pfToks_List, sow_:False] := Module[{f},
+	f = If[sow, oneTokenToW@@Sow[Rule@##]&, oneTokenToW];
+	Fold[f, {}, pfToks] // If[Length@# == 1, Last@#, Throw[{">1 expression left on stack", pfToks}]]&
 ];
-
-
 
 
 (* ::Subsection:: *)
@@ -212,7 +241,8 @@ unEliasDelta[bits_List] := Module[{lennp1, lenUsed},
 	{FromDigits[ Prepend[1]@ bits[[lenUsed + 1 ;; lenUsed + lennp1 - 1]], 2], lenUsed + lennp1 - 1}
 ];
 
-(* returns integer, length used *)
+(* returns integer, length used 
+To do: Change integer literals to k=1 *)
 unVarEliasDelta::usage = "Decode a variant Elias Delta bitstring";
 unVarEliasDelta[bits_List, k_Integer:3, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, lenUsed, n},
 	sgn = If[sgnQ, First@bits,0];

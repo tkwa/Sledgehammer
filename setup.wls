@@ -22,8 +22,9 @@ defaultArities = {0,1,2,3,4,5,6,7};
 
 (* Tokens to manually set arity *)
 arityOverrides = {
+	"Alternatives" -> Range[0, 16],
 	"Association" -> Range[0,16],
-	"Break" -> {0,1},
+	"Break" -> {0,1}, (* 1-argument form could be deprecated? *)
 	"CompoundExpression" -> Range[1, 64],
 	"FindPermutation" -> {1},
 	"Inequality" -> Range[0, 16],
@@ -31,9 +32,11 @@ arityOverrides = {
 	"KeyValueMap" -> {1,2},
 	"List" -> Range[0, 64],
 	"MessageName" -> {2},
+	"Now" -> {0,1},
+	"Part" -> Range[1,16],
 	"Plus" -> Range[0,32],
 	"RuleCondition" -> {1},
-	"RunScheduledTask" -> {1,2},
+	"RunScheduledTask" -> {1,2}, (**)
 	"Slot" -> {1},
 	"Span" -> {2,3},
 	"StringJoin" -> Range@16,
@@ -173,7 +176,7 @@ Print["Adding special cases for literals..."];
 tokfreqs = Join[tokfreqs, specialCaseFreqs];
 
 Print["Sum of freqs: ", total];
-Print["Arities: ", CountsBy[Join[headSHTokens, literalSHTokens], If[Head@# === call, #[[2]], "Literal"]& ] // KeySort];
+Print["Arities: ", CountsBy[Keys@tokfreqs, If[Head@# === call, #[[2]], "Literal"]& ] // KeySort];
 (* //RuntimeTools`Profile; *)
 
 
@@ -225,6 +228,9 @@ Print[Length@tokToBitsDict, " total token definitions saved"];
 Print["Time: ", N[SessionTime[]-time]]
 
 Quit[]
+
+
+
 
 
 
