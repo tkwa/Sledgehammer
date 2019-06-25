@@ -7,13 +7,11 @@ Sledgehammer is a stack-based code-golf language written in, and based on, Wolfr
 
 ### Prior art
 
-While [Mthmtca](https://github.com/LegionMammal978/Mthmtca) compresses each Mathematica builtin into 4 bytes, Sledgehammer achieves this in 0.75 to 2.5 bytes. Optimized Sledgehammer code should be about 1/2 the size of Mthmtca code, and comparable to code size in other golfing languages.
-
- 
+While [Mthmtca](https://github.com/LegionMammal978/Mthmtca) compresses each Mathematica token into 4 bytes, Sledgehammer achieves an average compression ratio of 1 to 1.3 bytes per token. Optimized Sledgehammer code size should be comparable to that of other golfing languages.
 
 ### Instructions for use
 
-For all non-reference purposes, use the GUI at interactive_app.nb.
+For all non-reference purposes, use the interactive app.
 
 To use Sledgehammer from the command line (on Windows), run a program like
 
@@ -36,5 +34,5 @@ Flags:
 Unimplemented flags:
 
     l    Print information about Sledgehammer builtins.
-    s	 Format the code as a Stack Exchange Code Golf submission.
+    s	   Format the code as a Stack Exchange Code Golf submission.
     x    Print explanation of code from Mathematica or Sledgehammer docs.
