@@ -9,7 +9,7 @@ $RecursionLimit = 4096;
 
 (* Get path whether run through a notebook or wolframscript -script *)
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
-(* Needs["SHUtils`"] *)
+Needs["SHUtils`"]
 
 tokToBitsDict = Get["compression_dict.mx"] // Map[Rest@IntegerDigits[#,2]&];
 bitsToTokDict = AssociationThread[Values@#, Keys@#]&@tokToBitsDict;
@@ -65,7 +65,8 @@ rmDeprecatedTokens[expr_HoldComplete] := Module[{},
 		{HoldPattern[Random[]] :> RandomReal[],
 		HoldPattern@Date[] :> DateList[]}
 ];
-freeVars[expr_HoldComplete] := Module[{contexts = {"System`", "Combinatorica`"}},
+(* Returns free variables sorted by first order of appearance. *)
+freeVars[expr_HoldComplete] := Module[{contexts = {"System`", "Combinatorica`", "SHUtils`"}},
     DeleteDuplicates@Cases[expr, s_Symbol /; Not@MemberQ[contexts, Context@s] -> HoldPattern[s], {-1}, Heads-> True]
 ];
 (* May fail on expressions that already contain HoldComplete[_Symbol].
@@ -96,7 +97,8 @@ undoTokenAliases \[Rule] renameFreeVars (so free vars are contiguous x1-xn)
 *)
 preprocess=.
 preprocess[expr_HoldComplete] := 
-	expr // RightComposition[fixStrings, rmDeprecatedTokens, 
+	expr // RightComposition[fixStrings,
+	rmDeprecatedTokens, 
 	undoIdioms, 
 	rmCompoundHeads, 
 	fixIllegalCalls, 
@@ -104,9 +106,15 @@ preprocess[expr_HoldComplete] :=
 	renameSlotVars, undoTokenAliases];
 
 
-postprocess[expr_HoldComplete] := Module[{},
+(* ::Subsubsection:: *)
+(*Postprocessing*)
+
+
+restoreSlotVars[expr_HoldComplete] := Module[{},
 	expr /. {s1 -> Slot[1], s2 -> Slot[2], s3 -> Slot[3]} /. {Hold[x_Slot] -> x}
 ];
+postprocess[expr_HoldComplete] := expr // RightComposition[
+	restoreSlotVars]
 
 
 (* ::Subsubsection:: *)

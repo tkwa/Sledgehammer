@@ -4,8 +4,9 @@
 (* Tested with Mathematica 12.0 *)
 version = "0.5.0-alpha.0";
 
-(* Additional packages to pull names from *)
-packages = {"Combinatorica`", "Quaternions`", "FiniteFields`", "Experimental`"};
+SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
+(* Additional packages to pull names from. Currently only used for symbol literals. *)
+packages = {"Combinatorica`", "Quaternions`", "FiniteFields`", "Experimental`", "SHUtils`"};
 
 (* Applied to names, not tokens *)
 freqAdjustAssoc = {
@@ -42,6 +43,7 @@ arityOverrides = {
 	"StringJoin" -> Range@16,
 	"Switch" -> Range@16,
 	"Times" -> Range[0,16],
+	"Today" -> {0,1},
 	"TwoWayRule" -> {2},
 	"URLFetch" -> {1,2,3}, (* Valid SyntaxInformation, but not in WLD! Fix this! *)
 	"Which" -> Range@16
@@ -102,11 +104,7 @@ legalCallForms =.
 legalCallForms[name_String] :=
 	call[name, #]& /@ arities@name;
 
-Assert[legalCallForms["Map"] === Map[call["Map",#]&,Range@4]];
-
-
-
-legalCallForms@"URLFetch"
+Assert[legalCallForms["Map"] === Map[call["Map",#]&,Range@5]];
 
 
 Off[FrontEndObject::notavail];
@@ -228,6 +226,15 @@ Print[Length@tokToBitsDict, " total token definitions saved"];
 Print["Time: ", N[SessionTime[]-time]]
 
 Quit[]
+
+
+
+
+
+
+
+
+
 
 
 
