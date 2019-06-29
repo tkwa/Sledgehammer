@@ -56,9 +56,9 @@ minFreq = 1/2^17.; (* 19-20 bits *)
 fudgePower = .6;
 
 (* Factors multiplied with WLD frequency if a token is not found in training data. *)
-arityFreqFactors = {0->.25, 1->1, 2->1, 3->.5, 4->.25, 5->.125, 6->.0625, x_Integer -> .05, _ -> .05} //
-	Association // .2*#& // Normal;
-symbolLiteralFreqFactor = .2;
+arityFreqFactors = {0->.25, 1->1, 2->1, 3->.5, 4->.25, 5->.125, 6->.0625, x_Integer -> .02, _ -> .02} //
+	Association // .05*#& // Normal;
+symbolLiteralFreqFactor = .4*.05;
 
 (* These frequencies represent token frequencies rather than WL symbol frequencies. *)
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
@@ -226,18 +226,6 @@ Print[Length@tokToBitsDict, " total token definitions saved"];
 Print["Time: ", N[SessionTime[]-time]]
 
 Quit[]
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
