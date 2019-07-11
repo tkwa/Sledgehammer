@@ -144,7 +144,7 @@ eliasDelta[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[eliasGamma[Length@#
 eliasDelta[_] := Throw@"Argument to Elias Delta must be a positive integer."
 
 (* Elias delta except for the lower k bits which are explicitly encoded, and the sign which is the first bit if sgnQ = True. *)
-varEliasDelta[n_Integer, k_Integer: 3, sgnQ_: True] := Module[{nn, sgn, ret},
+varEliasDelta[n_Integer, k_Integer: 1, sgnQ_: True] := Module[{nn, sgn, ret},
 	If[!sgnQ, Assert[n >= 0]];
 	sgn = Boole[n < 0];
 	nn = BitXor[n, -sgn]; (* BitNot[n] if n < 0 else n *)
@@ -153,7 +153,7 @@ varEliasDelta[n_Integer, k_Integer: 3, sgnQ_: True] := Module[{nn, sgn, ret},
 ];
 
 (* modified Elias Delta, mod 2^3 *)
-tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 3, True]];
+tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 1, True]];
 
 (* convert real numbers to digit lists *)
 tokenToBits[realLiteral[x_Real]] := Module[{str, len, bits},
@@ -267,7 +267,7 @@ unEliasDelta[bits_List] := Module[{lennp1, lenUsed},
 (* returns integer, length used 
 To do: Change integer literals to k=1 *)
 unVarEliasDelta::usage = "Decode a variant Elias Delta bitstring";
-unVarEliasDelta[bits_List, k_Integer:3, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, lenUsed, n},
+unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, lenUsed, n},
 	sgn = If[sgnQ, First@bits,0];
 	rest = If[sgnQ,Rest@bits, bits];
 	{ndiv8p1, lenUsed} = unEliasDelta[rest];
@@ -315,7 +315,7 @@ bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok}
 	Switch[tok,
 		_call , {tok, lenUsed},
 		_symbolLiteral , {tok, lenUsed},
-		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed], 3, True],
+		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed], 1, True],
 		_realLiteral, {realLiteral[ToExpression@#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
 		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
 		_dictLiteral, {dictLiteral[#], lenUsed + #2}& @@ decodeDictLiteral[Drop[bits, lenUsed]],
