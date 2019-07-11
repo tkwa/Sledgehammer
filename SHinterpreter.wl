@@ -11,6 +11,19 @@ $RecursionLimit = 4096;
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
 Needs["SHUtils`"]
 
+tokToBitsDict;
+bitsToTokDict;
+preprocess;
+postprocess;
+wToPostfix;
+postfixToW;
+compress;
+decompress;
+tokenToBits;
+bitsToToken;
+eval;
+
+(* Begin["Private`"]; *)
 tokToBitsDict = Get["compression_dict.mx"] // Map[Rest@IntegerDigits[#,2]&];
 bitsToTokDict = AssociationThread[Values@#, Keys@#]&@tokToBitsDict;
 toks = Keys[tokToBitsDict];
@@ -32,6 +45,7 @@ show[#, "Token list length = "]& @Length@tokToBitsDict; (* 8324 fixed, 6k more  
 (*Preprocessing*)
 
 
+(* ASCII source can contain non-ASCII strings; avert this by undoing escapes. *)
 fixStrings[expr_HoldComplete] := Module[{},
 	expr /. s_String :> RuleCondition[StringReplace[s, Thread[
 		{"\!", "\@", "\%", "\^", "\&", "\*", "\(", "\+", "\/", "\_"} -> 
@@ -43,7 +57,7 @@ undoIdioms[expr_HoldComplete] := Module[{},
 	expr /. {HoldPattern[#&@@x_] :> First@x}
 ];
 
-(* Removes all heads that are not symbols or primitives. *)
+(* Removes all heads that are not atomic. *)
 rmCompoundHeads[expr_HoldComplete] := Module[{},
 	expr //. {
 		p_[f___][x_] :> Construct[p[f], x],
@@ -82,7 +96,7 @@ renameSlotVars[expr_HoldComplete] := Module[{},
 		Slot[3] -> s3,
 		SlotSequence[1] -> ss1}
 ];
-(* Often in PPCG, there is a CompoundExpression with all but the last being assigning system names to variables. *)
+(* Often in PPCG, there is a top-level CompoundExpression with all but the last being assigning system names to variables. *)
 undoTokenAliases[expr_HoldComplete] := Module[{},
 	FixedPoint[
 		Replace[
@@ -110,8 +124,9 @@ preprocess[expr_HoldComplete] :=
 (*Postprocessing*)
 
 
+(* undo renameSlotVars *)
 restoreSlotVars[expr_HoldComplete] := Module[{},
-	expr /. {s1 -> Slot[1], s2 -> Slot[2], s3 -> Slot[3]} /. {Hold[x_Slot] -> x}
+	expr /. {s1 -> Slot[1], s2 -> Slot[2], s3 -> Slot[3], ss1 -> SlotSequence[1]} /. {Hold[x_Slot] -> x}
 ];
 postprocess[expr_HoldComplete] := expr // RightComposition[
 	restoreSlotVars]
@@ -341,7 +356,8 @@ brailleToBits[brs_String] := ToCharacterCode[brs, "Unicode"] - 16^^2800 // Map[P
 (*Execution*)
 
 
-(* add more types of literals later *)
+(* This cell is redundant now that postfixToW exists.
+add more types of literals later *)
 
 applyToken =.
 applyToken[tok_intLiteral | tok_asciiLiteral ] := (
@@ -378,4 +394,5 @@ eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
 ];
 
 
+(* End[] *)
 EndPackage[]
