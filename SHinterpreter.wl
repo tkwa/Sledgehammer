@@ -11,6 +11,19 @@ $RecursionLimit = 4096;
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
 Needs["SHUtils`"]
 
+tokToBitsDict;
+bitsToTokDict;
+preprocess;
+postprocess;
+wToPostfix;
+postfixToW;
+compress;
+decompress;
+tokenToBits;
+bitsToToken;
+eval;
+
+(* Begin["Private`"]; *)
 tokToBitsDict = Get["compression_dict.mx"] // Map[Rest@IntegerDigits[#,2]&];
 bitsToTokDict = AssociationThread[Values@#, Keys@#]&@tokToBitsDict;
 toks = Keys[tokToBitsDict];
@@ -19,6 +32,117 @@ On[Assert]
 printShows = False;
 show := If[TrueQ[printShows], Echo, #&];
 (*$IterationLimit = 2^14;*)
+
+
+(* ::Subsection:: *)
+(*Literal encodings*)
+
+
+(* ::Subsubsection:: *)
+(*Integers (Elias gamma, delta)*)
+
+
+eliasGamma[0] := {1}
+eliasGamma[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[ConstantArray[0,Length@# - 1], #]&;
+
+eliasDelta[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[eliasGamma[Length@#], Rest@# ]&;
+
+eliasDelta[_] := Throw@"Argument to Elias Delta must be a positive integer."
+
+(* Elias delta except for the lower k bits which are explicitly encoded, and the sign which is the first bit if sgnQ = True. *)
+varEliasDelta[n_Integer, k_Integer: 1, sgnQ_: True] := Module[{nn, sgn, ret},
+	If[!sgnQ, Assert[n >= 0]];
+	sgn = Boole[n < 0];
+	nn = BitXor[n, -sgn]; (* BitNot[n] if n < 0 else n *)
+	ret = Join[eliasDelta[Floor[nn/2^k]+1], IntegerDigits[nn,2,k]];
+	If[sgnQ, Join[{sgn},ret], ret]
+];
+
+(* returns n, length used *)
+unEliasGamma[bits_List] := Module[{leadingZeros = Count[First@Split@bits,0]},
+	{FromDigits[bits[[leadingZeros + 1;; 2 leadingZeros + 1]],2],
+	2 leadingZeros + 1}
+];
+
+(* returns n, length used *)
+unEliasDelta[bits_List] := Module[{lennp1, lenUsed},
+	{lennp1, lenUsed} = unEliasGamma[bits];
+	{FromDigits[ Prepend[1]@ bits[[lenUsed + 1 ;; lenUsed + lennp1 - 1]], 2], lenUsed + lennp1 - 1}
+];
+
+(* returns integer, length used 
+To do: Change integer literals to k=1 *)
+unVarEliasDelta::usage = "Decode a variant Elias Delta bitstring";
+unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, lenUsed, n},
+	sgn = If[sgnQ, First@bits,0];
+	rest = If[sgnQ,Rest@bits, bits];
+	{ndiv8p1, lenUsed} = unEliasDelta[rest];
+	n = (ndiv8p1 - 1) * 2^k + FromDigits[ rest[[lenUsed+1 ;; lenUsed+k]], 2];
+	n = BitXor[n,-sgn];
+	(* bits used = Elias Delta bits + low bits + sign bit *)
+	{n, lenUsed + k + Boole@sgnQ}
+];
+
+(* modified Elias Delta, mod 2^3 *)
+tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 1, True]];
+
+
+(* ::Subsubsection:: *)
+(*Reals*)
+
+
+
+
+(* convert real numbers to digit lists *)
+tokenToBits[realLiteral[x_Real]] := Module[{str, len, bits},
+	str = ToString[x, InputForm];
+	bits = fromBijectiveBase[(ToCharacterCode@str /. 10 -> 127) - 31, 96]~IntegerDigits~2;
+	len = Length@bits;
+	Join[tokenToBits@realLiteral[], varEliasDelta[len, 3, False], bits]
+];
+
+
+
+(* ::Subsubsection::Closed:: *)
+(*Bijective base*)
+
+
+(* convert n to bijective base k *)
+toBijectiveBase[n_Integer, k_Integer] := Module[{acc = n, ret = {}, digit},
+	While[acc > 0, 
+		digit = Mod[acc-1, k] + 1;
+		PrependTo[ret, digit];
+		acc = Quotient[acc-1, k]];
+	ret
+];
+
+fromBijectiveBase[l_List, k_Integer] := FromDigits[l, k];
+
+
+(* ::Subsubsection:: *)
+(*Strings*)
+
+
+(* ASCII strings packed into 7 bits per character.*)
+tokenToBits[asciiLiteral[str_String] /; SubsetQ[Union[{10}, Range[32, 127]], Union@ToCharacterCode@str] ] := encodeAsciiLiteral[str];
+tokenToBits[asciiLiteral[str_]] := tokenToBits[asciiLiteral[""]];
+
+encodeAsciiLiteral[str_String] := Module[{len, bits},
+	bits = fromBijectiveBase[(ToCharacterCode@str /. 10 -> 127) - 31, 96]// IntegerDigits[#,2]&;
+	len = Length@bits;
+	Join[tokenToBits@asciiLiteral[], varEliasDelta[len, 3, False], bits]
+];
+
+(* ASCII literal. (Length of string, string in packed 7 bit encoding) *)
+decodeAsciiLiteral[bits_] := Module[{len, lenLen},
+	{len, lenLen} = unVarEliasDelta[bits, 3, False];
+	Drop[bits, lenLen] //
+	Take[#, len]& //
+	toBijectiveBase[FromDigits[#, 2], 96]& //
+	(# + 31 /. 127 -> 10&) //
+	FromCharacterCode //
+	{#, lenLen + len } &
+];
 
 
 (* ::Subsection:: *)
@@ -32,18 +156,18 @@ show[#, "Token list length = "]& @Length@tokToBitsDict; (* 8324 fixed, 6k more  
 (*Preprocessing*)
 
 
+(* ASCII source can contain non-ASCII strings; avert this by undoing escapes. *)
 fixStrings[expr_HoldComplete] := Module[{},
-	expr /. s_String :> RuleCondition[StringReplace[s, Thread[
-		{"\!", "\@", "\%", "\^", "\&", "\*", "\(", "\+", "\/", "\_"} -> 
-		{"\\!", "\\@", "\\%", "\\^", "\\&", "\\*", "\\(", "\\+", "\\/", "\\_"}
-	]]]
+	expr /. s_String :> RuleCondition[
+		StringTake[ToString[s, InputForm, CharacterEncoding -> "PrintableASCII"], {2, -2}] //
+       StringReplace[#, "\\n" -> "\n"]&]
 ];
 
 undoIdioms[expr_HoldComplete] := Module[{},
 	expr /. {HoldPattern[#&@@x_] :> First@x}
 ];
 
-(* Removes all heads that are not symbols or primitives. *)
+(* Removes all heads that are not atomic. *)
 rmCompoundHeads[expr_HoldComplete] := Module[{},
 	expr //. {
 		p_[f___][x_] :> Construct[p[f], x],
@@ -82,7 +206,7 @@ renameSlotVars[expr_HoldComplete] := Module[{},
 		Slot[3] -> s3,
 		SlotSequence[1] -> ss1}
 ];
-(* Often in PPCG, there is a CompoundExpression with all but the last being assigning system names to variables. *)
+(* Often in PPCG, there is a top-level CompoundExpression with all but the last being assigning system names to variables. *)
 undoTokenAliases[expr_HoldComplete] := Module[{},
 	FixedPoint[
 		Replace[
@@ -97,23 +221,32 @@ undoTokenAliases \[Rule] renameFreeVars (so free vars are contiguous x1-xn)
 *)
 preprocess=.
 preprocess[expr_HoldComplete] := 
-	expr // RightComposition[fixStrings,
+	expr // RightComposition[
+	fixStrings,
 	rmDeprecatedTokens, 
 	undoIdioms, 
 	rmCompoundHeads, 
 	fixIllegalCalls, 
 	renameFreeVars, 
-	renameSlotVars, undoTokenAliases];
+	renameSlotVars,
+	undoTokenAliases];
 
 
 (* ::Subsubsection:: *)
 (*Postprocessing*)
 
 
+(* undo renameSlotVars *)
 restoreSlotVars[expr_HoldComplete] := Module[{},
-	expr /. {s1 -> Slot[1], s2 -> Slot[2], s3 -> Slot[3]} /. {Hold[x_Slot] -> x}
+	expr /. {s1 -> Slot[1], s2 -> Slot[2], s3 -> Slot[3], ss1 -> SlotSequence[1]} /. {Hold[x_Slot] -> x}
 ];
-postprocess[expr_HoldComplete] := expr // RightComposition[
+restoreStrings[expr_HoldComplete] := Module[{},
+	expr /. s_String :> RuleCondition[
+		ToExpression["\"" <> StringReplace[s, "\n" -> "\\n"] <> "\"", InputForm]]
+];
+
+postprocess[expr_HoldComplete] := expr // Composition[
+	restoreStrings,
 	restoreSlotVars]
 
 
@@ -121,39 +254,11 @@ postprocess[expr_HoldComplete] := expr // RightComposition[
 (*Compressor*)
 
 
-eliasGamma[0] := {1}
-eliasGamma[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[ConstantArray[0,Length@# - 1], #]&;
+compress@HoldComplete@1.5 // decompress
 
-eliasDelta[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[eliasGamma[Length@#], Rest@# ]&;
 
-eliasDelta[_] := Throw@"Argument to Elias Delta must be a positive integer."
 
-(* Elias delta except for the lower k bits which are explicitly encoded, and the sign which is the first bit if sgnQ = True. *)
-varEliasDelta[n_Integer, k_Integer: 3, sgnQ_: True] := Module[{nn, sgn, ret},
-	If[!sgnQ, Assert[n >= 0]];
-	sgn = Boole[n < 0];
-	nn = BitXor[n, -sgn]; (* BitNot[n] if n < 0 else n *)
-	ret = Join[eliasDelta[Floor[nn/2^k]+1], IntegerDigits[nn,2,k]];
-	If[sgnQ, Join[{sgn},ret], ret]
-];
 
-(* modified Elias Delta, mod 2^3 *)
-tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 3, True]];
-
-(* convert real numbers to digit lists *)
-tokenToBits[realLiteral[x_Real]] := Module[{str, len, bits},
-	str = ToString[x, InputForm];
-	len = StringLength@str;
-	bits = ToCharacterCode@str // IntegerDigits[#, 2, 7]& // Flatten;
-	Join[tokenToBits@realLiteral[], varEliasDelta[len, 3, False], bits]
-];
-
-(* ASCII strings packed into 7 bits per character.*)
-tokenToBits[asciiLiteral[str_] /; Max@ToCharacterCode@str <= 127] := Module[{len, bits},
-	len = StringLength@str;
-	bits = ToCharacterCode@str // IntegerDigits[#, 2, 7]& // Flatten;
-	Join[tokenToBits@asciiLiteral[], varEliasDelta[len, 3, False], bits]
-];
 
 tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found: " tok}]];
 
@@ -237,41 +342,8 @@ postfixToW[pfToks_List, sow_:False] := Module[{f},
 (*Decompression*)
 
 
-(* returns n, length used *)
-unEliasGamma[bits_List] := Module[{leadingZeros = Count[First@Split@bits,0]},
-	{FromDigits[bits[[leadingZeros + 1;; 2 leadingZeros + 1]],2],
-	2 leadingZeros + 1}
-];
 
-(* returns n, length used *)
-unEliasDelta[bits_List] := Module[{lennp1, lenUsed},
-	{lennp1, lenUsed} = unEliasGamma[bits];
-	{FromDigits[ Prepend[1]@ bits[[lenUsed + 1 ;; lenUsed + lennp1 - 1]], 2], lenUsed + lennp1 - 1}
-];
 
-(* returns integer, length used 
-To do: Change integer literals to k=1 *)
-unVarEliasDelta::usage = "Decode a variant Elias Delta bitstring";
-unVarEliasDelta[bits_List, k_Integer:3, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, lenUsed, n},
-	sgn = If[sgnQ, First@bits,0];
-	rest = If[sgnQ,Rest@bits, bits];
-	{ndiv8p1, lenUsed} = unEliasDelta[rest];
-	n = (ndiv8p1 - 1) * 2^k + FromDigits[ rest[[lenUsed+1 ;; lenUsed+k]], 2];
-	n = BitXor[n,-sgn];
-	(* bits used = Elias Delta bits + low bits + sign bit *)
-	{n, lenUsed + k + Boole@sgnQ}
-];
-
-(* ASCII literal. (Length of string, string in packed 7 bit encoding) *)
-decodeASCIILiteral[bits_] := Module[{strLen, lenLen},
-	{strLen, lenLen} = unVarEliasDelta[bits, 3, False];
-	Drop[bits, lenLen] //
-	Take[#, 7 * strLen]& //
-	Partition[#,7]& //
-	Map[FromDigits[#,2] &] //
-	FromCharacterCode //
-	{#, lenLen + 7 * strLen} &
-];
 
 (* Basic dictionary literal. Index in DictionaryLookup[] in increasing order of length.
 	Length <4 words are not useful to store as they're cheaper as regular string literals. *)
@@ -282,14 +354,7 @@ decodeDictLiteral[bits_] := Module[{dict, idx, lenUsed},
 	{dict[[idx]],lenUsed}
 ];
 
-(* for future builtins: put n in bijective base k *)
-toBijectiveBase[n_Integer, k_Integer] := Module[{acc = n, ret = {}, digit},
-	While[acc > 0, 
-		digit = Mod[acc-1, k] + 1;
-		PrependTo[ret, digit];
-		acc = Quotient[acc-1, k]];
-	ret
-];
+
 
 (* returns token, length used.*)
 bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok},
@@ -300,11 +365,11 @@ bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok}
 	Switch[tok,
 		_call , {tok, lenUsed},
 		_symbolLiteral , {tok, lenUsed},
-		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed], 3, True],
-		_realLiteral, {realLiteral[ToExpression@#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
-		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
+		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed], 1, True],
+		_realLiteral, {realLiteral[ToExpression@#], lenUsed + #2}& @@ decodeAsciiLiteral[Drop[bits, lenUsed]],
+		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeAsciiLiteral[Drop[bits, lenUsed]],
 		_dictLiteral, {dictLiteral[#], lenUsed + #2}& @@ decodeDictLiteral[Drop[bits, lenUsed]],
-		_, Throw["Token prefix not found!"]
+		_, Throw["Token prefix not found!"@tok]
 	]
 ];
 
@@ -317,11 +382,11 @@ decompressNoPad[bits_List] := Module[{tok, lenUsed},
 	{tok, lenUsed} = bitsToToken[bits];
 	Prepend[tok][decompressNoPad[Drop[bits, lenUsed]]]];
 	
-(* decompress after padding with 32 implicit trailing 1 bits *)
-decompress[bits_List] := decompressNoPad[ArrayPad[bits, {0,32},1]];
+(* decompress after padding with 128 implicit trailing 1 bits *)
+decompress[bits_List] := decompressNoPad[ArrayPad[bits, {0,128},1]];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Converting between Braille, binary file, and compressed forms*)
 
 
@@ -341,7 +406,8 @@ brailleToBits[brs_String] := ToCharacterCode[brs, "Unicode"] - 16^^2800 // Map[P
 (*Execution*)
 
 
-(* add more types of literals later *)
+(* This cell is redundant now that postfixToW exists.
+add more types of literals later *)
 
 applyToken =.
 applyToken[tok_intLiteral | tok_asciiLiteral ] := (
@@ -378,4 +444,5 @@ eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
 ];
 
 
+(* End[] *)
 EndPackage[]
