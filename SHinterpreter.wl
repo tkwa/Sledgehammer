@@ -38,7 +38,7 @@ show := If[TrueQ[printShows], Echo, #&];
 (*Literal encodings*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Integers (Elias gamma, delta)*)
 
 
@@ -70,7 +70,7 @@ unEliasDelta[bits_List] := Module[{lennp1, lenUsed},
 	{FromDigits[ Prepend[1]@ bits[[lenUsed + 1 ;; lenUsed + lennp1 - 1]], 2], lenUsed + lennp1 - 1}
 ];
 
-(* returns integer, length used 
+(* returns integer, length used
 To do: Change integer literals to k=1 *)
 unVarEliasDelta::usage = "Decode a variant Elias Delta bitstring";
 unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, lenUsed, n},
@@ -83,6 +83,23 @@ unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p
 	{n, lenUsed + k + Boole@sgnQ}
 ];
 
+(* modified Elias Delta, mod 2^3 *)
+tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 1, True]];
+
+
+(* ::Subsubsection:: *)
+(*Reals*)
+
+
+(* convert real numbers to digit lists *)
+tokenToBits[realLiteral[x_Real]] := Module[{str, len, bits},
+	str = ToString[x, InputForm];
+	bits = fromBijectiveBase[(ToCharacterCode@str /. 10 -> 127) - 31, 96]~IntegerDigits~2;
+	len = Length@bits;
+	Join[tokenToBits@realLiteral[], varEliasDelta[len, 3, False], bits]
+];
+
+
 
 (* ::Subsubsection::Closed:: *)
 (*Bijective base*)
@@ -90,7 +107,7 @@ unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p
 
 (* convert n to bijective base k *)
 toBijectiveBase[n_Integer, k_Integer] := Module[{acc = n, ret = {}, digit},
-	While[acc > 0, 
+	While[acc > 0,
 		digit = Mod[acc-1, k] + 1;
 		PrependTo[ret, digit];
 		acc = Quotient[acc-1, k]];
@@ -115,7 +132,7 @@ encodeAsciiLiteral[str_String] := Module[{len, bits},
 ];
 
 (* ASCII literal. (Length of string, string in packed 7 bit encoding) *)
-decodeASCIILiteral[bits_] := Module[{len, lenLen},
+decodeAsciiLiteral[bits_] := Module[{len, lenLen},
 	{len, lenLen} = unVarEliasDelta[bits, 3, False];
 	Drop[bits, lenLen] //
 	Take[#, len]& //
@@ -156,17 +173,17 @@ rmCompoundHeads[expr_HoldComplete] := Module[{},
 	}
 ];
 
-(* Restructures illegal argument patterns and certain special cases of non-function heads. 
+(* Restructures illegal argument patterns and certain special cases of non-function heads.
    To do: replace user-defined variable heads with Construct or Apply *)
-fixIllegalCalls[expr_HoldComplete] := Module[{}, 
+fixIllegalCalls[expr_HoldComplete] := Module[{},
 	expr /.
-		{  f_Symbol[ss_SlotSequence] /; 
+		{  f_Symbol[ss_SlotSequence] /;
 			MemberQ[toks, symbolLiteral[SymbolName@f]] &&
-			Not@MemberQ[toks, call[SymbolName@f, 1]] :> Apply[f, {ss}] , 
+			Not@MemberQ[toks, call[SymbolName@f, 1]] :> Apply[f, {ss}] ,
 		(imm:_Integer|_String)[args___] :> Apply[imm, {args}] }
 ];
 rmDeprecatedTokens[expr_HoldComplete] := Module[{},
-	expr /. 
+	expr /.
 		{HoldPattern[Random[]] :> RandomReal[],
 		HoldPattern@Date[] :> DateList[]}
 ];
@@ -175,15 +192,15 @@ freeVars[expr_HoldComplete] := Module[{contexts = {"System`", "Combinatorica`", 
     DeleteDuplicates@Cases[expr, s_Symbol /; Not@MemberQ[contexts, Context@s] -> HoldPattern[s], {-1}, Heads-> True]
 ];
 (* May fail on expressions that already contain HoldComplete[_Symbol].
-	May fail on expressions that rely on manipulating symbols. 
+	May fail on expressions that rely on manipulating symbols.
 	May fail on expressions that contain more than 16 free variables. *)
 renameFreeVars[expr_HoldComplete] := Module[{vars = freeVars@expr, newvars},
 	newvars = ToExpression[#, StandardForm, HoldComplete]&@Array["x" <> ToString@#&, Length@vars];
 	Replace[expr /. Thread[vars -> newvars], HoldComplete[s_Symbol] -> s, {2, Infinity}, Heads->True]
 ];
 renameSlotVars[expr_HoldComplete] := Module[{},
-	expr /. {Slot[1] -> s1, 
-		Slot[2] -> s2, 
+	expr /. {Slot[1] -> s1,
+		Slot[2] -> s2,
 		Slot[3] -> s3,
 		SlotSequence[1] -> ss1}
 ];
@@ -194,21 +211,21 @@ undoTokenAliases[expr_HoldComplete] := Module[{},
 			{HoldComplete@CompoundExpression[Set[var_Symbol, symb_Symbol], rest___] :> (HoldComplete@CompoundExpression@rest /. var -> symb),
 			HoldComplete@Function@CompoundExpression[Set[var_Symbol, symb_Symbol], rest___] :> (HoldComplete@Function@CompoundExpression@rest /. var -> symb)
 			}],
-		expr] /. 
+		expr] /.
 	HoldComplete[CompoundExpression[e_]] :> HoldComplete[e]
 ];
 (* Required order of preprocessing steps:
 undoTokenAliases \[Rule] renameFreeVars (so free vars are contiguous x1-xn)
 *)
 preprocess=.
-preprocess[expr_HoldComplete] := 
+preprocess[expr_HoldComplete] :=
 	expr // RightComposition[
 	fixStrings,
-	rmDeprecatedTokens, 
-	undoIdioms, 
-	rmCompoundHeads, 
-	fixIllegalCalls, 
-	renameFreeVars, 
+	rmDeprecatedTokens,
+	undoIdioms,
+	rmCompoundHeads,
+	fixIllegalCalls,
+	renameFreeVars,
 	renameSlotVars,
 	undoTokenAliases];
 
@@ -235,31 +252,13 @@ postprocess[expr_HoldComplete] := expr // Composition[
 (*Compressor*)
 
 
-compress@HoldComplete@1.5 // decompress
-
-
-
-
-(* modified Elias Delta, mod 2^3 *)
-tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 1, True]];
-
-(* convert real numbers to digit lists *)
-tokenToBits[realLiteral[x_Real]] := Module[{str, len, bits},
-	str = ToString[x, InputForm];
-	bits = fromBijectiveBase[(ToCharacterCode@str /. 10 -> 127) - 31, 96]~IntegerDigits~2;
-	len = Length@bits;
-	Join[tokenToBits@realLiteral[], varEliasDelta[len, 3, False], bits]
-];
-
-
-
 tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found: " tok}]];
 
 (* remove all extraneous elements from tokens ending on 1s? *)
 compress=.
 compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
 compress[expr_HoldComplete] := Check[compress@wToPostfix@preprocess@expr,
-Throw[{"Could not compress expression", expr}]];
+Assert[False, "Could not compress expression"@expr]];
 
 compressedLength=.
 compressedLength[expr: _HoldComplete | _List] := Length @ compress @ expr;
@@ -297,7 +296,7 @@ wToPostfix::usage = "Converts WL code HoldComplete[...] to postfix form, fails o
 
 
 (* Takes the current stack and the next postfix token, and returns the new stack.
-first item of stack \[Equal] bottom. 
+first item of stack \[Equal] bottom.
 This is O(len * stack_depth). Fix? *)
 oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, operator},
 	(* if an operand, just return *)
@@ -320,7 +319,7 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 		operator = ToExpression[next[[1]], InputForm, HoldComplete];
 		newExpr = newExpr // ReplacePart[{1,0} -> operator] // Delete[{1,0,0}] (* remove the HoldComplete on the head *)
 		];
-		
+
 	Drop[stack, -arity] // Append[#, newExpr]&
 ];
 
@@ -333,9 +332,6 @@ postfixToW[pfToks_List, sow_:False] := Module[{f},
 
 (* ::Subsection:: *)
 (*Decompression*)
-
-
-
 
 
 (* Basic dictionary literal. Index in DictionaryLookup[] in increasing order of length.
@@ -359,8 +355,8 @@ bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok}
 		_call , {tok, lenUsed},
 		_symbolLiteral , {tok, lenUsed},
 		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed], 1, True],
-		_realLiteral, {realLiteral[ToExpression@#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
-		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeASCIILiteral[Drop[bits, lenUsed]],
+		_realLiteral, {realLiteral[ToExpression@#], lenUsed + #2}& @@ decodeAsciiLiteral[Drop[bits, lenUsed]],
+		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeAsciiLiteral[Drop[bits, lenUsed]],
 		_dictLiteral, {dictLiteral[#], lenUsed + #2}& @@ decodeDictLiteral[Drop[bits, lenUsed]],
 		_, Throw["Token prefix not found!"@tok]
 	]
@@ -374,12 +370,12 @@ decompressNoPad[{Repeated[1]}] := {};
 decompressNoPad[bits_List] := Module[{tok, lenUsed},
 	{tok, lenUsed} = bitsToToken[bits];
 	Prepend[tok][decompressNoPad[Drop[bits, lenUsed]]]];
-	
+
 (* decompress after padding with 128 implicit trailing 1 bits *)
 decompress[bits_List] := decompressNoPad[ArrayPad[bits, {0,128},1]];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Converting between Braille, binary file, and compressed forms*)
 
 
