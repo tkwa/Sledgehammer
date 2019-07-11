@@ -91,8 +91,6 @@ tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDel
 (*Reals*)
 
 
-
-
 (* convert real numbers to digit lists *)
 tokenToBits[realLiteral[x_Real]] := Module[{str, len, bits},
 	str = ToString[x, InputForm];
@@ -254,19 +252,13 @@ postprocess[expr_HoldComplete] := expr // Composition[
 (*Compressor*)
 
 
-compress@HoldComplete@1.5 // decompress
-
-
-
-
-
 tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found: " tok}]];
 
 (* remove all extraneous elements from tokens ending on 1s? *)
 compress=.
 compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
 compress[expr_HoldComplete] := Check[compress@wToPostfix@preprocess@expr,
-Throw[{"Could not compress expression", expr}]];
+Assert[False, "Could not compress expression"@expr]];
 
 compressedLength=.
 compressedLength[expr: _HoldComplete | _List] := Length @ compress @ expr;
@@ -340,9 +332,6 @@ postfixToW[pfToks_List, sow_:False] := Module[{f},
 
 (* ::Subsection:: *)
 (*Decompression*)
-
-
-
 
 
 (* Basic dictionary literal. Index in DictionaryLookup[] in increasing order of length.
