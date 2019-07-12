@@ -27,6 +27,7 @@ arityOverrides = {
 	"Association" -> Range[0,16],
 	"Break" -> {0,1}, (* 1-argument form could be deprecated? *)
 	"CompoundExpression" -> Range[1, 64],
+	"Construct" -> Range[1, 64],
 	"FindPermutation" -> {1,2},
 	"Inequality" -> Range[0, 16],
 	"K" -> Range[0,7],

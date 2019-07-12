@@ -143,6 +143,9 @@ decodeAsciiLiteral[bits_] := Module[{len, lenLen},
 ];
 
 
+HoldComplete[StringCases[#1,RegularExpression["[A-Za-z](?![A-Za-z])"]]<>""&] // preprocess // FullForm
+
+
 (* ::Subsection:: *)
 (*Compression*)
 
@@ -162,15 +165,19 @@ fixStrings[expr_HoldComplete] := Module[{},
 ];
 
 undoIdioms[expr_HoldComplete] := Module[{},
-	expr /. {HoldPattern[#&@@x_] :> First@x}
+	expr /. {
+		HoldPattern[#&@@x_] :> First@x,
+		HoldPattern[x_[[1]]] :> First@x,
+		HoldPattern[StringJoin[args__, ""]] :> StringJoin[args],
+		HoldPattern[StringJoin["", args__]] :> StringJoin[args] }
 ];
 
 (* Removes all heads that are not atomic. *)
 rmCompoundHeads[expr_HoldComplete] := Module[{},
 	expr //. {
-		p_[f___][x_] :> Construct[p[f], x],
-		p_[f___][args___] :> Apply[p[f],{args}]
-	}
+		 p_[f___][x_] :> Construct[p[f], x],
+		 p_[f___][args___] :> Apply[p[f],{args}]
+		}
 ];
 
 (* Restructures illegal argument patterns and certain special cases of non-function heads.
@@ -189,10 +196,11 @@ rmDeprecatedTokens[expr_HoldComplete] := Module[{},
 ];
 (* Returns free variables sorted by first order of appearance. *)
 freeVars[expr_HoldComplete] := Module[{contexts = {"System`", "Combinatorica`", "SHUtils`"}},
-    DeleteDuplicates@Cases[expr, s_Symbol /; Not@MemberQ[contexts, Context@s] -> HoldPattern[s], {-1}, Heads-> True]
+    Cases[expr, s_Symbol /; Not@MemberQ[contexts, Context@s] -> HoldPattern[s], {-1}, Heads-> True] //
+    Counts // ReverseSort // Keys (* DeleteDuplicates*)
 ];
 (* May fail on expressions that already contain HoldComplete[_Symbol].
-	May fail on expressions that rely on manipulating symbols.
+	May fail on expressions that rely on manipulating symbol names.
 	May fail on expressions that contain more than 16 free variables. *)
 renameFreeVars[expr_HoldComplete] := Module[{vars = freeVars@expr, newvars},
 	newvars = ToExpression[#, StandardForm, HoldComplete]&@Array["x" <> ToString@#&, Length@vars];
