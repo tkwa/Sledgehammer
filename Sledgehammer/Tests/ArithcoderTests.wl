@@ -134,7 +134,7 @@ VerificationTest[
 
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Decoder utilities*)
 
 
@@ -217,7 +217,7 @@ VerificationTest[
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Decoder*)
 
 
@@ -225,8 +225,8 @@ VerificationTest[
 	charCodes = Flatten[ToCharacterCode["Five boxing wizards jump quickly"]];
 	base = 2^45;
 	aCoderLinkedList = toLinkedList[encode[charCodes, aliceModel]]; state = Interval[{0, base - 1}];
-	x = FromDigits[Table[getBit[], 45], 2];
-	{decodeToken[aliceModel, {}], state, x}
+	Sledgehammer`Private`x = FromDigits[Table[getBit[], 45], 2];
+	{decodeToken[aliceModel, {}], state, Sledgehammer`Private`x}
 	,
 	{70, Interval[{15609370221568, 26730008906751}], 20905830711458},
    TestID -> "encode and decodeToken"
@@ -275,11 +275,11 @@ VerificationTest[
 
 
 VerificationTest[
-	base = 2^45; 
-	aCoderLinkedList = toLinkedList@encode[{1,0,0,1,1,0,1,0,0,1,0}, bitModel];
-	state = Interval@{0, base-1};
-	x = FromDigits[Table[getBit[], BitLength@base - 1], 2];
-	decodeBits[11]
+	base = 2^45;
+	Sledgehammer`Private`aCoderLinkedList = toLinkedList@encode[{1,0,0,1,1,0,1,0,0,1,0}, Sledgehammer`Private`$bitModel];
+	Sledgehammer`Private`state = Interval@{0, base-1};
+	x = FromDigits[Table[Sledgehammer`Private`getBit[], BitLength@base - 1], 2];
+	Sledgehammer`Private`decodeBits[11]
 	,
 	{1,0,0,1,1,0,1,0,0,1,0}
 	,
@@ -289,7 +289,7 @@ VerificationTest[
 VerificationTest[
 	literalTestModel = <| intLiteral[] -> .5, "foo" -> .5 |>&;
 	encode[{"foo", intLiteral[-5], intLiteral[24601]}, literalTestModel] === Flatten[
-	{1, 0, SHInterpreter`varEliasDelta@-5, 0, SHInterpreter`varEliasDelta@24601, 1}]
+	{1, 0, varEliasDelta@-5, 0, varEliasDelta@24601, 1}]
 	,
 	True
 	,
@@ -298,7 +298,7 @@ VerificationTest[
 
 VerificationTest[
 	literalTestModel = <| intLiteral[] -> .2, "foo" -> .8 |>&;
-	a = Riffle[SHInterpreter`intLiteral /@ {0, 1, -1, 5, 314, 24601, 1324356}, "foo"];
+	a = Riffle[intLiteral /@ {0, 1, -1, 5, 314, 24601, 1324356}, "foo"];
 	decode[encode[a, literalTestModel], literalTestModel, 13]
 	,
 	{intLiteral[0],"foo",intLiteral[1],"foo",intLiteral[-1],"foo",intLiteral[5],"foo",intLiteral[314],"foo",intLiteral[24601],"foo",intLiteral[1324356]}
@@ -308,14 +308,21 @@ VerificationTest[
 	
 VerificationTest[
 	literalTestModel = <| intLiteral[] -> .2, "foo" -> .5, stringLiteral[] -> .2, realLiteral[] -> .1 |>&;
-	a = {"foo", realLiteral[-3.14159]}~Join~Riffle[SHInterpreter`intLiteral /@ {0, 1, -1, 5, 1324356},
-			SHInterpreter`stringLiteral /@ {" ~!@#$%^&*()", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "~~~~", ""}];
+	a = {"foo", realLiteral[-3.14159]}~Join~Riffle[intLiteral /@ {0, 1, -1, 5, 1324356},
+			stringLiteral /@ {" ~!@#$%^&*()", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "~~~~", ""}];
 	decode[encode[a, literalTestModel], literalTestModel, 10]
 	,
 	{"foo",realLiteral[-3.14159`],intLiteral[0],stringLiteral[" ~!@#$%^&*()"],intLiteral[1],stringLiteral["ABCDEFGHIJKLMNOPQRSTUVWXYZ"],intLiteral[-1],stringLiteral["~~~~"],intLiteral[5],stringLiteral[""]}
 	,
 	TestID -> "Enc/dec int/str/real literals", TimeConstraint->10
 ]
+
+
+literalTestModel = <| intLiteral[] -> .2, "foo" -> .5, stringLiteral[] -> .2, realLiteral[] -> .1 |>&;
+	a = {"foo", realLiteral[-3.14159]}~Join~Riffle[intLiteral /@ {0, 1, -1, 5, 1324356},
+			stringLiteral /@ {" ~!@#$%^&*()", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "~~~~", ""}];
+	decode[encode[a, literalTestModel], literalTestModel, 10]
+
 
 
 (* ::Subsection:: *)

@@ -1,8 +1,11 @@
 (* ::Package:: *)
 
+$RecursionLimit = 4096;
+
 (* Load all package fragments following https://mathematica.stackexchange.com/a/176489/61597 *)
 Sledgehammer`Private`$PackageDirectory = DirectoryName[$InputFileName]
 PrependTo[$Path, Sledgehammer`Private`$PackageDirectory];
+
 
 << "Declarations.wl"
 
@@ -17,14 +20,13 @@ PrependTo[$Path, Sledgehammer`Private`$PackageDirectory];
 << "Functions/Math.wl"
 << "Functions/Sets.wl"
 
-<< "Unprotects.wl"
+<< "SystemOverloads/Unprotects.wl"
 (*
-<< "Overloads/Currying.wl"
-<< "Overloads/Operators.wl"
-<< "Overloads/String.wl"
+<< "SystemOverloads/Currying.wl"
+<< "SystemOverloads/Operators.wl"
+<< "SystemOverloads/String.wl"
 *)
 
-(*
-<< "Arithcoder.wl"
-*)
-<< "Interpreter.wl"
+<< "Compressor/Models.wl"
+<< "Compressor/Arithcoder.wl"
+<< "Compressor/Interpreter.wl"

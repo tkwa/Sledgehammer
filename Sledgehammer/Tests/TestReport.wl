@@ -5,7 +5,8 @@ Testing framework source:
 https://mathematica.stackexchange.com/a/176573/61597
 *)
 
-Get["Sledgehammer`", Path -> FileNameJoin[{NotebookDirectory[], "..", ".."}] ]
+Once@Get["Sledgehammer`", Path -> FileNameJoin[{NotebookDirectory[], "..", ".."}] ]
+Begin["Sledgehammer`Private`"];
 
 
 (* ::Subsubsection::Closed:: *)
@@ -60,11 +61,19 @@ printTestResults[tr_TestReportObject]:=Module[
 
 
 (* ::Subsection:: *)
-(*Test report*)
+(*Test reports*)
 
 
-$testReport = TestReport @ FileNameJoin[{NotebookDirectory[],"InterpreterTests.wlt"}];
-printTestResults[$testReport];
+$ArithcoderTestReport = TestReport @ FileNameJoin[{NotebookDirectory[],"ArithcoderTests.wl"}];
+
+printTestResults[$ArithcoderTestReport]
+$ArithcoderTestReport["TestsFailed"]
 
 
-(* $testReport["TestsFailedWrongResults"] *)
+
+$InterpreterTestReport = TestReport @ FileNameJoin[{NotebookDirectory[],"InterpreterTests.wlt"}];
+
+printTestResults[$InterpreterTestReport];
+
+
+End[]

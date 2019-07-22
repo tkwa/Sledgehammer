@@ -4,9 +4,7 @@
 (*Imports and setup*)
 
 
-(* Marker heads like intLiteral[] are stored in Global` *)
-BeginPackage["Sledgehammer`", {"Global`"}];
-$RecursionLimit = 4096;
+BeginPackage["Sledgehammer`"];
 
 (* Get path whether run through a notebook or wolframscript -script *)
 (* SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]]; *)
@@ -21,114 +19,6 @@ show := If[TrueQ[printShows], Echo, #&];
 (*$IterationLimit = 2^14;*)
 
 
-(* ::Subsection::Closed:: *)
-(*Literal encodings*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Integers (Elias gamma, delta)*)
-
-
-eliasGamma[0] := {1}
-eliasGamma[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[ConstantArray[0,Length@# - 1], #]&;
-
-eliasDelta[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[eliasGamma[Length@#], Rest@# ]&;
-
-eliasDelta[_] := Throw@"Argument to Elias Delta must be a positive integer."
-
-(* Elias delta except for the lower k bits which are explicitly encoded, and the sign which is the first bit if sgnQ = True. *)
-varEliasDelta[n_Integer, k_Integer: 1, sgnQ_: True] := Module[{nn, sgn, ret},
-	If[!sgnQ, Assert[n >= 0]];
-	sgn = Boole[n < 0];
-	nn = BitXor[n, -sgn]; (* BitNot[n] if n < 0 else n *)
-	ret = Join[eliasDelta[Floor[nn/2^k]+1], IntegerDigits[nn,2,k]];
-	If[sgnQ, Join[{sgn},ret], ret]
-];
-
-(* returns n, length used *)
-unEliasGamma[bits_List] := Module[{leadingZeros = Count[First@Split@bits,0]},
-	{FromDigits[bits[[leadingZeros + 1;; 2 leadingZeros + 1]],2],
-	2 leadingZeros + 1}
-];
-
-(* returns n, length used *)
-unEliasDelta[bits_List] := Module[{lennp1, lenUsed},
-	{lennp1, lenUsed} = unEliasGamma[bits];
-	{FromDigits[ Prepend[1]@ bits[[lenUsed + 1 ;; lenUsed + lennp1 - 1]], 2], lenUsed + lennp1 - 1}
-];
-
-(* returns integer, length used
-To do: Change integer literals to k=1 *)
-unVarEliasDelta::usage = "Decode a variant Elias Delta bitstring";
-unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, lenUsed, n},
-	sgn = If[sgnQ, First@bits,0];
-	rest = If[sgnQ,Rest@bits, bits];
-	{ndiv8p1, lenUsed} = unEliasDelta[rest];
-	n = (ndiv8p1 - 1) * 2^k + FromDigits[ rest[[lenUsed+1 ;; lenUsed+k]], 2];
-	n = BitXor[n,-sgn];
-	(* bits used = Elias Delta bits + low bits + sign bit *)
-	{n, lenUsed + k + Boole@sgnQ}
-];
-(* modified Elias Delta, mod 2^3 *)
-tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 1, True]];
-
-
-(* ::Subsubsection::Closed:: *)
-(*Reals*)
-
-
-(* convert real numbers to digit lists *)
-tokenToBits[realLiteral[x_Real]] := Module[{str, len, bits},
-	str = ToString[x, InputForm];
-	bits = fromBijectiveBase[(ToCharacterCode@str /. 10 -> 127) - 31, 96]~IntegerDigits~2;
-	len = Length@bits;
-	Join[tokenToBits@realLiteral[], varEliasDelta[len, 3, False], bits]
-];
-
-
-
-(* ::Subsubsection::Closed:: *)
-(*Bijective base*)
-
-
-(* convert n to bijective base k *)
-toBijectiveBase[n_Integer, k_Integer] := Module[{acc = n, ret = {}, digit},
-	While[acc > 0,
-		digit = Mod[acc-1, k] + 1;
-		PrependTo[ret, digit];
-		acc = Quotient[acc-1, k]];
-	ret
-];
-
-fromBijectiveBase[l_List, k_Integer] := FromDigits[l, k];
-
-
-(* ::Subsubsection:: *)
-(*Strings*)
-
-
-(* ASCII strings packed into 7 bits per character.*)
-tokenToBits[asciiLiteral[str_String] /; SubsetQ[Union[{10}, Range[32, 127]], Union@ToCharacterCode@str] ] := encodeAsciiLiteral[str];
-tokenToBits[asciiLiteral[str_]] := tokenToBits[asciiLiteral[""]];
-
-encodeAsciiLiteral[str_String] := Module[{len, bits},
-	bits = fromBijectiveBase[(ToCharacterCode@str /. 10 -> 127) - 31, 96]// IntegerDigits[#,2]&;
-	len = Length@bits;
-	Join[tokenToBits@asciiLiteral[], varEliasDelta[len, 3, False], bits]
-];
-
-(* ASCII literal. (Length of string, string in packed 7 bit encoding) *)
-decodeAsciiLiteral[bits_] := Module[{len, lenLen},
-	{len, lenLen} = unVarEliasDelta[bits, 3, False];
-	Drop[bits, lenLen] //
-	Take[#, len]& //
-	toBijectiveBase[FromDigits[#, 2], 96]& //
-	(# + 31 /. 127 -> 10&) //
-	FromCharacterCode //
-	{#, lenLen + len } &
-];
-
-
 (* ::Subsection:: *)
 (*Compression*)
 
@@ -136,7 +26,7 @@ decodeAsciiLiteral[bits_] := Module[{len, lenLen},
 show[#, "Token list length = "]& @Length@tokToBitsDict; (* 8324 fixed, 6k more  *)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Preprocessing*)
 
 
@@ -402,5 +292,5 @@ eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
 ];
 
 
-End[]
-EndPackage[]
+End[];
+EndPackage[];
