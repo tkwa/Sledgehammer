@@ -4,41 +4,28 @@
 (*Imports and setup*)
 
 
-BeginPackage["SHInterpreter`"];
+(* Marker heads like intLiteral[] are stored in Global` *)
+BeginPackage["Sledgehammer`", {"Global`"}];
 $RecursionLimit = 4096;
 
 (* Get path whether run through a notebook or wolframscript -script *)
-SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
-Needs["SHUtils`"]
-
-tokToBitsDict;
-bitsToTokDict;
-preprocess;
-postprocess;
-wToPostfix;
-postfixToW;
-compress;
-decompress;
-tokenToBits;
-bitsToToken;
-eval;
-
-(* Begin["Private`"]; *)
-tokToBitsDict = Get["compression_dict.mx"] // Map[Rest@IntegerDigits[#,2]&];
+(* SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]]; *)
+Begin["`Private`"];
+tokToBitsDict = Get["compression_dict.mx", Path -> $PackageDirectory <> "Setup/"] // Map[Rest@IntegerDigits[#,2]&];
 bitsToTokDict = AssociationThread[Values@#, Keys@#]&@tokToBitsDict;
 toks = Keys[tokToBitsDict];
 
-On[Assert]
+On@Assert
 printShows = False;
 show := If[TrueQ[printShows], Echo, #&];
 (*$IterationLimit = 2^14;*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Literal encodings*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Integers (Elias gamma, delta)*)
 
 
@@ -82,12 +69,11 @@ unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p
 	(* bits used = Elias Delta bits + low bits + sign bit *)
 	{n, lenUsed + k + Boole@sgnQ}
 ];
-
 (* modified Elias Delta, mod 2^3 *)
 tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 1, True]];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Reals*)
 
 
@@ -143,9 +129,6 @@ decodeAsciiLiteral[bits_] := Module[{len, lenLen},
 ];
 
 
-HoldComplete[StringCases[#1,RegularExpression["[A-Za-z](?![A-Za-z])"]]<>""&] // preprocess // FullForm
-
-
 (* ::Subsection:: *)
 (*Compression*)
 
@@ -195,7 +178,7 @@ rmDeprecatedTokens[expr_HoldComplete] := Module[{},
 		HoldPattern@Date[] :> DateList[]}
 ];
 (* Returns free variables sorted by first order of appearance. *)
-freeVars[expr_HoldComplete] := Module[{contexts = {"System`", "Combinatorica`", "SHUtils`"}},
+freeVars[expr_HoldComplete] := Module[{contexts = {"System`", "Combinatorica`", "Sledgehammer`"}},
     Cases[expr, s_Symbol /; Not@MemberQ[contexts, Context@s] -> HoldPattern[s], {-1}, Heads-> True] //
     Counts // ReverseSort // Keys (* DeleteDuplicates*)
 ];
@@ -212,7 +195,9 @@ renameSlotVars[expr_HoldComplete] := Module[{},
 		Slot[3] -> s3,
 		SlotSequence[1] -> ss1}
 ];
-(* Often in PPCG, there is a top-level CompoundExpression with all but the last being assigning system names to variables. *)
+
+(* Often in PPCG, there is a top-level CompoundExpression with all but the last being assigning system names to variables.
+This should be removed; in future versions adaptive compression should golf code with repeated commands. *)
 undoTokenAliases[expr_HoldComplete] := Module[{},
 	FixedPoint[
 		Replace[
@@ -254,24 +239,6 @@ restoreStrings[expr_HoldComplete] := Module[{},
 postprocess[expr_HoldComplete] := expr // Composition[
 	restoreStrings,
 	restoreSlotVars]
-
-
-(* ::Subsubsection:: *)
-(*Compressor*)
-
-
-tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found: " tok}]];
-
-(* remove all extraneous elements from tokens ending on 1s? *)
-compress=.
-compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
-compress[expr_HoldComplete] := Check[compress@wToPostfix@preprocess@expr,
-Assert[False, "Could not compress expression"@expr]];
-
-compressedLength=.
-compressedLength[expr: _HoldComplete | _List] := Length @ compress @ expr;
-
-compress[str_String] := brailleToBits@str;
 
 
 (* ::Subsubsection:: *)
@@ -331,15 +298,33 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 	Drop[stack, -arity] // Append[#, newExpr]&
 ];
 
-postfixToW::usage = "Converts postfix form code to WL code HoldComplete[...]. Throws an error when more than one item is left on the stack.";
-postfixToW[pfToks_List, sow_:False] := Module[{f},
+postfixToW::usage = "Converts postfix form code to WL code HoldComplete[...].";
+postfixToW[pfToks_List, sow_:False] := Block[{f, $Context = "Sledgehammer`Private`"},
 	f = If[sow, oneTokenToW@@Sow[Rule@##]&, oneTokenToW];
 	Fold[f, {}, pfToks] // If[Length@# == 1, Last@#, Throw[{">1 expression left on stack", pfToks}]]&
 ];
 
 
-(* ::Subsection:: *)
-(*Decompression*)
+(* ::Subsubsection:: *)
+(*Compressor*)
+
+
+tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found: " tok}]];
+
+(* remove all extraneous elements from tokens ending on 1s? *)
+compress=.
+compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
+compress[expr_HoldComplete] := Check[compress@wToPostfix@preprocess@expr,
+Assert[False, "Could not compress expression"@expr]];
+
+compressedLength=.
+compressedLength[expr: _HoldComplete | _List] := Length @ compress @ expr;
+
+compress[str_String] := brailleToBits@str;
+
+
+(* ::Subsubsection:: *)
+(*Decompressor*)
 
 
 (* Basic dictionary literal. Index in DictionaryLookup[] in increasing order of length.
@@ -403,43 +388,19 @@ brailleToBits[brs_String] := ToCharacterCode[brs, "Unicode"] - 16^^2800 // Map[P
 (*Execution*)
 
 
-(* This cell is redundant now that postfixToW exists.
-add more types of literals later *)
-
-applyToken =.
-applyToken[tok_intLiteral | tok_asciiLiteral ] := (
-	AppendTo[stack, First@tok];
-	AppendTo[history, First@tok];
-	If[printDebug, AppendTo[debugHistory,Activate@Map[HoldForm,stack]]];
-)
-
-applyToken[tok_call] := Module[{f, arity, args, result},
-	{f, arity} = List @@ tok;
-	args = Take[stack, -arity];
-	stack = Drop[stack, -arity];
-	result = Apply[ ToExpression[f, StandardForm, Inactive], args ];
-	AppendTo[stack, result];
-	AppendTo[history, result];
-	If[printDebug, AppendTo[debugHistory,Activate@Map[HoldForm,stack]]];
-];
-
-applyTokens[toks_List, args_List] := Block[{stack = args, history = args},
-	Map[applyToken, toks];
-	stack
-];
-
-
-evalPostfix[toks_List, args_List, makeFunction_: True, OptionsPattern[]] := Module[{f},
-	f = Activate@Function@Evaluate@Last@applyTokens[toks, args];
-	f @@ args
-];
-
-(* Evaluates a function which is wrapped in HoldComplete[] but may be missing Function[]. *)
+(* Evaluates a function which is wrapped in HoldComplete[] but may be missing Function[]. 
+Captures definition with a single Downvalue, but leaks symbol.
+TODO: Move to postfixToW *)
 eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
-	f = If[expr[[1,0]] === Function, Identity@@expr, Function@@expr];
+	f = Which[
+			(* Function *)
+			expr[[1,0]] === Function, Identity@@expr,
+			(* single DownValue *)
+			MatchQ[expr, HoldComplete[a_Symbol[___] := _]], (Identity@@expr; expr[[1, 1, 0]]),
+			True, Identity@@expr];
 	f @@ args
 ];
 
 
-(* End[] *)
+End[]
 EndPackage[]

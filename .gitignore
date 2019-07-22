@@ -2,6 +2,7 @@ scratch.wls
 setup.wls
 /_*.mx
 test/*
+Development/*
 /*.hmrc
 /*.hmrb
 /*.hmr
