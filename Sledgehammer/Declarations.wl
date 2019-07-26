@@ -131,6 +131,11 @@ BagUnion::usage = "Multiset union.";
 (*Arithcoder*)
 
 
+
+
+encode;
+decode;
+
 SHEncode::usage = "Arithmetic encodes a sequence of tokens."
 SHDecode::usage = "Arithmetic decodes a sequence of tokens."
 

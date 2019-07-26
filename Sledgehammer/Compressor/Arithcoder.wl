@@ -43,11 +43,7 @@ adjust[probs_Association, range_Integer] := Module[{nprobs},
 	nprobs*(range - Length@nprobs) + 1 // Round
 ];
 
-(* SequencePredictorFunctions don't work with empty lists *)
-adjustedProbs[model_, prevTokens_, range_] := If[prevTokens === {} && Head@model === SequencePredictorFunction,
-adjust[model[{{}}, "Probabilities"][[1]], range],
-adjust[model[prevTokens, "Probabilities"], range]
-];
+adjustedProbs[model: _Function | _tokenModel, prevTokens_, range_] := adjust[model[prevTokens], range];
 
 intervalIndex[x_?IntegerQ, cumProbs_List] := Count[# <= x& /@ cumProbs, True]
 
@@ -145,7 +141,7 @@ getBits[___] := Assert[False, "Arg error in getBits"];
 
 (* Encodes a token from a token model. *)
 encodeToken =.
-encodeToken[token_, model: _Function | _SequencePredictorFunction, prevTokens_List: {}] := Module[
+encodeToken[token_, model: _Function | _tokenModel, prevTokens_List: {}] := Module[
 {range, probs, keys, stepInterval},
 	state = updateIntervalE[model, prevTokens, token, state];
 	state = growIntervalE[state];
@@ -205,7 +201,7 @@ encode[tokens_List, model_, encodeBase_Integer: 2^45] := Block[{encoded, base = 
 
 
 decodeToken=.
-decodeToken[model: _Function | _SequencePredictorFunction, prevTokens_List: {}] := Module[
+decodeToken[model: _Function | _tokenModel, prevTokens_List: {}] := Module[
 {cumProbs, idx, newPrevTokens, newInterval, token},
 	{token, state} = updateIntervalD[model, prevTokens, x, state];
 	{state, x} = growIntervalD[state, x];
@@ -213,7 +209,7 @@ decodeToken[model: _Function | _SequencePredictorFunction, prevTokens_List: {}] 
 ];
 
 (* Decodes one token, taking a rational number; returns token and remaining rational *)
-decodeStep[model: _Function | _SequencePredictorFunction, oldPrevTokens_List, oldState_Interval, oldX_Integer] := Block[{prevTokens = oldPrevTokens, token, state = oldState, x = oldX, ret},
+decodeStep[model: _Function | _tokenModel, oldPrevTokens_List, oldState_Interval, oldX_Integer] := Block[{prevTokens = oldPrevTokens, token, state = oldState, x = oldX, ret},
 	token = decodeToken[model, prevTokens] // show;
 	prevTokens = Append[prevTokens, token] // Take[#, -Min[5, Length@prevTokens + 1]]&;
 	If[KeyMemberQ[dataEncoders, Head@token],
@@ -224,7 +220,7 @@ decodeStep[model: _Function | _SequencePredictorFunction, oldPrevTokens_List, ol
 	{prevTokens, token, state, x}
 ];
 
-decode[bits_List, model: _Function | _SequencePredictorFunction, nToks_Integer, decodeBase_Integer:2^45] := Block[{base = decodeBase, aCoderLinkedList, initialX, initialInterval},
+decode[bits_List, model: _Function | _tokenModel, nToks_Integer, decodeBase_Integer:2^45] := Block[{base = decodeBase, aCoderLinkedList, initialX, initialInterval},
 	aCoderLinkedList = toLinkedList[bits];
 	initialX = FromDigits[Table[getBit[], BitLength@base - 1], 2];
 	initialInterval = Interval[{0, base - 1}];

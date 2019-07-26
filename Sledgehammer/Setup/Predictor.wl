@@ -1,10 +1,13 @@
 (* ::Package:: *)
 
-Get["C://Users/Thomas/Sledgehammer/SHInterpreter.wl"];
+Once@Get["Sledgehammer`", Path -> ParentDirectory@ParentDirectory@NotebookDirectory[]];
+
+
+Once@Get["Sledgehammer`", Path -> ParentDirectory@ParentDirectory@NotebookDirectory[]];
 
 (* Preprocesses the expression, then converts to postfix form *)
 makeSeqPrTrainingData[expr_HoldComplete, includeLiterals_:False] := Module[{
-	rmLiteralRules = {(h:intLiteral | asciiLiteral | realLiteral)[_] -> h[]}},
+	rmLiteralRules = {(h:Sledgehammer`Private`intLiteral | Sledgehammer`Private`asciiLiteral | Sledgehammer`Private`realLiteral)[_] -> h[]}},
 
 	expr // preprocess // wToPostfix // If[includeLiterals, #, #  /. rmLiteralRules]&
 ];
@@ -37,9 +40,11 @@ HoldComplete[Function["abc\(xyz"+1]] /. s_String :> RuleCondition[StringReplace[
 (*Get corpus (HoldComplete[] expressions) from file*)
 
 
-Get["C://Users/Thomas/Sledgehammer/SHInterpreter.wl"];
+myCorpus = Get[Sledgehammer`Private`$PackageDirectory <> "../Development/training_data.mx"];
+
+
 Off[General::stop]
-myCorpus = Get["C:\\Users\\Thomas\\Documents\\Wolfram Mathematica\\Sledgehammer Dev\\training_data.mx"];
+myCorpus = Get[Sledgehammer`Private`$PackageDirectory <> "../Development/training_data.mx"];
 myCorpus = Take[myCorpus, All];
 successes[corpus_Association] := Select[corpus, decompress@compress@# === wToPostfix@preprocess@#&];
 Length[myCorpus] - Length[ succs = successes@myCorpus]
@@ -162,7 +167,7 @@ SeedRandom[39328];
 (* assuming 2 bytes for token for uniques *)
 seqprInformation[corpus_] := Module[{ (*train, test, priors, spf *)},
 	{train, test} = makeSeqPrTrainingData@corpus// RandomSample // TakeDrop[#, Round[.7*Length@#]]&;
-	spf = SequencePredict[train, Method ->  {"Markov", "Order" -> 0}];
+	spf = SequencePredict[train, Method ->  {"Markov", "Order" -> 3}];
 	testLen = Total[Length/@test];
 	<| "Tokens" -> (spf[test, "SequenceLogProbability"] // Total // # / (-Log[256] testLen)&),
 	"Uniques" -> (Complement[Union@@test, Union@@train] // Length // N// #*Log[256, 20000]/testLen &) |>
@@ -173,9 +178,39 @@ Order 0: \[LeftAssociation]"Tokens"\[Rule]0.8102177351529412`,"Uniques"\[Rule]0.
 *)
 
 seqprInformation[Take[succs, All]]
+Put[spf, Sledgehammer`Private`$PackageDirectory <> "Setup/spf.mx"]
 
 
-spf[{{}}, "Probabilities"] //First // TakeLargest[10]
+succs[[2]] // wToPostfix // Echo // postfixToW
+
+
+Begin["Sledgehammer`Private`"]
+postfixToW[{intLiteral[5], intLiteral[5], intLiteral[5], call["Plus", 2]}]
+End[]
+
+
+Sledgehammer`Private`spf[{{}}, "Probabilities"] // First // Keys // Length
+
+
+(* ::Subsubsection:: *)
+(*Generating random sequences*)
+
+
+Begin["Sledgehammer`Private`"];
+spf = Get[$PackageDirectory <> "Setup/spf.mx"];
+spf[{{}}, "RandomNextElement" -> 20] /.
+{intLiteral[] -> intLiteral[1], asciiLiteral[] -> asciiLiteral[""], realLiteral[] -> realLiteral[.5]} //
+First // postfixToW // postprocess // InputForm
+End[];
+
+
+(* ::Subsubsection:: *)
+(*Testing spf*)
+
+
+Begin["Sledgehammer`Private`"]
+tokenModel[spf]
+End[]
 
 
 Total[Length/@test]

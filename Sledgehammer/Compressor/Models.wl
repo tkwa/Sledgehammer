@@ -57,7 +57,7 @@ unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p
 tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 1, True]];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Reals*)
 
 
@@ -136,7 +136,7 @@ decodeBit[] := Module[{},
 decodeBits[n_Integer] := Table[decodeBit[], n];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Integer literals*)
 
 
@@ -173,7 +173,7 @@ encIntLiteral[data_Integer] := varEliasDelta[data] // encodeBits;
 decIntLiteral[] := unVarEliasDelta[]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*String literals*)
 
 
@@ -194,7 +194,7 @@ decStrLiteral[] := Module[{len, bits},
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Real literals*)
 
 
@@ -214,7 +214,7 @@ decRealLiteral[] := With[{str = decStrLiteral[]},
 
 (* requires list of names *)
 
-$names = {"haskell", "julia", "ada"}
+$names = {"haskell", "julia", "ada"};
 
 encNovelToken[tok_] := Module[{name, arity},
 	{name, arity} = Switch[tok,
@@ -222,22 +222,32 @@ encNovelToken[tok_] := Module[{name, arity},
 		_symbolLiteral, {tok[[1]], -1},
 		_, Throw["Invalid novel token"@tok]
 	];
-	encodeBits@Join[eliasGamma[arity + 2], First@FirstPosition[$names, name]];
+	encodeBits@Join[eliasGamma[arity + 2], varEliasDelta@First@FirstPosition[$names, name]];
 ]
 
+decNovelToken[] := Module[{name, arity},
+	arity = unEliasGamma[] - 2;
+	name = $names[[unVarEliasDelta[]]];
+	Switch[arity,
+		-1, symbolLiteral[name],
+		_, call[name, arity]]
+];
 
 
 (* ::Subsection:: *)
 (*Models*)
 
 
-mmaTokenModel[f_Function][l_List] := f@l;
+ClearAll[tokenModel]
 
-makeTokenPredictor[spf_SequencePredictorFunction, escapeProb_Real] :=
-	mmaTokenModel[Function[toks,
-		Join[spf[toks, "Probabilities"]], <| novelToken[] -> escapeProb|>
-]];
+tokenModel[spf_SequencePredictorFunction, 0 | 0. ][l_List] := If[l==={}, First@spf[{{}}, "Probabilities"], spf[l, "Probabilities"]]
 
+tokenModel[spf_SequencePredictorFunction, escapeProb_Real][l_List] :=
+	Join[
+		If[l==={}, First@spf[{{}}, "Probabilities"], spf[l, "Probabilities"]],
+		<| novelToken[] -> escapeProb|>
+	] / (1 + escapeProb);
+tokenModel[spf_SequencePredictorFunction] := tokenModel[spf, .05]
 
 
 (* ::Subsection:: *)

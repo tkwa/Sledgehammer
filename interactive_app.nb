@@ -10,14 +10,16 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     16146,        323]
-NotebookOptionsPosition[     15801,        308]
-NotebookOutlinePosition[     16163,        324]
-CellTagsIndexPosition[     16120,        321]
+NotebookDataLength[     32589,        745]
+NotebookOptionsPosition[     31470,        717]
+NotebookOutlinePosition[     31832,        733]
+CellTagsIndexPosition[     31789,        730]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
+
+Cell[CellGroupData[{
 Cell[BoxData[{
  RowBox[{
   RowBox[{"Get", "[", 
@@ -304,7 +306,414 @@ function: \\n\\n    \>\"", "<>", " ",
    3.7708180897547064`*^9, 3.770818101958572*^9}, {3.7727386669344716`*^9, 
    3.7727386714976454`*^9}, {3.7727387851110992`*^9, 3.772738788056221*^9}, {
    3.7727388203927593`*^9, 3.7727388410409937`*^9}},
- CellLabel->"In[11]:=",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641"]
+ CellLabel->"In[21]:=",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641"],
+
+Cell[BoxData[
+ PanelBox[
+  TagBox[GridBox[{
+     {"\<\"Put code below:\"\>"},
+     {
+      TagBox[
+       InputFieldBox[Dynamic[$CellContext`code], Boxes,
+        BaseStyle->{
+         "Notebook", "Input", 
+          InputFieldBoxOptions -> {"ReturnEntersInput" -> False}, 
+          ShowCodeAssist -> True, ShowSyntaxStyles -> True},
+        FieldSize->{{40, 80}, {5, 
+           DirectedInfinity[1]}}],
+       EventHandlerTag[{
+        "ReturnKeyDown" :> Paste["\n"], {"MenuCommand", "HandleShiftReturn"} :> 
+         Paste["\n"], Method -> "Preemptive", PassEventsDown -> Automatic, 
+         PassEventsUp -> True}]]},
+     {
+      StyleBox[
+       TemplateBox[{DynamicBox[
+          ToBoxes[
+           Length[$CellContext`pfCode], StandardForm]],"\" tokens\""},
+        "RowDefault"],
+       StripOnInput->False,
+       FontSize->Larger]},
+     {
+      StyleBox[
+       TemplateBox[{DynamicBox[
+          ToBoxes[$CellContext`lenBits, StandardForm]],"\" bits = \"",
+         DynamicBox[
+          ToBoxes[$CellContext`lenBytes, StandardForm]],"\" bytes\""},
+        "RowDefault"],
+       StripOnInput->False,
+       FontSize->Larger]},
+     {
+      TemplateBox[{"\"Input (as a list): \"",InputFieldBox[
+         Dynamic[$CellContext`input]]},
+       "RowDefault"]},
+     {
+      ButtonBox["\<\"Update\"\>",
+       Appearance->Automatic,
+       ButtonFunction:>{},
+       Evaluator->None,
+       Method->"Preemptive"]},
+     {
+      InterpretationBox[
+       StyleBox[
+        RowBox[{GridBox[{
+           {
+            CheckboxBox[Dynamic[
+              MemberQ[$CellContext`cbs, "Show postfix"], 
+              BoxForm`TogglerBarFunction[$CellContext`cbs, "Show postfix"]& ],
+             DefaultBaseStyle->"CheckboxBar"], 
+            StyleBox["\<\"Show postfix\"\>", "CheckboxBarLabel",
+             StripOnInput->False]}
+          },
+          AutoDelete->False,
+          BaselinePosition->{1, 2},
+          GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+          
+          GridBoxItemSize->{
+           "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+          GridBoxSpacings->{"Columns" -> {
+              Offset[0.27999999999999997`], {
+               Offset[0.21]}, 
+              Offset[0.27999999999999997`]}, "Rows" -> {
+              Offset[0.2], {
+               Offset[0.4]}, 
+              Offset[0.2]}}], "  ", GridBox[{
+           {
+            CheckboxBox[Dynamic[
+              MemberQ[$CellContext`cbs, "Show bits"], 
+              BoxForm`TogglerBarFunction[$CellContext`cbs, "Show bits"]& ],
+             DefaultBaseStyle->"CheckboxBar"], 
+            StyleBox["\<\"Show bits\"\>", "CheckboxBarLabel",
+             StripOnInput->False]}
+          },
+          AutoDelete->False,
+          BaselinePosition->{1, 2},
+          GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+          
+          GridBoxItemSize->{
+           "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+          GridBoxSpacings->{"Columns" -> {
+              Offset[0.27999999999999997`], {
+               Offset[0.21]}, 
+              Offset[0.27999999999999997`]}, "Rows" -> {
+              Offset[0.2], {
+               Offset[0.4]}, 
+              Offset[0.2]}}], "  ", GridBox[{
+           {
+            CheckboxBox[Dynamic[
+              MemberQ[$CellContext`cbs, "Show Braille"], 
+              BoxForm`TogglerBarFunction[$CellContext`cbs, "Show Braille"]& ],
+             DefaultBaseStyle->"CheckboxBar"], 
+            StyleBox["\<\"Show Braille\"\>", "CheckboxBarLabel",
+             StripOnInput->False]}
+          },
+          AutoDelete->False,
+          BaselinePosition->{1, 2},
+          GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+          
+          GridBoxItemSize->{
+           "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+          GridBoxSpacings->{"Columns" -> {
+              Offset[0.27999999999999997`], {
+               Offset[0.21]}, 
+              Offset[0.27999999999999997`]}, "Rows" -> {
+              Offset[0.2], {
+               Offset[0.4]}, 
+              Offset[0.2]}}], "  ", GridBox[{
+           {
+            CheckboxBox[Dynamic[
+              MemberQ[$CellContext`cbs, "Decompress"], 
+              BoxForm`TogglerBarFunction[$CellContext`cbs, "Decompress"]& ],
+             DefaultBaseStyle->"CheckboxBar"], 
+            StyleBox["\<\"Decompress\"\>", "CheckboxBarLabel",
+             StripOnInput->False]}
+          },
+          AutoDelete->False,
+          BaselinePosition->{1, 2},
+          GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+          
+          GridBoxItemSize->{
+           "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+          GridBoxSpacings->{"Columns" -> {
+              Offset[0.27999999999999997`], {
+               Offset[0.21]}, 
+              Offset[0.27999999999999997`]}, "Rows" -> {
+              Offset[0.2], {
+               Offset[0.4]}, 
+              Offset[0.2]}}], "  ", GridBox[{
+           {
+            CheckboxBox[Dynamic[
+              MemberQ[$CellContext`cbs, "Eval"], 
+              BoxForm`TogglerBarFunction[$CellContext`cbs, "Eval"]& ],
+             DefaultBaseStyle->"CheckboxBar"], 
+            StyleBox["\<\"Eval\"\>", "CheckboxBarLabel",
+             StripOnInput->False]}
+          },
+          AutoDelete->False,
+          BaselinePosition->{1, 2},
+          GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+          
+          GridBoxItemSize->{
+           "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+          GridBoxSpacings->{"Columns" -> {
+              Offset[0.27999999999999997`], {
+               Offset[0.21]}, 
+              Offset[0.27999999999999997`]}, "Rows" -> {
+              Offset[0.2], {
+               Offset[0.4]}, 
+              Offset[0.2]}}]}], "Deploy"],
+       CheckboxBar[
+        Dynamic[$CellContext`cbs], {
+        "Show postfix", "Show bits", "Show Braille", "Decompress", "Eval"}]]},
+     {
+      DynamicBox[ToBoxes[
+        If[
+         MemberQ[$CellContext`cbs, "Show postfix"], $CellContext`pfCode, ""], 
+        StandardForm],
+       ImageSizeCache->{0., {0., 9.}}]},
+     {
+      DynamicBox[ToBoxes[
+        If[
+         MemberQ[$CellContext`cbs, "Show bits"], $CellContext`cmpCode, ""], 
+        StandardForm],
+       ImageSizeCache->{0., {0., 9.}}]},
+     {
+      DynamicBox[ToBoxes[
+        If[
+         MemberQ[$CellContext`cbs, "Show Braille"], $CellContext`brCode, ""], 
+        StandardForm],
+       ImageSizeCache->{0., {0., 9.}}]},
+     {
+      DynamicBox[ToBoxes[
+        If[
+         MemberQ[$CellContext`cbs, "Decompress"], 
+         InputForm[$CellContext`decompCode], ""], StandardForm],
+       ImageSizeCache->{0., {0., 9.}}]},
+     {
+      DynamicBox[ToBoxes[
+        If[
+         MemberQ[$CellContext`cbs, "Eval"], 
+         Dynamic[$CellContext`result], ""], StandardForm],
+       ImageSizeCache->{0., {0., 9.}}]},
+     {
+      TagBox[
+       DynamicModuleBox[{Typeset`var$$ = False}, 
+        InterpretationBox[
+         StyleBox[
+          PaneSelectorBox[{False->GridBox[{
+             {
+              OpenerBox[Dynamic[Typeset`var$$],
+               Appearance->Automatic,
+               AutoAction->False,
+               ContinuousAction->False,
+               Enabled->Automatic], "\<\"PPCG submission\"\>"}
+            },
+            AutoDelete->False,
+            BaselinePosition->{1, 1},
+            GridBoxAlignment->{"Columns" -> {{Left}}},
+            GridBoxBackground->{"Columns" -> {{Automatic}}},
+            
+            GridBoxItemSize->{
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+            GridBoxSpacings->{"Columns" -> {{0.2}}, "Rows" -> {{0.5}}}], True->
+           GridBox[{
+             {
+              OpenerBox[Dynamic[Typeset`var$$],
+               Appearance->Automatic,
+               AutoAction->False,
+               ContinuousAction->False,
+               Enabled->Automatic], "\<\"PPCG submission\"\>"},
+             {"", 
+              PaneBox[
+               FrameBox[
+                DynamicBox[ToBoxes[
+                  Style[
+                   StringJoin[
+                   "# [Sledgehammer](https://github.com/tkwa/Sledgehammer), ", 
+                    ToString[$CellContext`lenBytes], 
+                    " bytes\n\n    ", $CellContext`brCode, 
+                    "\n\nDecompresses into this Wolfram Language function: \n\
+\n    ", 
+                    ToString[
+                    First[$CellContext`decompCode], InputForm], "\n"], 
+                   FontFamily -> "Courier"], StandardForm]],
+                StripOnInput->False],
+               ImageMargins->0]}
+            },
+            AutoDelete->False,
+            BaselinePosition->{1, 1},
+            GridBoxAlignment->{"Columns" -> {{Left}}},
+            GridBoxBackground->{"Columns" -> {{Automatic}}},
+            
+            GridBoxItemSize->{
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+            GridBoxSpacings->{"Columns" -> {{0.2}}, "Rows" -> {{0.5}}}]}, 
+           Dynamic[Typeset`var$$],
+           Alignment->Automatic,
+           BaseStyle->{},
+           BaselinePosition->Baseline,
+           DefaultBaseStyle->"OpenerView",
+           ImageMargins->0,
+           ImageSize->Automatic],
+          Deployed->False,
+          StripOnInput->False],
+         OpenerView[{"PPCG submission", 
+           Framed[
+            Dynamic[
+             Style[
+              StringJoin[
+              "# [Sledgehammer](https://github.com/tkwa/Sledgehammer), ", 
+               ToString[$CellContext`lenBytes], 
+               " bytes\n\n    ", $CellContext`brCode, 
+               
+               "\n\nDecompresses into this Wolfram Language function: \n\n    \
+", 
+               ToString[
+                First[$CellContext`decompCode], InputForm], "\n"], FontFamily -> 
+              "Courier"]]]}, False]],
+        DynamicModuleValues:>{}],
+       Setting[#, {0}]& ]}
+    },
+    DefaultBaseStyle->"Column",
+    GridBoxAlignment->{"Columns" -> {{Left}}},
+    GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+   "Column"]]], "Output",
+ CellChangeTimes->{{3.77283330865003*^9, 3.7728333097441053`*^9}},
+ CellLabel->"Out[30]=",ExpressionUUID->"c67b9d1e-764e-486c-9227-bc8db7d4d204"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"ndss", " ", "=", " ", 
+  RowBox[{
+   RowBox[{"NestList", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"#", "+", 
+       RowBox[{"Total", "@", 
+        RowBox[{"IntegerDigits", "@", "#"}]}]}], "&"}], ",", " ", "#", ",", 
+     " ", "#2"}], "]"}], "&"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"g", " ", "=", 
+   RowBox[{"Function", "[", 
+    RowBox[{"x", ",", 
+     RowBox[{"SelectInteger", "[", 
+      RowBox[{
+       RowBox[{"MemberQ", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"NestList", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"#", "+", 
+              RowBox[{"Total", "@", 
+               RowBox[{"IntegerDigits", "@", "#"}]}]}], "&"}], ",", " ", "#", 
+            ",", "x"}], "]"}], "&"}], ",", "x"}], "]"}], "&"}], " ", "]"}]}], 
+    "]"}]}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Function", "[", 
+   RowBox[{"x", ",", " ", 
+    RowBox[{"SelectInteger", "[", 
+     RowBox[{
+      RowBox[{"MemberQ", "[", 
+       RowBox[{
+        RowBox[{"NestList", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"#", "+", 
+            RowBox[{"Total", "@", 
+             RowBox[{"IntegerDigits", "@", "#"}]}]}], "&"}], ",", " ", "#", 
+          ",", " ", "x"}], "]"}], ",", " ", "x"}], "]"}], "&"}], "]"}]}], 
+   "]"}], "//", "LeafCount"}]}], "Input",
+ CellChangeTimes->{{3.7728333663122063`*^9, 3.772833426264556*^9}, {
+   3.77283346077743*^9, 3.7728337965441957`*^9}, {3.7728338321074696`*^9, 
+   3.7728339462999926`*^9}, {3.772834002493184*^9, 3.772834319341515*^9}, 
+   3.7728343791031065`*^9, {3.7728344118195753`*^9, 3.772834514177327*^9}, {
+   3.7728345748667135`*^9, 3.7728346024047575`*^9}},
+ CellLabel->
+  "In[179]:=",ExpressionUUID->"2b2ce255-1bbc-4378-a969-c88a8b2109fb"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"NestList", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"#1", "+", 
+      RowBox[{"Total", "[", 
+       RowBox[{"IntegerDigits", "[", "#1", "]"}], "]"}]}], "&"}], ",", "#1", 
+    ",", "#2"}], "]"}], "&"}]], "Output",
+ CellChangeTimes->{{3.772833388986453*^9, 3.772833410301425*^9}, {
+   3.7728336755907784`*^9, 3.7728337419197764`*^9}, {3.772833787520693*^9, 
+   3.772833791715481*^9}, {3.772833855434679*^9, 3.772833860428302*^9}, {
+   3.7728339188117113`*^9, 3.7728339492068453`*^9}, {3.772834040046465*^9, 
+   3.772834063722355*^9}, {3.7728340986599083`*^9, 3.772834113291191*^9}, {
+   3.7728341442521*^9, 3.77283426351849*^9}, 3.772834319645703*^9, 
+   3.7728343906543937`*^9, {3.7728344214159746`*^9, 3.772834451461623*^9}, 
+   3.77283448960165*^9, {3.772834537937851*^9, 3.772834540139536*^9}, {
+   3.772834577983882*^9, 3.7728346027268925`*^9}},
+ CellLabel->
+  "Out[179]=",ExpressionUUID->"89f9f1e3-1a51-46fb-9453-189b2a829c32"],
+
+Cell[BoxData[
+ RowBox[{"Function", "[", 
+  RowBox[{"x", ",", 
+   RowBox[{"SelectInteger", "[", 
+    RowBox[{
+     RowBox[{"MemberQ", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"NestList", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"#1", "+", 
+            RowBox[{"Total", "[", 
+             RowBox[{"IntegerDigits", "[", "#1", "]"}], "]"}]}], "&"}], ",", 
+          "#1", ",", "x"}], "]"}], "&"}], ",", "x"}], "]"}], "&"}], "]"}]}], 
+  "]"}]], "Output",
+ CellChangeTimes->{{3.772833388986453*^9, 3.772833410301425*^9}, {
+   3.7728336755907784`*^9, 3.7728337419197764`*^9}, {3.772833787520693*^9, 
+   3.772833791715481*^9}, {3.772833855434679*^9, 3.772833860428302*^9}, {
+   3.7728339188117113`*^9, 3.7728339492068453`*^9}, {3.772834040046465*^9, 
+   3.772834063722355*^9}, {3.7728340986599083`*^9, 3.772834113291191*^9}, {
+   3.7728341442521*^9, 3.77283426351849*^9}, 3.772834319645703*^9, 
+   3.7728343906543937`*^9, {3.7728344214159746`*^9, 3.772834451461623*^9}, 
+   3.77283448960165*^9, {3.772834537937851*^9, 3.772834540139536*^9}, {
+   3.772834577983882*^9, 3.772834602733875*^9}},
+ CellLabel->
+  "Out[180]=",ExpressionUUID->"db9425ac-a7cf-4986-9434-2bb9d7472caf"],
+
+Cell[BoxData["18"], "Output",
+ CellChangeTimes->{{3.772833388986453*^9, 3.772833410301425*^9}, {
+   3.7728336755907784`*^9, 3.7728337419197764`*^9}, {3.772833787520693*^9, 
+   3.772833791715481*^9}, {3.772833855434679*^9, 3.772833860428302*^9}, {
+   3.7728339188117113`*^9, 3.7728339492068453`*^9}, {3.772834040046465*^9, 
+   3.772834063722355*^9}, {3.7728340986599083`*^9, 3.772834113291191*^9}, {
+   3.7728341442521*^9, 3.77283426351849*^9}, 3.772834319645703*^9, 
+   3.7728343906543937`*^9, {3.7728344214159746`*^9, 3.772834451461623*^9}, 
+   3.77283448960165*^9, {3.772834537937851*^9, 3.772834540139536*^9}, {
+   3.772834577983882*^9, 3.77283460273986*^9}},
+ CellLabel->
+  "Out[181]=",ExpressionUUID->"a8632318-40aa-4d0f-9892-1c74bb3d7f62"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"SelectInteger", "[", 
+  RowBox[{
+   RowBox[{"#", "==", "#2"}], "&"}], "]"}]], "Input",
+ CellChangeTimes->{{3.772834792548563*^9, 3.7728348047425222`*^9}, {
+  3.772834874209297*^9, 3.772834892644149*^9}, {3.772834952382017*^9, 
+  3.7728350004823833`*^9}},
+ CellLabel->
+  "In[194]:=",ExpressionUUID->"3bceadd1-982a-4151-9bfc-c79cf6929df2"],
+
+Cell[BoxData["1"], "Output",
+ CellChangeTimes->{
+  3.7728349187035956`*^9, {3.7728349532124243`*^9, 3.772835000843418*^9}},
+ CellLabel->
+  "Out[194]=",ExpressionUUID->"612b8ea1-5d3c-46e1-ac82-9a3bb3a525b9"]
+}, Open  ]]
 },
 WindowSize->{958, 989},
 WindowMargins->{{Automatic, 53}, {Automatic, 59}},
@@ -323,8 +732,21 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 15239, 286, 1373, "Input",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641",
- InitializationCell->True]
+Cell[CellGroupData[{
+Cell[580, 22, 15239, 286, 1373, "Input",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641",
+ InitializationCell->True],
+Cell[15822, 310, 10267, 270, 579, "Output",ExpressionUUID->"c67b9d1e-764e-486c-9227-bc8db7d4d204"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[26126, 585, 1799, 48, 305, "Input",ExpressionUUID->"2b2ce255-1bbc-4378-a969-c88a8b2109fb"],
+Cell[27928, 635, 969, 19, 49, "Output",ExpressionUUID->"89f9f1e3-1a51-46fb-9453-189b2a829c32"],
+Cell[28900, 656, 1199, 26, 79, "Output",ExpressionUUID->"db9425ac-a7cf-4986-9434-2bb9d7472caf"],
+Cell[30102, 684, 745, 11, 49, "Output",ExpressionUUID->"a8632318-40aa-4d0f-9892-1c74bb3d7f62"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[30884, 700, 361, 8, 43, "Input",ExpressionUUID->"3bceadd1-982a-4151-9bfc-c79cf6929df2"],
+Cell[31248, 710, 206, 4, 49, "Output",ExpressionUUID->"612b8ea1-5d3c-46e1-ac82-9a3bb3a525b9"]
+}, Open  ]]
 }
 ]
 *)

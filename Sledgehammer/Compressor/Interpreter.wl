@@ -175,7 +175,7 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 		newExpr = HoldComplete@@newExpr;
 		(* if an operator, apply to the last [arity] tokens on the stack *)
 		arity = next[[2]];
-		pops = Take[stack, -arity];
+		pops = PadLeft[stack, arity, s1];
 		(* replace head with HoldComplete *)
 		newExpr = HoldComplete@@{pops};
 		(* delete the inner HoldCompletes *)
@@ -185,13 +185,16 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 		newExpr = newExpr // ReplacePart[{1,0} -> operator] // Delete[{1,0,0}] (* remove the HoldComplete on the head *)
 		];
 
-	Drop[stack, -arity] // Append[#, newExpr]&
+	PadLeft[stack, Max[Length@stack, arity], s1] // Drop[#, -arity]& // Append[#, newExpr]&
 ];
 
 postfixToW::usage = "Converts postfix form code to WL code HoldComplete[...].";
 postfixToW[pfToks_List, sow_:False] := Block[{f, $Context = "Sledgehammer`Private`"},
 	f = If[sow, oneTokenToW@@Sow[Rule@##]&, oneTokenToW];
-	Fold[f, {}, pfToks] // If[Length@# == 1, Last@#, Throw[{">1 expression left on stack", pfToks}]]&
+	Fold[f, {}, pfToks] //
+	If[Length@# == 1,
+		Last@#,
+		Delete[{1,#,0}& /@ Range@Length@#][HoldComplete@#]]&  (* turn multiple to list *)
 ];
 
 

@@ -63,7 +63,7 @@ SelectInteger[f_] := NestWhile[#+1&, 1, Not@*f]
 SelectInteger[f_, k_Integer] := NestWhile[#+1&, k+1, Not@*f]
 
 (* Smallest n positive integers where property f is True *)
-SelectIntegers[f_, n_Integer, k_Integer: 1] := NestList[nFindFrom[f, #]&, k, n-1]
+SelectIntegers[f_, n_Integer, k_Integer: 1] := NestList[SelectInteger[f, #]&, k, n-1]
 
 
 (* ::Subsection:: *)

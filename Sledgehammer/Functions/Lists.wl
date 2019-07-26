@@ -36,7 +36,7 @@ BooleVEqual = Boole @* VEqual;
 MapTotal = Map@Total;
 
 ListProduct[l_List] := Fold[Times, l];
-product[x_] := x;
+ListProduct[x_] := x;
 
 
 (* ::Subsection:: *)

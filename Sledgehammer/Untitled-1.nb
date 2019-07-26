@@ -1,0 +1,344 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     15355,        336]
+NotebookOptionsPosition[     14520,        314]
+NotebookOutlinePosition[     14863,        329]
+CellTagsIndexPosition[     14820,        326]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Get", "[", 
+   RowBox[{"\"\<Sledgehammer`\>\"", ",", " ", 
+    RowBox[{
+    "Path", " ", "\[Rule]", " ", 
+     "\"\<C:/Users/Thomas/Documents/Wolfram Mathematica/Sledgehammer\>\""}]}],
+    "]"}], "\[IndentingNewLine]"}]], "Input",
+ CellChangeTimes->{{3.772841838036373*^9, 3.7728419178659744`*^9}},
+ CellLabel->"In[3]:=",ExpressionUUID->"21bef59c-8290-4a54-bb79-05a68baf52b8"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"usages", "[", 
+    RowBox[{"s_String", " ", "->", " ", "usage_String"}], "]"}], " ", ":=", 
+   " ", 
+   RowBox[{"s", " ", "\[Rule]", " ", 
+    RowBox[{
+     RowBox[{"Map", "[", 
+      RowBox[{"#", "&"}], "]"}], "@", 
+     RowBox[{"StringCases", "[", 
+      RowBox[{"usage", ",", " ", 
+       RowBox[{"Shortest", "[", 
+        RowBox[{
+        "s", " ", "~~", " ", "\"\<[\>\"", " ", "~~", "___", " ", "~~", " ", 
+         "\"\<]\>\""}], "]"}]}], "]"}]}]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"SeedRandom", "[", "12345", "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"Rule", " ", "@@@", " ", 
+     RowBox[{"WolframLanguageData", "[", 
+      RowBox[{"All", ",", " ", 
+       RowBox[{"{", 
+        RowBox[{"\"\<Name\>\"", ",", " ", "\"\<PlaintextUsage\>\""}], "}"}]}],
+       "]"}]}], "  ", "//", " ", "Association"}], " ", "//", 
+   RowBox[{
+    RowBox[{"RandomSample", "[", 
+     RowBox[{"#", ",", " ", "50"}], "]"}], "&"}]}], " ", "//", " ", 
+  RowBox[{"AssociationMap", "[", "usages", "]"}]}]}], "Input",
+ CellChangeTimes->{{3.772841922108183*^9, 3.7728420177011824`*^9}, {
+   3.7728420741066055`*^9, 3.7728421421043196`*^9}, {3.772845278428841*^9, 
+   3.7728452886279316`*^9}, {3.7728510171584134`*^9, 3.772851022029106*^9}, {
+   3.77285121570851*^9, 3.772851517242977*^9}, {3.772851576167228*^9, 
+   3.772851880069967*^9}, 3.772851943083107*^9, {3.7728520783787284`*^9, 
+   3.772852136225662*^9}},
+ CellLabel->"In[59]:=",ExpressionUUID->"13759377-d217-4543-884a-c62d70d3f63f"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{"\<\"ComplexListPlot\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"ComplexListPlot[{z1, z2, \[Ellipsis]}]\"\>", 
+      ",", "\<\"ComplexListPlot[{data1, data2, \[Ellipsis]}]\"\>", 
+      ",", "\<\"ComplexListPlot[{\[Ellipsis], w[datai, \[Ellipsis]]\"\>"}], 
+     "}"}]}], ",", 
+   RowBox[{"\<\"FunctionInterpolation\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"FunctionInterpolation[expr, {x, xmin, xmax}]\"\>", 
+      ",", "\<\"FunctionInterpolation[expr, {x, xmin, xmax}, {y, ymin, ymax}, \
+\[Ellipsis]]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"KVertexConnectedGraphQ\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"KVertexConnectedGraphQ[g, k]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"TargetUnits\"\>", "\[Rule]", 
+    RowBox[{"{", "}"}]}], ",", 
+   RowBox[{"\<\"InitializationCell\"\>", "\[Rule]", 
+    RowBox[{"{", "}"}]}], ",", 
+   RowBox[{"\<\"TimeZoneConvert\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"TimeZoneConvert[time, timezone]\"\>", 
+      ",", "\<\"TimeZoneConvert[time]\"\>", 
+      ",", "\<\"TimeZoneConvert[{time1, \[Ellipsis], timen}, timezone]\"\>"}],
+      "}"}]}], ",", 
+   RowBox[{"\<\"PermutationList\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"PermutationList[perm]\"\>", 
+      ",", "\<\"PermutationList[perm, len]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"NumberExpand\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"NumberExpand[x]\"\>", ",", "\<\"NumberExpand[x, b]\"\>", 
+      ",", "\<\"NumberExpand[x, b, len]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"InhomogeneousPoissonProcess\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"InhomogeneousPoissonProcess[\[Lambda][t]\"\>", "}"}]}], 
+   ",", 
+   RowBox[{"\<\"FindChannels\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"FindChannels[]\"\>", ",", "\<\"FindChannels[None]\"\>", 
+      ",", "\<\"FindChannels[All]\"\>", ",", "\<\"FindChannels[form]\"\>", 
+      ",", "\<\"FindChannels[\\\"user:form\\\"]\"\>", 
+      ",", "\<\"FindChannels[\\\"/abspath\\\"]\"\>", 
+      ",", "\<\"FindChannels[\\\"StyleBox[RowBox[{RowBox[{\\\"https\\\", \
+\\\":\\\"}]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"TraditionalForm\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"TraditionalForm[expr]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"JankoGroupJ4\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"JankoGroupJ4[]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"ScorerHiPrime\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"ScorerHiPrime[z]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"PlotLabel\"\>", "\[Rule]", 
+    RowBox[{"{", "}"}]}], ",", 
+   RowBox[{"\<\"JacobiSC\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"JacobiSC[u, m]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"Toggler\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"Toggler[x]\"\>", ",", "\<\"Toggler[Dynamic[x]\"\>", 
+      ",", "\<\"Toggler[x, {val1, val2, \[Ellipsis]}]\"\>", 
+      ",", "\<\"Toggler[x, {val1->pict1, val2->pict2, \[Ellipsis]}]\"\>", 
+      ",", "\<\"Toggler[x, vlist, dpict]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"ArrayFilter\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"ArrayFilter[f, array, r]\"\>", 
+      ",", "\<\"ArrayFilter[f, array, {r1, r2, \[Ellipsis]}]\"\>", 
+      ",", "\<\"ArrayFilter[f, array, template]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"CumulantGeneratingFunction\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"CumulantGeneratingFunction[dist, t]\"\>", 
+      ",", "\<\"CumulantGeneratingFunction[dist, {t1, t2, \
+\[Ellipsis]}]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"LegendreP\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"LegendreP[n, x]\"\>", ",", "\<\"LegendreP[n, m, x]\"\>"}], 
+     "}"}]}], ",", 
+   RowBox[{"\<\"DateObject\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"DateObject[]\"\>", 
+      ",", "\<\"DateObject[{y, m, d, h, m, s}]\"\>", 
+      ",", "\<\"DateObject[\\\"string\\\"]\"\>", 
+      ",", "\<\"DateObject[{\\\"string\\\", {\\\"e_1\\\", \\\"e_2\\\", \
+\[Ellipsis]}}]\"\>", ",", "\<\"DateObject[rdate, gran]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"CircleTimes\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"CircleTimes[x]\"\>", 
+      ",", "\<\"CircleTimes[x, y, \[Ellipsis]]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"$EvaluationEnvironment\"\>", "\[Rule]", 
+    RowBox[{"{", "}"}]}], ",", 
+   RowBox[{"\<\"GeologicalPeriodData\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"GeologicalPeriodData[entity, property]\"\>", 
+      ",", "\<\"GeologicalPeriodData[{entity1, entity2, \[Ellipsis]}, \
+property]\"\>", 
+      ",", "\<\"GeologicalPeriodData[entity, property, annotation]\"\>"}], 
+     "}"}]}], ",", 
+   RowBox[{"\<\"MaxMemoryUsed\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"MaxMemoryUsed[]\"\>", ",", "\<\"MaxMemoryUsed[expr]\"\>"}], 
+     "}"}]}], ",", 
+   RowBox[{"\<\"StreamDensityPlot\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"StreamDensityPlot[{{vx, vy}, s}, {x, xmin, xmax}, {y, ymin, \
+ymax}]\"\>", 
+      ",", "\<\"StreamDensityPlot[{vx, vy}, {x, xmin, xmax}, {y, ymin, ymax}]\
+\"\>", ",", "\<\"StreamDensityPlot[{{vx, vy}, {wx, wy}, \[Ellipsis], s}, {x, \
+xmin, xmax}, {y, ymin, ymax}]\"\>", 
+      ",", "\<\"StreamDensityPlot[\[Ellipsis], {x, y}\[Element]reg]\"\>"}], 
+     "}"}]}], ",", 
+   RowBox[{"\<\"GraphCenter\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"GraphCenter[g]\"\>", 
+      ",", "\<\"GraphCenter[{v->w, \[Ellipsis]}]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"LibraryFunction\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"LibraryFunction[ args]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"FailureAction\"\>", "\[Rule]", 
+    RowBox[{"{", "}"}]}], ",", 
+   RowBox[{"\<\"CloudObject\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"CloudObject[]\"\>", 
+      ",", "\<\"CloudObject[\\\"http\\\",AutoSpacing->False]\"\>", 
+      ",", "\<\"CloudObject[\\\"https\\\",AutoSpacing->False]\"\>", 
+      ",", "\<\"CloudObject[\\\"StyleBox[RowBox[{\\\"user\\\", \\\":\\\", \
+user, \\\"/\\\", path}]\"\>", 
+      ",", "\<\"CloudObject[\\\"StyleBox[RowBox[{\\\"/\\\", abspath}]\"\>", 
+      ",", "\<\"CloudObject[\\\"relpath\\\"]\"\>", 
+      ",", "\<\"CloudObject[\\\"relpath\\\", cbase]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"StripWrapperBoxes\"\>", "\[Rule]", 
+    RowBox[{"{", "}"}]}], ",", 
+   RowBox[{"\<\"Sinh\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"Sinh[z]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"MandelbrotSetDistance\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"MandelbrotSetDistance[c]\"\>", 
+      ",", "\<\"MandelbrotSetDistance[c,\\\"Interior\\\"]\"\>"}], "}"}]}], 
+   ",", 
+   RowBox[{"\<\"TimeSeriesWindow\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"TimeSeriesWindow[tseries, {tmin, tmax}]\"\>", 
+      ",", "\<\"TimeSeriesWindow[tseries, windowspec]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"GainPhaseMargins\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"GainPhaseMargins[lsys]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"Laplacian\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"Laplacian[f, {x1, \[Ellipsis], xn}]\"\>", 
+      ",", "\<\"Laplacian[f, {x1, \[Ellipsis], xn}, chart]\"\>"}], "}"}]}], 
+   ",", 
+   RowBox[{"\<\"ZetaZero\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"ZetaZero[k]\"\>", ",", "\<\"ZetaZero[k, t]\"\>"}], "}"}]}], 
+   ",", 
+   RowBox[{"\<\"StateTransformationLinearize\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"StateTransformationLinearize[asys]\"\>", 
+      ",", "\<\"StateTransformationLinearize[asys, {z, lform}]\"\>", 
+      ",", "\<\"StateTransformationLinearize[asys, \[Ellipsis], \\\"prop\\\"]\
+\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"PermutationSupport\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"PermutationSupport[perm]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"$InstallationDirectory\"\>", "\[Rule]", 
+    RowBox[{"{", "}"}]}], ",", 
+   RowBox[{"\<\"SliceContourPlot3D\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"SliceContourPlot3D[f, surf, {x, xmin, xmax}, {y, ymin, \
+ymax}, {z, zmin, zmax}]\"\>", 
+      ",", "\<\"SliceContourPlot3D[f, surf, {x, y, z}\[Element]reg]\"\>", 
+      ",", "\<\"SliceContourPlot3D[f, {surf1, surf2, \[Ellipsis]}, \
+\[Ellipsis]]\"\>"}], "}"}]}], ",", 
+   RowBox[{"\<\"CriticalSection\"\>", "\[Rule]", 
+    RowBox[{
+    "{", "\<\"CriticalSection[{var1, var2, \[Ellipsis]}, expr]\"\>", "}"}]}], 
+   ",", 
+   RowBox[{"\<\"SampledSoundFunction\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"SampledSoundFunction[f, n, r]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"GeneralizedLinearModelFit\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"GeneralizedLinearModelFit[{y1, y2, \[Ellipsis]}, {f1, f2, \
+\[Ellipsis]}, x]\"\>", 
+      ",", "\<\"GeneralizedLinearModelFit[{{x11, x12, \[Ellipsis], y1}, {x21, \
+x22, \[Ellipsis], y2}, \[Ellipsis]}, {f1, f2, \[Ellipsis]}, {x1, x2, \
+\[Ellipsis]}]\"\>", ",", "\<\"GeneralizedLinearModelFit[{m, v}]\"\>"}], 
+     "}"}]}], ",", 
+   RowBox[{"\<\"FischerGroupFi24Prime\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"FischerGroupFi24Prime[]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"PartitionsQ\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"PartitionsQ[n]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"EvaluationBox\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"EvaluationBox[]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"TagSetDelayed\"\>", "\[Rule]", 
+    RowBox[{"{", "}"}]}], ",", 
+   RowBox[{"\<\"WhittakerM\"\>", "\[Rule]", 
+    RowBox[{"{", "\<\"WhittakerM[k, m, z]\"\>", "}"}]}], ",", 
+   RowBox[{"\<\"StateOutputEstimator\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"StateOutputEstimator[ssm, l]\"\>", 
+      ",", "\<\"StateOutputEstimator[{ssm, sensors}, l]\"\>", 
+      ",", "\<\"StateOutputEstimator[{ssm, sensors, dinputs}, l]\"\>"}], 
+     "}"}]}], ",", 
+   RowBox[{"\<\"ServiceSubmit\"\>", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{"\<\"ServiceSubmit[ServiceRequest[assoc]\"\>", 
+      ",", "\<\"ServiceSubmit[ScheduledTask[req, spec]\"\>", 
+      ",", "\<\"ServiceSubmit[ContinuousTask[req, spec]\"\>"}], "}"}]}]}], 
+  "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{{3.7728452820083313`*^9, 3.772845288948226*^9}, {
+   3.7728510026430497`*^9, 3.7728510356454215`*^9}, 3.7728512439415646`*^9, {
+   3.7728512907379093`*^9, 3.772851321510257*^9}, {3.7728513929593487`*^9, 
+   3.7728514169870114`*^9}, {3.7728514613374057`*^9, 3.7728515177825084`*^9}, 
+   3.7728515774832573`*^9, {3.7728517788387613`*^9, 3.7728517840189342`*^9}, {
+   3.772851822451784*^9, 3.772851880641435*^9}, 3.772851943505979*^9, {
+   3.7728521015606055`*^9, 3.7728521368580008`*^9}},
+ CellLabel->"Out[61]=",ExpressionUUID->"41a2e38b-19ec-4bbf-b501-c7ec452d756b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"WolframLanguageData", "[", 
+  RowBox[{"\"\<FindChannels\>\"", ",", "\"\<PlaintextUsage\>\""}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.772852026127415*^9, 3.772852030859187*^9}, {
+  3.7728942427460966`*^9, 3.7728942517228107`*^9}},
+ CellLabel->"In[62]:=",ExpressionUUID->"f5ea0ce7-e59e-4010-ae05-cdfce8588436"],
+
+Cell[BoxData["\<\"FindChannels[] gives a list of channels in your home area \
+on the channel broker server. FindChannels[None] gives a list of your unnamed \
+channels. FindChannels[All] gives a list of all channels owned by you. \
+FindChannels[form] gives a list of channels in your home area whose names \
+match the string pattern form. FindChannels[\\\"user:form\\\"] gives a list \
+of accessible channels in the home area of the specified user whose names \
+match form. FindChannels[\\\"/abspath\\\"] gives a list of channels whose \
+names match the string pattern \\\"/abspath\\\". \
+FindChannels[\\\"StyleBox[RowBox[{RowBox[{\\\"https\\\", \\\":\\\"}], \
+\\\"//\\\"}],AutoSpacing->False] *\[Ellipsis]\\\"] gives a list of channels \
+whose names match the specified pattern representing a URI.\"\>"], "Output",
+ CellChangeTimes->{3.7728942519322762`*^9},
+ CellLabel->"Out[62]=",ExpressionUUID->"af5e192f-1126-4ad7-aa5c-6ce08d6f3599"]
+}, Open  ]],
+
+Cell[BoxData["CumulantGener"], "Input",
+ CellChangeTimes->{{3.772894468310881*^9, 
+  3.772894472552966*^9}},ExpressionUUID->"ac39132a-f33e-41b5-97c7-\
+1a50b168e2b9"]
+},
+WindowSize->{958, 833},
+WindowMargins->{{Automatic, 373}, {64, Automatic}},
+FrontEndVersion->"12.0 for Microsoft Windows (64-bit) (April 8, 2019)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 411, 9, 48, "Input",ExpressionUUID->"21bef59c-8290-4a54-bb79-05a68baf52b8"],
+Cell[CellGroupData[{
+Cell[994, 33, 1563, 36, 86, "Input",ExpressionUUID->"13759377-d217-4543-884a-c62d70d3f63f"],
+Cell[2560, 71, 10463, 210, 888, "Output",ExpressionUUID->"41a2e38b-19ec-4bbf-b501-c7ec452d756b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13060, 286, 336, 6, 28, "Input",ExpressionUUID->"f5ea0ce7-e59e-4010-ae05-cdfce8588436"],
+Cell[13399, 294, 937, 12, 147, "Output",ExpressionUUID->"af5e192f-1126-4ad7-aa5c-6ce08d6f3599"]
+}, Open  ]],
+Cell[14351, 309, 165, 3, 28, "Input",ExpressionUUID->"ac39132a-f33e-41b5-97c7-1a50b168e2b9"]
+}
+]
+*)
+
