@@ -17,7 +17,7 @@ On@Assert
 $base=.
 
 (* Tokens that are actually token classes, mapped to their corresponding models *)
-dataEncoders = <|
+$dataEncoders = <|
 novelToken -> {encNovelToken, decNovelToken},
 intLiteral -> {encIntLiteral, decIntLiteral},
 realLiteral -> {encRealLiteral, decRealLiteral},
@@ -152,11 +152,11 @@ encodeToken[a___] := Throw["Type error encoding token: "@a]
 (* Returns interval corresponding to next token, and appended token*)
 encodeStep=.
 encodeStep[token_, model_, prevTokens_List, oldState_Interval] := Block[{head, data, state = oldState},
-	If[KeyExistsQ[Head[token]]@dataEncoders,
+	If[KeyExistsQ[Head[token]]@$dataEncoders,
 		(* encode token with data *)
 		head = Head@token;
 		encodeToken[head[], model, prevTokens];
-		dataEncoders[head][[1]] @@ token;
+		$dataEncoders[head][[1]] @@ token;
 		, (* encode token plainly *)
 		encodeToken[token, model, prevTokens];
 	];
@@ -212,9 +212,9 @@ decodeToken[model: _Function | _tokenModel, prevTokens_List: {}] := Module[
 decodeStep[model: _Function | _tokenModel, oldPrevTokens_List, oldState_Interval, oldX_Integer] := Block[{prevTokens = oldPrevTokens, token, state = oldState, x = oldX, ret},
 	token = decodeToken[model, prevTokens] // show;
 	prevTokens = Append[prevTokens, token] // Take[#, -Min[5, Length@prevTokens + 1]]&;
-	If[KeyMemberQ[dataEncoders, Head@token],
+	If[KeyMemberQ[$dataEncoders, Head@token],
 		show["Decoding int literal starting with state"[x/base // N]];
-		Sow[Head[token][ dataEncoders[Head@token][[2]][] ]],
+		Sow[Head[token][ $dataEncoders[Head@token][[2]][] ]],
 		Sow[token]
 	];
 	{prevTokens, token, state, x}
