@@ -2,6 +2,10 @@
 
 BeginPackage["Sledgehammer`"];
 
+(* ::Section:: *)
+(*Package Symbols*)
+`Private`$PackageDirectory::usage = "The directory where Sledgehammer is installed.";
+`Private`$spf::usage = "The SequencePredictorFunction used in the main compression algorithm.";
 
 (* ::Section:: *)
 (*Utilities*)

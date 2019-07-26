@@ -7,31 +7,31 @@ $RecursionLimit = 4096;
 Sledgehammer`Private`$PackageDirectory = DirectoryName[$InputFileName]
 PrependTo[$Path, Sledgehammer`Private`$PackageDirectory];
 
-Sledgehammer`Private`$spf = Get[FileNameJoin@{Sledgehammer`Private`$PackageDirectory, "Setup", "spf.mx"}]
+Sledgehammer`Private`$spf = Get[FileNameJoin@{Sledgehammer`Private`$PackageDirectory, "Setup", "spf.mx"}];
 
 
 
 
-<< "Declarations.wl"
+<< "Declarations.wl";
 
-<< "Functions/Arrays.wl"
-<< "Functions/Automata.wl"
-<< "Functions/Constants.wl"
-<< "Functions/Entities.wl"
-<< "Functions/ExternalLangs.wl"
-<< "Functions/Functional.wl"
-<< "Functions/General.wl"
-<< "Functions/Lists.wl"
-<< "Functions/Math.wl"
-<< "Functions/Sets.wl"
+<< "Functions/Arrays.wl";
+<< "Functions/Automata.wl";
+<< "Functions/Constants.wl";
+<< "Functions/Entities.wl";
+<< "Functions/ExternalLangs.wl";
+<< "Functions/Functional.wl";
+<< "Functions/General.wl";
+<< "Functions/Lists.wl";
+<< "Functions/Math.wl";
+<< "Functions/Sets.wl";
 
-<< "SystemOverloads/Unprotects.wl"
+<< "SystemOverloads/Unprotects.wl";
 (*
 << "SystemOverloads/Currying.wl"
 << "SystemOverloads/Operators.wl"
 << "SystemOverloads/String.wl"
 *)
 
-<< "Compressor/Models.wl"
-<< "Compressor/Arithcoder.wl"
-<< "Compressor/Interpreter.wl"
+<< "Compressor/Models.wl";
+<< "Compressor/Arithcoder.wl";
+<< "Compressor/Interpreter.wl";
