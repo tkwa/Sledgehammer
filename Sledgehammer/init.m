@@ -2,9 +2,14 @@
 
 $RecursionLimit = 4096;
 
+
 (* Load all package fragments following https://mathematica.stackexchange.com/a/176489/61597 *)
 Sledgehammer`Private`$PackageDirectory = DirectoryName[$InputFileName]
 PrependTo[$Path, Sledgehammer`Private`$PackageDirectory];
+
+Sledgehammer`Private`$spf = Get[FileNameJoin@{Sledgehammer`Private`$PackageDirectory, "Setup", "spf.mx"}]
+
+
 
 
 << "Declarations.wl"

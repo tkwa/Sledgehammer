@@ -199,6 +199,16 @@ postfixToW[pfToks_List, sow_:False] := Block[{f, $Context = "Sledgehammer`Privat
 
 
 (* ::Subsubsection:: *)
+(*Novel token marking*)
+
+
+$spfStaticProbs = First@Sledgehammer`Private`$spf[{{}},"Probabilities"];
+markNovelTokens[toks_List] := toks /. (tok_ /; Not@KeyMemberQ[$spfStaticProbs, tok] :> novelToken[tok])
+
+unmarkNovelTokens[toks_List] := toks /. novelToken[a_] :> a;
+
+
+(* ::Subsubsection::Closed:: *)
 (*Compressor*)
 
 
@@ -216,7 +226,7 @@ compressedLength[expr: _HoldComplete | _List] := Length @ compress @ expr;
 compress[str_String] := brailleToBits@str;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Decompressor*)
 
 

@@ -57,7 +57,7 @@ unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p
 tokenToBits[intLiteral[n_Integer]] := Join[tokenToBits@intLiteral[], varEliasDelta[n, 1, True]];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Reals*)
 
 
@@ -213,8 +213,6 @@ decRealLiteral[] := With[{str = decStrLiteral[]},
 
 
 (* requires list of names *)
-
-$names = {"haskell", "julia", "ada"};
 
 encNovelToken[tok_] := Module[{name, arity},
 	{name, arity} = Switch[tok,

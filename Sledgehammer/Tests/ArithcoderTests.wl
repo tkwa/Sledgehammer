@@ -319,10 +319,11 @@ VerificationTest[
 ]
 
 VerificationTest[
+	Block[{$names= {"haskell", "julia", "ada"}},
 	literalTestModel = <| intLiteral[] -> .2, "foo" -> .4, stringLiteral[] -> .2, realLiteral[] -> .1, novelToken[] -> .1 |>&;
 	a = {"foo", realLiteral[-3.14159], novelToken[call["haskell", 5]] }~Join~Riffle[intLiteral /@ {0, 1, -1, 5, 1324356},
 			stringLiteral /@ {" ~!@#$%^&*()", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "~~~~", ""}];
-	decode[encode[a, literalTestModel], literalTestModel, 10] // Echo
+	decode[encode[a, literalTestModel], literalTestModel, 10]]
 	,
 	{"foo",realLiteral[-3.14159`],novelToken[call["haskell",5]],intLiteral[0],stringLiteral[" ~!@#$%^&*()"],intLiteral[1],stringLiteral["ABCDEFGHIJKLMNOPQRSTUVWXYZ"],intLiteral[-1],stringLiteral["~~~~"],intLiteral[5]}	,
 	TestID -> "Enc/dec int/str/real/novel token literals", TimeConstraint->10
