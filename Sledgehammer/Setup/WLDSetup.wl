@@ -6,7 +6,7 @@ version = "0.5.0";
 
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
 (* Additional packages to pull names from. Currently only used for symbol literals. *)
-packages = {"Combinatorica`", "Quaternions`", "FiniteFields`", "Experimental`", "SHUtils`"};
+packages = {"Combinatorica`", "Quaternions`", "FiniteFields`", "Experimental`"};
 
 (* Applied to names, not tokens *)
 freqAdjustAssoc = {

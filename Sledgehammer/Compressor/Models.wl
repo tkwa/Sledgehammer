@@ -221,7 +221,7 @@ encNovelToken[tok_] := Module[{name, arity},
 		_, Throw["Invalid novel token"@tok]
 	];
 	encodeBits@Join[eliasGamma[arity + 2], varEliasDelta@First@FirstPosition[$names, name]];
-]
+];
 
 decNovelToken[] := Module[{name, arity},
 	arity = unEliasGamma[] - 2;
