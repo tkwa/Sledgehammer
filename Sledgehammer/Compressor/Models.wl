@@ -141,11 +141,11 @@ decodeBits[n_Integer] := Table[decodeBit[], n];
 
 
 (* pulls from stream *)
-unEliasGamma[] := Module[{leadingZeros = 0, ret},
-	 While[decodeBit[] == 0, ++leadingZeros; If[leadingZeros > 100, Throw["Too many leading 0s!"]] ];
+unEliasGamma[bitGetter_: decodeBits] := Module[{leadingZeros = 0, ret},
+	 While[bitGetter[1][[1]] == 0, ++leadingZeros; If[leadingZeros > 100, Throw["Too many leading 0s!"]] ];
 	 (* bit we just read is a 1 *)
 	 show["leading zeros:"@leadingZeros];
-	ret = FromDigits[Prepend[decodeBits[leadingZeros], 1],2];
+	ret = FromDigits[Prepend[bitGetter[leadingZeros], 1],2];
 	show["unEliasGamma="@ret];
 	ret
 ];

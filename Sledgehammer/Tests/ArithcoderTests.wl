@@ -115,7 +115,7 @@ VerificationTest[
 ]
 
 VerificationTest[
-	CompoundExpression[SeedRandom[12345], Set[toyModel, Function[Association[Rule["red", 0.6`], Rule["green", 0.3`], Rule["yellow", 0.1`]]]], Set[toks, RandomChoice[Through[Rule[Values, Keys][toyModel[]]], 50]], Set[base, Power[2, 20]], Function[List[Slot[1], Length[Slot[1]], Times[Length[toks], N[Entropy[2, toks]]]]][encode[toks, toyModel]]]
+	CompoundExpression[SeedRandom[12345], Set[toyModel, Function[Association[Rule["red", 0.6`], Rule["green", 0.3`], Rule["yellow", 0.1`]]]], Set[toks, RandomChoice[Through[Rule[Values, Keys][toyModel[]]], 50]], Set[base, Power[2, 20]], Function[List[Slot[1], Length[Slot[1]], Times[Length[toks], N[Entropy[2, toks]]]]][encodeNoPrepend[toks, toyModel]]]
 	,
 	{{0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0,
       0, 0, 1, 1, 1}, 53, 55.12444461577948}
@@ -126,7 +126,7 @@ VerificationTest[
 VerificationTest[
 	CompoundExpression[
 		Set[raven, Flatten[ToCharacterCode[StringDelete[ExampleData[List["Text", "TheRaven"]], "\[Copyright]"]]]], 
-		AbsoluteTiming[Hash[encode[Take[raven, 1000], aliceModel]]]]
+		AbsoluteTiming[Hash[encodeNoPrepend[Take[raven, 1000], aliceModel]]]]
 	,
 	{4.38, 4647558289450166322}
 	,
@@ -196,7 +196,7 @@ VerificationTest[
 VerificationTest[
 	charCodes = Flatten[ToCharacterCode["Five boxing wizards jump quickly"]];
 	base = 2^45; 
-	aCoderLinkedList = toLinkedList[encode[charCodes, aliceModel]];
+	aCoderLinkedList = toLinkedList[encodeNoPrepend[charCodes, aliceModel]];
 	growIntervalD[Interval[{2121372354, 2126675097}], 2123897908]
 	, 
 	{Interval[{15609391742976, 26730051928063}], 20905862883713}
@@ -207,7 +207,7 @@ VerificationTest[
 VerificationTest[
 	charCodes = Flatten[ToCharacterCode["Five boxing wizards jump quickly"]]; 
 	base = 2^45; 
-	aCoderLinkedList = toLinkedList[encode[charCodes, aliceModel]];
+	aCoderLinkedList = toLinkedList[encodeNoPrepend[charCodes, aliceModel]];
 	Table[getBit[], 100]
 	,
 	{0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 
@@ -225,7 +225,7 @@ VerificationTest[
 VerificationTest[
 	charCodes = Flatten[ToCharacterCode["Five boxing wizards jump quickly"]];
 	base = 2^45;
-	aCoderLinkedList = toLinkedList[encode[charCodes, aliceModel]]; state = Interval[{0, base - 1}];
+	aCoderLinkedList = toLinkedList[encodeNoPrepend[charCodes, aliceModel]]; state = Interval[{0, base - 1}];
 	Sledgehammer`Private`x = FromDigits[Table[getBit[], 45], 2];
 	{decodeToken[aliceModel, {}], state, Sledgehammer`Private`x}
 	,
@@ -236,7 +236,7 @@ VerificationTest[
 VerificationTest[
 	charCodes = Flatten[ToCharacterCode["Programming puzzles and code golf"]];
 	base = 2^45; 
-	aCoderLinkedList = toLinkedList[encode[charCodes, aliceModel]];
+	aCoderLinkedList = toLinkedList[encodeNoPrepend[charCodes, aliceModel]];
 	decodeStep[aliceModel, {}, Interval[{0, base - 1}], FromDigits[Table[getBit[], 45], 2]]
 	, 
 	{{80}, 80, Interval[{6446666379264, 25204856195071}], 23273196273538}
@@ -248,7 +248,7 @@ VerificationTest[
 	SeedRandom[1234];
 	toyModel = Association["red" -> 0.6, "green" -> 0.3, "yellow" -> 0.1] & ;
 	a = RandomChoice[Keys@toyModel[], 10] ;
-	decode[encode[a, toyModel], toyModel, 10]
+	decodeNoPrepend[encodeNoPrepend[a, toyModel], toyModel, 10]
 	,
 	{"yellow","red","red","green","yellow","yellow","green","green","yellow","yellow"}
 	,
@@ -258,26 +258,22 @@ VerificationTest[
 
 VerificationTest[
 	charCodes = Flatten[ToCharacterCode["My hovercraft is full of eels."]];
-	b = encode[charCodes, aliceModel]; 
-    FromCharacterCode[decode[b, aliceModel, Length[charCodes]]]
+	b = encodeNoPrepend[charCodes, aliceModel]; 
+    FromCharacterCode[decodeNoPrepend[b, aliceModel, Length[charCodes]]]
     , 
     "My hovercraft is full of eels."
     ,
-    TimeConstraint -> 10, TestID -> "Encoding and decoding with aliceModel"]
+    TimeConstraint -> 10, TestID -> "Encoding and decoding with aliceModel"
+]
 
 
-	charCodes = Flatten[ToCharacterCode["My hovercraft is full of eels."]];
-	b = encode[charCodes, aliceModel]; 
-    FromCharacterCode[decode[b, aliceModel, Length[charCodes]]]
-
-
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Literals*)
 
 
 VerificationTest[
 	base = 2^45;
-	Sledgehammer`Private`aCoderLinkedList = toLinkedList@encode[{1,0,0,1,1,0,1,0,0,1,0}, Sledgehammer`Private`$bitModel];
+	Sledgehammer`Private`aCoderLinkedList = toLinkedList@encodeNoPrepend[{1,0,0,1,1,0,1,0,0,1,0}, Sledgehammer`Private`$bitModel];
 	Sledgehammer`Private`state = Interval@{0, base-1};
 	x = FromDigits[Table[Sledgehammer`Private`getBit[], BitLength@base - 1], 2];
 	Sledgehammer`Private`decodeBits[11]
@@ -289,7 +285,7 @@ VerificationTest[
 
 VerificationTest[
 	literalTestModel = <| intLiteral[] -> .5, "foo" -> .5 |>&;
-	encode[{"foo", intLiteral[-5], intLiteral[24601]}, literalTestModel] === Flatten[
+	encodeNoPrepend[{"foo", intLiteral[-5], intLiteral[24601]}, literalTestModel] === Flatten[
 	{1, 0, varEliasDelta@-5, 0, varEliasDelta@24601, 1}]
 	,
 	True
@@ -300,7 +296,7 @@ VerificationTest[
 VerificationTest[
 	literalTestModel = <| intLiteral[] -> .2, "foo" -> .8 |>&;
 	a = Riffle[intLiteral /@ {0, 1, -1, 5, 314, 24601, 1324356}, "foo"];
-	decode[encode[a, literalTestModel], literalTestModel, 13]
+	decodeNoPrepend[encodeNoPrepend[a, literalTestModel], literalTestModel, 13]
 	,
 	{intLiteral[0],"foo",intLiteral[1],"foo",intLiteral[-1],"foo",intLiteral[5],"foo",intLiteral[314],"foo",intLiteral[24601],"foo",intLiteral[1324356]}
 	,
@@ -311,7 +307,7 @@ VerificationTest[
 	literalTestModel = <| intLiteral[] -> .2, "foo" -> .5, stringLiteral[] -> .2, realLiteral[] -> .1 |>&;
 	a = {"foo", realLiteral[-3.14159]}~Join~Riffle[intLiteral /@ {0, 1, -1, 5, 1324356},
 			stringLiteral /@ {" ~!@#$%^&*()", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "~~~~", ""}];
-	decode[encode[a, literalTestModel], literalTestModel, 10]
+	decodeNoPrepend[encodeNoPrepend[a, literalTestModel], literalTestModel, 10]
 	,
 	{"foo",realLiteral[-3.14159`],intLiteral[0],stringLiteral[" ~!@#$%^&*()"],intLiteral[1],stringLiteral["ABCDEFGHIJKLMNOPQRSTUVWXYZ"],intLiteral[-1],stringLiteral["~~~~"],intLiteral[5],stringLiteral[""]}
 	,
@@ -323,7 +319,7 @@ VerificationTest[
 	literalTestModel = <| intLiteral[] -> .2, "foo" -> .4, stringLiteral[] -> .2, realLiteral[] -> .1, novelToken[] -> .1 |>&;
 	a = {"foo", realLiteral[-3.14159], novelToken[call["haskell", 5]] }~Join~Riffle[intLiteral /@ {0, 1, -1, 5, 1324356},
 			stringLiteral /@ {" ~!@#$%^&*()", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "~~~~", ""}];
-	decode[encode[a, literalTestModel], literalTestModel, 10]]
+	decodeNoPrepend[encodeNoPrepend[a, literalTestModel], literalTestModel, 10]]
 	,
 	{"foo",realLiteral[-3.14159`],novelToken[call["haskell",5]],intLiteral[0],stringLiteral[" ~!@#$%^&*()"],intLiteral[1],stringLiteral["ABCDEFGHIJKLMNOPQRSTUVWXYZ"],intLiteral[-1],stringLiteral["~~~~"],intLiteral[5]}	,
 	TestID -> "Enc/dec int/str/real/novel token literals", TimeConstraint->10
@@ -332,6 +328,17 @@ VerificationTest[
 
 (* ::Subsection:: *)
 (*All*)
+
+
+VerificationTest[
+	spftm = tokenModel[$spf];
+	toks = {symbolLiteral["PrimeQ"], intLiteral[5], call["Range", 1], call["Map", 2]};
+	decode[encode[toks, spftm], spftm]
+	,
+	{symbolLiteral["PrimeQ"],intLiteral[5],call["Range",1],call["Map",2]}
+	,
+	TestID->"Compression with length prepend"
+]
 
 
 End[]

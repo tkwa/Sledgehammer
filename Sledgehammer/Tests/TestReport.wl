@@ -77,3 +77,4 @@ printTestResults[$InterpreterTestReport];
 
 
 End[]
+Quit[]

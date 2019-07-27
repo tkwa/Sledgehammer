@@ -190,10 +190,12 @@ finalIntervalToBits[i_Interval] := Which[
 	True, Throw["Final interval error"[i, base]]
 ];
 
-encode[tokens_List, model_, encodeBase_Integer: 2^45] := Block[{encoded, base = encodeBase},
+encodeNoPrepend[tokens_List, model_, encodeBase_Integer: 2^45] := Block[{encoded, base = encodeBase},
 	encoded = encodeReap[tokens, model];
 	Join[ Catenate@encoded[[2]], finalIntervalToBits[ encoded[[1]] ]] // replaceHalfs // Internal`DeleteTrailingZeros
 ]
+
+encode[tokens_List, model: _Function | _tokenModel, encodeBase_Integer:2^45] := Join[eliasGamma[Length@tokens + 1], encodeNoPrepend[tokens, model, encodeBase]]
 
 
 (* ::Subsection:: *)
@@ -220,8 +222,15 @@ decodeStep[model: _Function | _tokenModel, oldPrevTokens_List, oldState_Interval
 	{prevTokens, token, state, x}
 ];
 
-decode[bits_List, model: _Function | _tokenModel, nToks_Integer, decodeBase_Integer:2^45] := Block[{base = decodeBase, aCoderLinkedList, initialX, initialInterval},
+decodeNoPrepend[bits_List, model: _Function | _tokenModel, nToks_Integer, decodeBase_Integer:2^45] := (aCoderLinkedList = toLinkedList[bits];
+	initialX = FromDigits[Table[getBit[], BitLength@base - 1], 2];
+	initialInterval = Interval[{0, base - 1}];
+	Reap[Nest[decodeStep[model, #[[1]], #[[3]], #[[4]]]&, {{}, "foo", initialInterval, initialX}, nToks]] // #[[2, 1]]&
+);
+
+decode[bits_List, model: _Function | _tokenModel, decodeBase_Integer:2^45] := Block[{base = decodeBase, nToks, aCoderLinkedList, initialX, initialInterval},
 	aCoderLinkedList = toLinkedList[bits];
+	nToks = unEliasGamma[getBits] - 1;
 	initialX = FromDigits[Table[getBit[], BitLength@base - 1], 2];
 	initialInterval = Interval[{0, base - 1}];
 	Reap[Nest[decodeStep[model, #[[1]], #[[3]], #[[4]]]&, {{}, "foo", initialInterval, initialX}, nToks]] // #[[2, 1]]&
