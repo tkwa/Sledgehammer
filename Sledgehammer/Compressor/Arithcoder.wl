@@ -194,8 +194,10 @@ encodeNoPrepend[tokens_List, model_, encodeBase_Integer: $base] := Block[{encode
 	Join[ Catenate@encoded[[2]], finalIntervalToBits[ encoded[[1]] ]] // replaceHalfs // Internal`DeleteTrailingZeros
 ]
 
-encode[tokens_List, model: _Function | _tokenModel, encodeBase_Integer:$base] := Join[eliasGamma[Length@tokens + 1], encodeNoPrepend[tokens, model, encodeBase]]
+encode[tokens_List, model: _Function | _tokenModel, encodeBase_Integer:$base] :=
+    Join[eliasGamma[Length@tokens + 1], encodeNoPrepend[tokens, model, encodeBase]];
 
+SHEncode[tokens_List] := encode[tokens, $tokenModel, $base];
 
 (* ::Subsection:: *)
 (*Decoding*)
@@ -236,7 +238,7 @@ decode[bits_List, model: _Function | _tokenModel, decodeBase_Integer:$base] := B
 	Reap[Nest[decodeStep[model, #[[1]], #[[3]], #[[4]]]&, {{}, "foo", initialInterval, initialX}, nToks]] // #[[2, 1]]&
 ];
 
-SHDecode[bits_List] := decode[bits, $tokenModel];
+SHDecode[bits_List] := decode[bits, $tokenModel, $base];
 
 
 (* ::Subsection:: *)

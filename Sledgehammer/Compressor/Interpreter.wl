@@ -216,8 +216,14 @@ tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert
 
 (* remove all extraneous elements from tokens ending on 1s? *)
 compress=.
-compress[toks_List] := Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a};
-compress[expr_HoldComplete] := Check[compress@wToPostfix@preprocess@expr,
+Options[compress] = {Method -> "Huffman"};
+
+compress[toks_List, OptionsPattern[]] := Switch[OptionValue[Method],
+	"Huffman", Join @@ Map[tokenToBits] @ toks /. {a___, 1...} :> {a},
+	"Arithmetic", SHEncode[toks]
+];
+
+compress[expr_HoldComplete, opts: OptionsPattern[]] := Check[compress[wToPostfix@preprocess@expr, opts],
 Assert[False, "Could not compress expression"@expr]];
 
 compressedLength=.
@@ -268,7 +274,12 @@ decompressNoPad[bits_List] := Module[{tok, lenUsed},
 	Prepend[tok][decompressNoPad[Drop[bits, lenUsed]]]];
 
 (* decompress after padding with 128 implicit trailing 1 bits *)
-decompress[bits_List] := decompressNoPad[ArrayPad[bits, {0,128},1]];
+Options[decompress] = {Method -> "Huffman"};
+
+decompress[bits_List, OptionsPattern[]] := Switch[OptionValue[Method],
+	"Huffman", decompressNoPad[ArrayPad[bits, {0,128},1]],
+	"Arithmetic", SHDecode[bits]
+];
 
 
 (* ::Subsection::Closed:: *)
