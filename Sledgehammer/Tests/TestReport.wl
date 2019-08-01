@@ -9,6 +9,15 @@ Once@Get["Sledgehammer`", Path -> FileNameJoin[{NotebookDirectory[], "..", ".."}
 Begin["Sledgehammer`Private`"];
 
 
+Sledgehammer`compress[HoldComplete[Sledgehammer`Private`symbolLiteral[s1]]] // Sledgehammer`decompress
+
+
+expr = HoldComplete[##&]
+	expr = expr // Sledgehammer`preprocess // Sledgehammer`wToPostfix;
+	expr = expr // Sledgehammer`compress /* Sledgehammer`decompress /* Echo /* Sledgehammer`postfixToW /* Sledgehammer`postprocess
+Sledgehammer`eval[expr, {{"bag", "bat", "cat", "cot", "dot", "dog"}}]
+
+
 (* ::Subsubsection::Closed:: *)
 (*printTestResults*)
 
@@ -71,7 +80,7 @@ $ArithcoderTestReport["TestsFailed"]
 
 
 
-$InterpreterTestReport = TestReport @ FileNameJoin[{NotebookDirectory[],"InterpreterTests.wlt"}];
+$InterpreterTestReport = TestReport @ FileNameJoin[{NotebookDirectory[],"InterpreterTests.wl"}];
 
 printTestResults[$InterpreterTestReport];
 

@@ -7,7 +7,7 @@ Once@Get["Sledgehammer`", Path -> ParentDirectory@ParentDirectory@NotebookDirect
 
 (* Preprocesses the expression, then converts to postfix form *)
 makeSeqPrTrainingData[expr_HoldComplete, includeLiterals_:False] := Module[{
-	rmLiteralRules = {(h:Sledgehammer`Private`intLiteral | Sledgehammer`Private`asciiLiteral | Sledgehammer`Private`realLiteral)[_] -> h[]}},
+	rmLiteralRules = {(h:Sledgehammer`Private`intLiteral | Sledgehammer`Private`stringLiteral | Sledgehammer`Private`realLiteral)[_] -> h[]}},
 
 	expr // preprocess // wToPostfix // If[includeLiterals, #, #  /. rmLiteralRules]&
 ];
@@ -178,7 +178,7 @@ Order 0: \[LeftAssociation]"Tokens"\[Rule]0.8102177351529412`,"Uniques"\[Rule]0.
 *)
 
 seqprInformation[Take[succs, All]]
-Put[spf, Sledgehammer`Private`$PackageDirectory <> "Setup/spf.mx"]
+Put[spf, Sledgehammer`Private`$PackageDirectory <> "Setup/spf.mx"];
 
 
 succs[[2]] // wToPostfix // Echo // postfixToW
@@ -199,7 +199,7 @@ Sledgehammer`Private`spf[{{}}, "Probabilities"] // First // Keys // Length
 Begin["Sledgehammer`Private`"];
 spf = Get[$PackageDirectory <> "Setup/spf.mx"];
 spf[{{}}, "RandomNextElement" -> 20] /.
-{intLiteral[] -> intLiteral[1], asciiLiteral[] -> asciiLiteral[""], realLiteral[] -> realLiteral[.5]} //
+{intLiteral[] -> intLiteral[1], stringLiteral[] -> stringLiteral[""], realLiteral[] -> realLiteral[.5]} //
 First // postfixToW // postprocess // InputForm
 End[];
 
@@ -235,14 +235,14 @@ entropyDistribution // Histogram
 Print["Entropy lower bound ", Median@entropyDistribution, " bytes per token (excluding entropy from literals and novel tokens)"]
 
 
-rmLiteralRules = {(h:intLiteral | asciiLiteral | realLiteral)[_] -> h[]};
+rmLiteralRules = {(h:intLiteral | stringLiteral | realLiteral)[_] -> h[]};
 novelTokens = Complement[Catenate[test /. rmLiteralRules ],Catenate[train /. rmLiteralRules]];
 Print[Length@novelTokens, " of ", Length@Catenate@test, " non-literal tokens in test set are novel"]
 
 
 spf[{{}},"Probabilities"] // First // ReverseSort // Take[#, 20] & // Normal // Column
 modelfreqs = spf[{{}},"Probabilities"] // First // Normal // #/. 
-	{intLiteral[_] -> intLiteral[], realLiteral[_] -> realLiteral[], asciiLiteral[_] -> asciiLiteral[]}& //
+	{intLiteral[_] -> intLiteral[], realLiteral[_] -> realLiteral[], stringLiteral[_] -> stringLiteral[]}& //
 	Merge[Apply@Plus] // ReverseSort;
 Put[modelfreqs, "C:\\Users\\Thomas\\Sledgehammer\\modelfreqs.mx"];
 

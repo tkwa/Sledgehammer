@@ -8,8 +8,9 @@ BeginPackage["Sledgehammer`"];
 (*Package Symbols*)
 
 
-`Private`$PackageDirectory::usage = "The directory where Sledgehammer is installed.";
-`Private`$spf::usage = "The SequencePredictorFunction used in the main compression algorithm.";
+Sledgehammer`Private`$PackageDirectory::usage = "The directory where Sledgehammer is installed.";
+Sledgehammer`Private`$spf::usage = "The SequencePredictorFunction used in the main compression algorithm.";
+Sledgehammer`Private`$tokenModel::usage = "Token model based on $spf";
 
 
 
@@ -161,11 +162,11 @@ preprocess;
 postprocess;
 wToPostfix;
 postfixToW;
-compress;
+compress::usage = "Compresses a postfix expression using the arithmetic coder.";
 decompress;
 tokenToBits;
 bitsToToken;
-eval;
+eval::usage = "eval[expr, args] evaluates a HoldComplete expression expr given a list of arguments args.";
 SledgehammerGUI;
 
 

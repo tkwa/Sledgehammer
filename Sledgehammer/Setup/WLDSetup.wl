@@ -1,8 +1,6 @@
 #!/usr/bin/env wolframscript
 (* ::Package:: *)
 
-(* Tested with Mathematica 12.0 *)
-version = "0.5.0";
 
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
 (* Additional packages to pull names from. Currently only used for symbol literals. *)
@@ -221,7 +219,7 @@ Print["Constructing Huffman tree..."]
 tokToBitsDict = huffmanDict[tokfreqs];
 
 
-Put[tokToBitsDict // Map[FromDigits[Prepend[#,1],2]&],"compression_dict.mx"]
+Put[tokToBitsDict // Map[FromDigits[Prepend[#,1],2]&],"compression_dict.mx"];
 
 Print[Length@tokToBitsDict, " total token definitions saved"];
 Print["Time: ", N[SessionTime[]-time]]

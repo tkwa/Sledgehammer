@@ -139,9 +139,9 @@ ClearAttributes[symbolLiteral, HoldFirst]
 
 postfixtoken::usage = "Converts a Held token to postfix token e.g. Hold[5] -> intLiteral[5]";
 postfixtoken[expr_] := Module[{h, name}, Which[
-	(* cases: call[], asciiLiteral[], intLiteral[], symbolLiteral[] *)
+	(* cases: call[], stringLiteral[], intLiteral[], symbolLiteral[] *)
 	MatchQ[Head@expr, Hold[_Symbol]], call[SymbolName@@Unevaluated/@Head@expr,Length@expr],
-	MatchQ[expr, Hold[_String]], asciiLiteral@@expr,
+	MatchQ[expr, Hold[_String]], stringLiteral@@expr,
 	MatchQ[expr, Hold[_Integer]], intLiteral@@expr,
 	MatchQ[expr, Hold[_Real]], realLiteral@@expr,
 	Depth@expr == 2, symbolLiteral[SymbolName@@Unevaluated/@expr],
@@ -167,7 +167,7 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 	(* if an operand, just return *)
 	isCall = MatchQ[next, _call];
 	Switch[next,
-			_intLiteral | _realLiteral | _asciiLiteral | _dictLiteral,
+			_intLiteral | _realLiteral | _stringLiteral | _dictLiteral,
 		arity = 0; newExpr = HoldComplete @@ {next[[1]]};
 			_symbolLiteral,
 		arity = 0; newExpr = ToExpression[next[[1]], InputForm, HoldComplete];
@@ -252,7 +252,7 @@ bitsToToken[bits_List, decodeDict_: bitsToTokDict] := Module[{pfx, lenUsed, tok}
 		_symbolLiteral , {tok, lenUsed},
 		_intLiteral , {intLiteral[#], lenUsed + #2}& @@ unVarEliasDelta[Drop[bits, lenUsed], 1, True],
 		_realLiteral, {realLiteral[ToExpression@#], lenUsed + #2}& @@ decodeAsciiLiteral[Drop[bits, lenUsed]],
-		_asciiLiteral , {asciiLiteral[#], lenUsed + #2}& @@ decodeAsciiLiteral[Drop[bits, lenUsed]],
+		_stringLiteral , {stringLiteral[#], lenUsed + #2}& @@ decodeAsciiLiteral[Drop[bits, lenUsed]],
 		_dictLiteral, {dictLiteral[#], lenUsed + #2}& @@ decodeDictLiteral[Drop[bits, lenUsed]],
 		_, Throw["Token prefix not found!"@tok]
 	]
@@ -309,7 +309,7 @@ eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
 (* ::Subsection:: *)
 (*Interactive app*)
 
-formatRPRules = {intLiteral[i_] :> i, realLiteral[r_] :> r, asciiLiteral[s_] :> s,
+formatRPRules = {intLiteral[i_] :> i, realLiteral[r_] :> r, stringLiteral[s_] :> s,
 	call[c___] :> "call"[c], symbolLiteral[s___] :> "sym"[s]};
 
 SledgehammerGUI[] := DynamicModule[{boxContents = "", expr, input = {}, code, pfCode, cmpCode, brCode, lenBits, lenBytes, decompCode, cbs, result, cgccString},

@@ -8,17 +8,22 @@ Begin["`Private`"];
 (* ::Subsection:: *)
 (*Literal encodings*)
 
+intLiteral::usage = "A marker used for integer literals";
+realLiteral::usage = "A marker used for real literals";
+stringLiteral::usage = "A marker used for string literals";
+symbolLiteral::usage = "A marker used for symbol literals";
+
 
 (* ::Subsubsection::Closed:: *)
 (*Integers (Elias gamma, delta)*)
 
 
-eliasGamma[0] := {1}
+eliasGamma[0] := {1};
 eliasGamma[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[ConstantArray[0,Length@# - 1], #]&;
 
 eliasDelta[n_Integer /; n > 0] := IntegerDigits[n,2] // Join[eliasGamma[Length@#], Rest@# ]&;
 
-eliasDelta[_] := Throw@"Argument to Elias Delta must be a positive integer."
+eliasDelta[_] := Throw@"Argument to Elias Delta must be a positive integer.";
 
 (* Elias delta except for the lower k bits which are explicitly encoded, and the sign which is the first bit if sgnQ = True. *)
 varEliasDelta[n_Integer, k_Integer: 1, sgnQ_: True] := Module[{nn, sgn, ret},
@@ -92,13 +97,13 @@ fromBijectiveBase[l_List, k_Integer] := FromDigits[l, k];
 
 
 (* ASCII strings packed into 7 bits per character.*)
-tokenToBits[asciiLiteral[str_String] /; SubsetQ[Union[{10}, Range[32, 127]], Union@ToCharacterCode@str] ] := encodeAsciiLiteral[str];
-tokenToBits[asciiLiteral[str_]] := tokenToBits[asciiLiteral[""]];
+tokenToBits[stringLiteral[str_String] /; SubsetQ[Union[{10}, Range[32, 127]], Union@ToCharacterCode@str] ] := encodeAsciiLiteral[str];
+tokenToBits[stringLiteral[str_]] := tokenToBits[stringLiteral[""]];
 
 encodeAsciiLiteral[str_String] := Module[{len, bits},
 	bits = fromBijectiveBase[(ToCharacterCode@str /. 10 -> 127) - 31, 96]// IntegerDigits[#,2]&;
 	len = Length@bits;
-	Join[tokenToBits@asciiLiteral[], varEliasDelta[len, 3, False], bits]
+	Join[tokenToBits@stringLiteral[], varEliasDelta[len, 3, False], bits]
 ];
 
 (* ASCII literal. (Length of string, string in packed 7 bit encoding) *)
@@ -236,7 +241,7 @@ decNovelToken[] := Module[{name, arity},
 (*Models*)
 
 
-ClearAll[tokenModel]
+ClearAll[tokenModel];
 
 tokenModel[spf_SequencePredictorFunction, 0 | 0. ][l_List] := If[l==={}, First@spf[{{}}, "Probabilities"], spf[l, "Probabilities"]]
 
@@ -245,7 +250,9 @@ tokenModel[spf_SequencePredictorFunction, escapeProb_Real][l_List] :=
 		If[l==={}, First@spf[{{}}, "Probabilities"], spf[l, "Probabilities"]],
 		<| novelToken[] -> escapeProb|>
 	] / (1 + escapeProb);
-tokenModel[spf_SequencePredictorFunction] := tokenModel[spf, .05]
+tokenModel[spf_SequencePredictorFunction] := tokenModel[spf, .05];
+
+$tokenModel = tokenModel[$spf];
 
 
 (* ::Subsection:: *)

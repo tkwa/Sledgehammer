@@ -9,12 +9,12 @@ Begin["`Private`"]
 (*Parameters*)
 
 
-On@Assert
+On@Assert;
 
 
 
-(* Arithmetic encoding base, cleaner if this is a power of 2 *)
-$base=.
+$base::usage = "Arithmetic encoding base. Should be a power of 2";
+$base = 2^45;
 
 (* Tokens that are actually token classes, mapped to their corresponding models *)
 $dataEncoders = <|
@@ -24,7 +24,6 @@ realLiteral -> {encRealLiteral, decRealLiteral},
 stringLiteral -> {encStrLiteral, decStrLiteral},
 intListLiteral -> {encIntListLiteral, decIntListLiteral}
 |>;
-
 
 
 (* ::Subsubsection:: *)
@@ -190,12 +189,12 @@ finalIntervalToBits[i_Interval] := Which[
 	True, Throw["Final interval error"[i, base]]
 ];
 
-encodeNoPrepend[tokens_List, model_, encodeBase_Integer: 2^45] := Block[{encoded, base = encodeBase},
+encodeNoPrepend[tokens_List, model_, encodeBase_Integer: $base] := Block[{encoded, base = encodeBase},
 	encoded = encodeReap[tokens, model];
 	Join[ Catenate@encoded[[2]], finalIntervalToBits[ encoded[[1]] ]] // replaceHalfs // Internal`DeleteTrailingZeros
 ]
 
-encode[tokens_List, model: _Function | _tokenModel, encodeBase_Integer:2^45] := Join[eliasGamma[Length@tokens + 1], encodeNoPrepend[tokens, model, encodeBase]]
+encode[tokens_List, model: _Function | _tokenModel, encodeBase_Integer:$base] := Join[eliasGamma[Length@tokens + 1], encodeNoPrepend[tokens, model, encodeBase]]
 
 
 (* ::Subsection:: *)
@@ -211,7 +210,8 @@ decodeToken[model: _Function | _tokenModel, prevTokens_List: {}] := Module[
 ];
 
 (* Decodes one token, taking a rational number; returns token and remaining rational *)
-decodeStep[model: _Function | _tokenModel, oldPrevTokens_List, oldState_Interval, oldX_Integer] := Block[{prevTokens = oldPrevTokens, token, state = oldState, x = oldX, ret},
+decodeStep[model: _Function | _tokenModel, oldPrevTokens_List, oldState_Interval, oldX_Integer] := Block[
+	{prevTokens = oldPrevTokens, token, state = oldState, x = oldX, ret},
 	token = decodeToken[model, prevTokens] // show;
 	prevTokens = Append[prevTokens, token] // Take[#, -Min[5, Length@prevTokens + 1]]&;
 	If[KeyMemberQ[$dataEncoders, Head@token],
@@ -222,19 +222,21 @@ decodeStep[model: _Function | _tokenModel, oldPrevTokens_List, oldState_Interval
 	{prevTokens, token, state, x}
 ];
 
-decodeNoPrepend[bits_List, model: _Function | _tokenModel, nToks_Integer, decodeBase_Integer:2^45] := (aCoderLinkedList = toLinkedList[bits];
+decodeNoPrepend[bits_List, model: _Function | _tokenModel, nToks_Integer, decodeBase_Integer:$base] := (aCoderLinkedList = toLinkedList[bits];
 	initialX = FromDigits[Table[getBit[], BitLength@base - 1], 2];
 	initialInterval = Interval[{0, base - 1}];
 	Reap[Nest[decodeStep[model, #[[1]], #[[3]], #[[4]]]&, {{}, "foo", initialInterval, initialX}, nToks]] // #[[2, 1]]&
 );
 
-decode[bits_List, model: _Function | _tokenModel, decodeBase_Integer:2^45] := Block[{base = decodeBase, nToks, aCoderLinkedList, initialX, initialInterval},
+decode[bits_List, model: _Function | _tokenModel, decodeBase_Integer:$base] := Block[{base = decodeBase, nToks, aCoderLinkedList, initialX, initialInterval},
 	aCoderLinkedList = toLinkedList[bits];
 	nToks = unEliasGamma[getBits] - 1;
 	initialX = FromDigits[Table[getBit[], BitLength@base - 1], 2];
 	initialInterval = Interval[{0, base - 1}];
 	Reap[Nest[decodeStep[model, #[[1]], #[[3]], #[[4]]]&, {{}, "foo", initialInterval, initialX}, nToks]] // #[[2, 1]]&
-]
+];
+
+SHDecode[bits_List] := decode[bits, $spf];
 
 
 (* ::Subsection:: *)
