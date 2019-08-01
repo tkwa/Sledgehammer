@@ -236,7 +236,7 @@ decode[bits_List, model: _Function | _tokenModel, decodeBase_Integer:$base] := B
 	Reap[Nest[decodeStep[model, #[[1]], #[[3]], #[[4]]]&, {{}, "foo", initialInterval, initialX}, nToks]] // #[[2, 1]]&
 ];
 
-SHDecode[bits_List] := decode[bits, $spf];
+SHDecode[bits_List] := decode[bits, $tokenModel];
 
 
 (* ::Subsection:: *)

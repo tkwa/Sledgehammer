@@ -145,7 +145,13 @@ decodeBits[n_Integer] := Table[decodeBit[], n];
 (*Integer literals*)
 
 
-(* pulls from stream *)
+unUnary::usage = "Reads n 0 bits followed by a 1, and returns n";
+unUnary[bitGetter_: decodeBits] := Module[{leadingZeros = 0,ret},
+	While[bitGetter[1][[1]] == 0, ++leadingZeros];
+	leadingZeros;
+];
+
+
 unEliasGamma[bitGetter_: decodeBits] := Module[{leadingZeros = 0, ret},
 	 While[bitGetter[1][[1]] == 0, ++leadingZeros; If[leadingZeros > 100, Throw["Too many leading 0s!"]] ];
 	 (* bit we just read is a 1 *)
@@ -156,18 +162,18 @@ unEliasGamma[bitGetter_: decodeBits] := Module[{leadingZeros = 0, ret},
 ];
 
 (* returns n, length used *)
-unEliasDelta[] := Module[{lennp1, ret},
-	lennp1 = unEliasGamma[];
+unEliasDelta[bitGetter_:decodeBits] := Module[{lennp1, ret},
+	lennp1 = unEliasGamma[bitGetter];
 	Assert[lennp1 >= 1];
-	ret = FromDigits[ Prepend[1]@ decodeBits[lennp1 - 1], 2];
+	ret = FromDigits[ Prepend[1]@ bitGetter[lennp1 - 1], 2];
 	show["unEliasDelta="@ret];
 	ret
 ];
 
-unVarEliasDelta[k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, ret},
-	sgn = If[sgnQ, decodeBit[], 0];
-	ndiv8p1 = unEliasDelta[];
-	ret = (ndiv8p1 - 1) * 2^k + FromDigits[ show@decodeBits[k], 2];
+unVarEliasDelta[k_Integer:1, sgnQ: True | False :True, bitGetter_: decodeBits] := Module[{sgn, rest, ndiv8p1, ret},
+	sgn = If[sgnQ, bitGetter[1][[1]], 0];
+	ndiv8p1 = unEliasDelta[bitGetter];
+	ret = (ndiv8p1 - 1) * 2^k + FromDigits[ show@bitGetter[k], 2];
 	ret = BitXor[ret, -sgn];
 	show["unVarEliasDelta="@ret];
 	ret
@@ -175,7 +181,7 @@ unVarEliasDelta[k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, ret},
 
 encIntLiteral[data_Integer] := varEliasDelta[data] // encodeBits;
 
-decIntLiteral[] := unVarEliasDelta[]
+decIntLiteral[] := unVarEliasDelta[];
 
 
 (* ::Subsubsection::Closed:: *)
@@ -243,7 +249,8 @@ decNovelToken[] := Module[{name, arity},
 
 ClearAll[tokenModel];
 
-tokenModel[spf_SequencePredictorFunction, 0 | 0. ][l_List] := If[l==={}, First@spf[{{}}, "Probabilities"], spf[l, "Probabilities"]]
+tokenModel[spf_SequencePredictorFunction, 0 | 0. ][l_List] :=
+    If[l==={}, First@spf[{{}}, "Probabilities"], spf[l, "Probabilities"]];
 
 tokenModel[spf_SequencePredictorFunction, escapeProb_Real][l_List] :=
 	Join[
