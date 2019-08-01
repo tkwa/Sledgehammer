@@ -293,7 +293,8 @@ brailleToBits[brs_String] := ToCharacterCode[brs, "Unicode"] - 16^^2800 // Map[P
 
 (* Evaluates a function which is wrapped in HoldComplete[] but may be missing Function[]. 
 Captures definition with a single Downvalue, but leaks symbol.
-TODO: Move to postfixToW *)
+TODO: Move to postfixToW
+*)
 eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
 	f = Which[
 			(* Function *)
@@ -302,6 +303,53 @@ eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
 			MatchQ[expr, HoldComplete[a_Symbol[___] := _]], (Identity@@expr; expr[[1, 1, 0]]),
 			True, Identity@@expr];
 	f @@ args
+];
+
+
+(* ::Subsection:: *)
+(*Interactive app*)
+
+formatRPRules = {intLiteral[i_] :> i, realLiteral[r_] :> r, asciiLiteral[s_] :> s,
+	call[c___] :> "call"[c], symbolLiteral[s___] :> "sym"[s]};
+
+SledgehammerGUI[] := DynamicModule[{boxContents = "", expr, input = {}, code, pfCode, cmpCode, brCode, lenBits, lenBytes, decompCode, cbs, result, cgccString},
+	expr[b_]:=preprocess[MakeExpression[StripBoxes@b,StandardForm]];
+	pfCode[] := wToPostfix@expr@code;
+	cmpCode[] := compress@wToPostfix@expr@code;
+	brCode[] := bitsToBraille@cmpCode[];
+	lenBits[] := Length@cmpCode[];
+	lenBytes[] := .125 * lenBits[];
+	decompCode[] := brCode[] // brailleToBits // decompress // postfixToW // postprocess;
+	result[] := TimeConstrained[eval[decompCode[], input], 10];
+	cgccString[] := ("# [Sledgehammer](https://github.com/tkwa/Sledgehammer), " <>
+			ToString@Ceiling@lenBytes[] <>
+			" bytes\n\n    " <>
+			brCode[] <>
+			"\n\nDecompresses into this Wolfram Language function: \n\n    "<>
+			ToString[First@decompCode[], InputForm] <> "\n");
+
+	Deploy@Panel@Column[{"Put code below:",
+		EventHandler[
+			InputField[ Dynamic@boxContents,Boxes,FieldSize->{{40,80},{5,\[Infinity]}},BaseStyle->{"Notebook", "Input",InputFieldBoxOptions->{"ReturnEntersInput"->False}, ShowCodeAssist ->  True, ShowSyntaxStyles -> True}],{"ReturnKeyDown" :> Paste["\n"],  {"MenuCommand", "HandleShiftReturn"} :> Paste["\n"]}
+		],
+		Style[Row@{Dynamic@Length@pfCode[]," tokens"},FontSize->Larger],
+		Style[Row@{Dynamic@lenBits[]," bits = ",Dynamic@lenBytes[] , " bytes"},FontSize->Larger],
+		Row[{"Input (as a list): ",InputField[Dynamic@input]}],
+		Button["Update", code = boxContents],
+
+		CheckboxBar[Dynamic@cbs,{"Show postfix","Show bits","Show Braille","Decompress", "Eval"}],
+		Dynamic@If[MemberQ[cbs,"Show postfix"],pfCode[] /. formatRPRules, ""],
+		Dynamic@If[MemberQ[cbs,"Show bits"],cmpCode[],""],
+		Dynamic@If[MemberQ[cbs,"Show Braille"],brCode[],""],
+		Dynamic@If[MemberQ[cbs,"Decompress"],decompCode[] // InputForm,""],
+		Dynamic@If[MemberQ[cbs,"Eval"],Dynamic@result[],""],
+
+		OpenerView@{"CGCC submission",Column[{Button["Copy",CopyToClipboard[cgccString[]]],
+				Framed[Dynamic@Style[cgccString[], FontFamily-> "Courier"]]}
+			]}
+	}]
+	,
+	UnsavedVariables -> {}
 ];
 
 

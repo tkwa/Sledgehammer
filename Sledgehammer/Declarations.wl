@@ -2,10 +2,16 @@
 
 BeginPackage["Sledgehammer`"];
 
+
+
 (* ::Section:: *)
 (*Package Symbols*)
+
+
 `Private`$PackageDirectory::usage = "The directory where Sledgehammer is installed.";
 `Private`$spf::usage = "The SequencePredictorFunction used in the main compression algorithm.";
+
+
 
 (* ::Section:: *)
 (*Utilities*)
@@ -135,8 +141,6 @@ BagUnion::usage = "Multiset union.";
 (*Arithcoder*)
 
 
-
-
 encode;
 decode;
 
@@ -162,6 +166,7 @@ decompress;
 tokenToBits;
 bitsToToken;
 eval;
+SledgehammerGUI;
 
 
 EndPackage[]
