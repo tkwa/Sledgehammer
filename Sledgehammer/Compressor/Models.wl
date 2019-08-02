@@ -46,8 +46,7 @@ unEliasDelta[bits_List] := Module[{lennp1, lenUsed},
 	{FromDigits[ Prepend[1]@ bits[[lenUsed + 1 ;; lenUsed + lennp1 - 1]], 2], lenUsed + lennp1 - 1}
 ];
 
-(* returns integer, length used
-To do: Change integer literals to k=1 *)
+(* returns integer, length used*)
 unVarEliasDelta::usage = "Decode a variant Elias Delta bitstring";
 unVarEliasDelta[bits_List, k_Integer:1, sgnQ_:True] := Module[{sgn, rest, ndiv8p1, lenUsed, n},
 	sgn = If[sgnQ, First@bits,0];
@@ -231,12 +230,12 @@ encNovelToken[tok_] := Module[{name, arity},
 		_symbolLiteral, {tok[[1]], -1},
 		_, Throw["Invalid novel token"@tok]
 	];
-	encodeBits@Join[eliasGamma[arity + 2], varEliasDelta@First@FirstPosition[$names, name]];
+	encodeBits@Join[eliasGamma[arity + 2], varEliasDelta[First@FirstPosition[$names, name], 10, False]];
 ];
 
 decNovelToken[] := Module[{name, arity},
 	arity = unEliasGamma[] - 2;
-	name = $names[[unVarEliasDelta[]]];
+	name = $names[[unVarEliasDelta[10, False]]];
 	Switch[arity,
 		-1, symbolLiteral[name],
 		_, call[name, arity]]
