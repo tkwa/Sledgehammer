@@ -32,6 +32,7 @@ If[! ValueQ@Sledgehammer`Private`$PackageNames,
 ];
 
 Scan[Needs, {"Combinatorica`", "Quaternions`", "FiniteFields`", "Experimental`"}];
+$ContextPath = DeleteCases[$ContextPath, "Combinatorica`"];
 
 << "Declarations.wl";
 

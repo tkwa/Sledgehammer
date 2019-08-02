@@ -29,6 +29,19 @@ VerificationTest[(* 3 *)
 ]
 
 VerificationTest[
+	markNovelTokens[
+		{intLiteral[5], intLiteral[-306973485], symbolLiteral["Sin"],call["Map", 2], call["Internal`ExtendLicenseProvision", 2], symbolLiteral["foo"]}
+	]
+	,
+	{intLiteral[5], intLiteral[-306973485], symbolLiteral["Sin"],
+		call["Map", 2],
+		novelToken[call["Internal`ExtendLicenseProvision", 2]],
+		novelToken[symbolLiteral["foo"]]}
+	,
+	TestID->"markNovelTokens"
+]
+
+VerificationTest[
 	expr = HoldComplete[Function[x,MaximalBy[AdjacencyGraph[x,UnitStep[1-DistanceMatrix@x]]~FindShortestPath~##&@@@Tuples[x,2],Length]]];
 	expr = expr // RightComposition[
 		Sledgehammer`preprocess,
@@ -36,12 +49,33 @@ VerificationTest[
 		Sledgehammer`compress, 
 		Sledgehammer`decompress,
 		Sledgehammer`postfixToW,
-		Sledgehammer`postprocess] // Echo;
+		Sledgehammer`postprocess];
 		Sledgehammer`eval[expr, {{"bag", "bat", "cat", "cot", "dot", "dog"}}]
 	,
 	{{"bag", "bat", "cat", "cot", "dot", "dog"}, {"dog", "dot", "cot", "cat", "bat", "bag"}}
 	,
-	TestID->"https://codegolf.stackexchange.com/a/187134/39328"
+	TestID->"Huffman, https://codegolf.stackexchange.com/a/187134/39328"
+]
+
+VerificationTest[
+	expr = HoldComplete[Length[ConnectedComponents[RelationGraph[Inner[Equal, ##1, Or] &,
+		Transpose[StringSplit @ #1]]]] &];
+	expr = expr // RightComposition[
+		Sledgehammer`preprocess,
+		Sledgehammer`wToPostfix,
+		Sledgehammer`markNovelTokens,
+		Sledgehammer`compress[#, Method -> "Arithmetic"]&,
+		Sledgehammer`decompress[#, Method -> "Arithmetic"]&,
+		Sledgehammer`unMarkNovelTokens,
+		Sledgehammer`postfixToW,
+		Sledgehammer`postprocess];
+	Sledgehammer`eval[expr, {{"Angel Devil Angel Joker Thief Thief",
+		"Ra Ra Ras Pu Ti N",
+		"say sea c c see cee"}}]
+	,
+	2
+	,
+	TestID->"Arithmetic, https://codegolf.stackexchange.com/a/188356/39328"
 ]
 
 End[]

@@ -158,10 +158,12 @@ varEliasDelta;
 unVarEliasDelta;
 
 (* Interpreter *)
-preprocess;
-postprocess;
-wToPostfix;
-postfixToW;
+preprocess::usage = "Preprocesses a WL expression.";
+postprocess::usage = "Partially undoes preprocessing of a WL expression.";
+wToPostfix::usage = "Converts a preprocessed WL expression to postfix";
+postfixToW::usage = "Converts a list of tokens to a WL expression.";
+markNovelTokens::usage = "Wraps tokens not in the SequencePredictorFunction with novelToken[].";
+unMarkNovelTokens::usage = "Removes novelToken[] from tokens.";
 compress::usage = "Compresses a postfix expression using the arithmetic coder.";
 decompress;
 tokenToBits;

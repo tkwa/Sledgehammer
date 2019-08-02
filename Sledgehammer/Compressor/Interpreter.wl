@@ -203,9 +203,12 @@ postfixToW[pfToks_List, sow_:False] := Block[{f, $Context = "Sledgehammer`Privat
 
 
 $spfStaticProbs = First@Sledgehammer`Private`$spf[{{}},"Probabilities"];
-markNovelTokens[toks_List] := toks /. (tok_ /; Not@KeyMemberQ[$spfStaticProbs, tok] :> novelToken[tok])
 
-unmarkNovelTokens[toks_List] := toks /. novelToken[a_] :> a;
+literalQ[_intLiteral | _realLiteral | _stringLiteral] := True;
+literalQ[_] := False;
+markNovelTokens[toks_List] := Replace[toks, (tok_ /; Not@literalQ@tok && Not@KeyMemberQ[$spfStaticProbs, tok] :> novelToken[tok]), {1}];
+
+unMarkNovelTokens[toks_List] := toks /. novelToken[a_] :> a;
 
 
 (* ::Subsubsection::Closed:: *)

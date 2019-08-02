@@ -173,7 +173,7 @@ unEliasDelta[bitGetter_:decodeBits] := Module[{lennp1, ret},
 unVarEliasDelta[k_Integer:1, sgnQ: True | False :True, bitGetter_: decodeBits] := Module[{sgn, rest, ndiv8p1, ret},
 	sgn = If[sgnQ, bitGetter[1][[1]], 0];
 	ndiv8p1 = unEliasDelta[bitGetter];
-	ret = (ndiv8p1 - 1) * 2^k + FromDigits[ show@bitGetter[k], 2];
+	ret = (ndiv8p1 - 1) * 2^k + FromDigits[ bitGetter[k], 2];
 	ret = BitXor[ret, -sgn];
 	show["unVarEliasDelta="@ret];
 	ret
