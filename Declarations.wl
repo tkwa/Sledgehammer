@@ -156,6 +156,7 @@ SHDecode::usage = "Arithmetic decodes a sequence of tokens.";
 (* Literals *)
 varEliasDelta;
 unVarEliasDelta;
+decVarEliasDelta;
 
 (* Interpreter *)
 preprocess::usage = "Preprocesses a WL expression.";

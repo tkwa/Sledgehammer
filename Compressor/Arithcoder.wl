@@ -232,7 +232,7 @@ decodeNoPrepend[bits_List, model: _Function | _tokenModel, nToks_Integer, decode
 
 decode[bits_List, model: _Function | _tokenModel, decodeBase_Integer:$base] := Block[{base = decodeBase, nToks, aCoderLinkedList, initialX, initialInterval},
 	aCoderLinkedList = toLinkedList[bits];
-	nToks = unVarEliasDelta[4, False, getBits];
+	nToks = decVarEliasDelta[4, False, getBits];
 	initialX = FromDigits[Table[getBit[], BitLength@base - 1], 2];
 	initialInterval = Interval[{0, base - 1}];
 	Reap[Nest[decodeStep[model, #[[1]], #[[3]], #[[4]]]&, {{}, "foo", initialInterval, initialX}, nToks]] // #[[2, 1]]&

@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-Once@Get["Sledgehammer`", Path -> ParentDirectory@ParentDirectory@NotebookDirectory[]];
+Get["Sledgehammer`", Path -> ParentDirectory@ParentDirectory@NotebookDirectory[]];
 
 
 Once@Get["Sledgehammer`", Path -> ParentDirectory@ParentDirectory@NotebookDirectory[]];
@@ -40,17 +40,23 @@ HoldComplete[Function["abc\(xyz"+1]] /. s_String :> RuleCondition[StringReplace[
 (*Get corpus (HoldComplete[] expressions) from file*)
 
 
-myCorpus = Get[Sledgehammer`Private`$PackageDirectory <> "../Development/training_data.mx"];
+myCorpus = Get[Sledgehammer`Private`$PackageDirectory <> "/Development/training_data.mx"];
 
 
 Off[General::stop]
-myCorpus = Get[Sledgehammer`Private`$PackageDirectory <> "../Development/training_data.mx"];
+myCorpus = Get[Sledgehammer`Private`$PackageDirectory <> "/Development/training_data.mx"];
 myCorpus = Take[myCorpus, All];
-successes[corpus_Association] := Select[corpus, decompress@compress@# === wToPostfix@preprocess@#&];
+successes[corpus_Association] := Select[corpus, postfixToW@decompress[compress[#]] === preprocess@#&];
 Length[myCorpus] - Length[ succs = successes@myCorpus]
 (* 1.1992 for 100 answers *)
 fails = Complement[myCorpus, succs];
 myCorpus = succs;
+
+
+SHDecode@SHEncode@wToPostfix@preprocess@HoldComplete[PrimeQ /@ Range@5]
+
+
+decompress[compress[wToPostfix@preprocess@HoldComplete[1+1], Method -> "Arithmetic"], Method -> "Arithmetic"]
 
 
 myCorpus // Map[ LeafCount@# - 1&] // Histogram[#, Automatic, "CDF"]&

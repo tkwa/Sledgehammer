@@ -169,18 +169,18 @@ unEliasDelta[bitGetter_:decodeBits] := Module[{lennp1, ret},
 	ret
 ];
 
-unVarEliasDelta[k_Integer:1, sgnQ: True | False :True, bitGetter_: decodeBits] := Module[{sgn, rest, ndiv8p1, ret},
+decVarEliasDelta[k_Integer:1, sgnQ: True | False :True, bitGetter_: decodeBits] := Module[{sgn, rest, ndiv8p1, ret},
 	sgn = If[sgnQ, bitGetter[1][[1]], 0];
 	ndiv8p1 = unEliasDelta[bitGetter];
 	ret = (ndiv8p1 - 1) * 2^k + FromDigits[ bitGetter[k], 2];
 	ret = BitXor[ret, -sgn];
-	show["unVarEliasDelta="@ret];
+	show["decVarEliasDelta="@ret];
 	ret
 ];
 
-encIntLiteral[data_Integer] := varEliasDelta[data] // encodeBits;
+encIntLiteral[data_Integer] := varEliasDelta[data, 1, True] // encodeBits;
 
-decIntLiteral[] := unVarEliasDelta[];
+decIntLiteral[] := decVarEliasDelta[1, True, decodeBits];
 
 
 (* ::Subsubsection::Closed:: *)
@@ -196,7 +196,7 @@ encStrLiteral[str_String] := Module[{len, bits},
 decStrLiteral=.
 decStrLiteral[] := Module[{len, bits},
 	(*decodeBits[8] // FromDigits[#, 2]& // FromCharacterCode*)
-	len = unVarEliasDelta[3, False];
+	len = decVarEliasDelta[3, False];
 	bits = decodeBits[len];
 	toBijectiveBase[FromDigits[bits, 2], 96] //
 	(# + 31 /. 127 -> 10)& //
@@ -230,12 +230,12 @@ encNovelToken[tok_] := Module[{name, arity},
 		_symbolLiteral, {tok[[1]], -1},
 		_, Throw["Invalid novel token"@tok]
 	];
-	encodeBits@Join[eliasGamma[arity + 2], varEliasDelta[First@FirstPosition[$names, name], 10, False]];
+	encodeBits@Join[eliasGamma[arity + 2], varEliasDelta[First@FirstPosition[$names, name, Throw["Invalid novel token"]], 10, False]];
 ];
 
 decNovelToken[] := Module[{name, arity},
 	arity = unEliasGamma[] - 2;
-	name = $names[[unVarEliasDelta[10, False]]];
+	name = $names[[decVarEliasDelta[10, False]]];
 	Switch[arity,
 		-1, symbolLiteral[name],
 		_, call[name, arity]]

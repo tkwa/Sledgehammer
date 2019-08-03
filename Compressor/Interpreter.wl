@@ -112,6 +112,8 @@ preprocess[expr_HoldComplete] :=
 	renameSlotVars,
 	undoTokenAliases];
 
+cgccPreprocess[expr_HoldComplete] := preprocess[expr];
+
 
 (* ::Subsubsection:: *)
 (*Postprocessing*)
@@ -137,19 +139,21 @@ postprocess[expr_HoldComplete] := expr // Composition[
 
 ClearAttributes[symbolLiteral, HoldFirst]
 
-postfixtoken::usage = "Converts a Held token to postfix token e.g. Hold[5] -> intLiteral[5]";
-postfixtoken[expr_] := Module[{h, name}, Which[
+postfixToken::usage = "Converts a Held token to postfix token e.g. Hold[5] -> intLiteral[5]";
+postfixToken[expr_] := Module[{}, Which[
 	(* cases: call[], stringLiteral[], intLiteral[], symbolLiteral[] *)
-	MatchQ[Head@expr, Hold[_Symbol]], call[SymbolName@@Unevaluated/@Head@expr,Length@expr],
+	MatchQ[Head@expr, Hold[_Symbol]],
+		Block[{$ContextPath = {"Sledgehammer`", "System`", "Sledgehammer`Private`"}}, call[ToString @@ Unevaluated /@ Head@expr, Length@expr]],
 	MatchQ[expr, Hold[_String]], stringLiteral@@expr,
 	MatchQ[expr, Hold[_Integer]], intLiteral@@expr,
 	MatchQ[expr, Hold[_Real]], realLiteral@@expr,
-	Depth@expr == 2, symbolLiteral[SymbolName@@Unevaluated/@expr],
+	MatchQ[expr, Hold[_Symbol]],
+		Block[{$ContextPath = {"Sledgehammer`", "System`", "Sledgehammer`Private`"}}, symbolLiteral[ToString @@ Unevaluated /@ expr]],
 	Depth@expr == 1, Throw[{"Unexpected token", expr}],
 	True, Throw["Unexpected compound head", expr]]];
 
 (* Uses WL's expression structure to get tokens in order of evaluation, then converts each to postfix. *)
-wToPostfix[expr_] := Map[postfixtoken, Level[
+wToPostfix[expr_] := Map[postfixToken, Level[
 		Map[Hold, expr, {-1}, Heads -> True],
 		{1,-2}]];
 
@@ -189,14 +193,13 @@ oneTokenToW[stack_, next_] := Module[{isCall, arity, pops, newExpr, newStack, op
 ];
 
 postfixToW::usage = "Converts postfix form code to WL code HoldComplete[...].";
-postfixToW[pfToks_List, sow_:False] := Block[{f, $Context = "Sledgehammer`Private`"},
-	f = If[sow, oneTokenToW@@Sow[Rule@##]&, oneTokenToW];
+postfixToW[pfToks_List, sow_:False] := Block[{f, $Context = "Sledgehammer`Private`"}, (* for markers *)
+	f = If[sow, oneTokenToW@@Sow[Rule@##, "postfixToW"]&, oneTokenToW];
 	Fold[f, {}, pfToks] //
 	If[Length@# == 1,
 		Last@#,
 		Delete[{1,#,0}& /@ Range@Length@#][HoldComplete@#]]&  (* turn multiple to list *)
 ];
-
 
 (* ::Subsubsection:: *)
 (*Novel token marking*)
@@ -215,7 +218,7 @@ unMarkNovelTokens[toks_List] := toks /. novelToken[a_] :> a;
 (*Compressor*)
 
 
-tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found: " tok}]];
+tokenToBits[tok_, encodeDict_: tokToBitsDict] := Lookup[ encodeDict, tok, Assert[False, {"Token not found: " tok}]; $Failed];
 
 (* remove all extraneous elements from tokens ending on 1s? *)
 compress=.

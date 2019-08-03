@@ -7,7 +7,7 @@ BeginPackage["Sledgehammer`"];
 
 Begin["`Private`"];
 
-$names = DeleteDuplicates@Join[Names["Sledgehammer`*"], Names["System`*"], Names[]];
+$names = Block[{$ContextPath = {"Sledgehammer`", "System`"}}, DeleteDuplicates@Join[Names["Sledgehammer`*"], Names["System`*"], Names[]]];
 Put[$names, FileNameJoin[{NotebookDirectory[], "symbol_names.mx"}]]
 
 

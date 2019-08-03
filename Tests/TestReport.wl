@@ -64,9 +64,6 @@ printTestResults[tr_TestReportObject]:=Module[
 (*Test reports*)
 
 
-aCoderLinkedList
-
-
 $ArithcoderTestReport = TestReport @ FileNameJoin[{NotebookDirectory[],"ArithcoderTests.wl"}];
 
 printTestResults[$ArithcoderTestReport]

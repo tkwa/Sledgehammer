@@ -13,11 +13,16 @@ VerificationTest[(* 1 *)
 ]
 
 VerificationTest[(* 2 *)
-	CompoundExpression[Set[fizzbuzz, HoldComplete[StringRiffle[Array[Function[ReplaceAll[List[StringJoin[Pick[List["Fizz", "Buzz"], Divisible[Slot[1], List[3, 5]]]]], Rule["", Slot[1]]]], 100]]]], Set[pass, Function[Apply[SameQ, List[Slot[1], Sledgehammer`decompress[Sledgehammer`compress[Slot[1]]]]]]], pass[Sledgehammer`wToPostfix[fizzbuzz]]]
+	Set[fizzbuzz, HoldComplete[StringRiffle[Array[Function[ReplaceAll[List[StringJoin[Pick[List["Fizz", "Buzz"], Divisible[Slot[1], List[3, 5]]]]], Rule["", Slot[1]]]], 100]]]];
+		Sledgehammer`decompress[Sledgehammer`compress[Sledgehammer`wToPostfix[fizzbuzz]]]
 	,
-	True
+	{stringLiteral["Fizz"], stringLiteral["Buzz"], call["List", 2], intLiteral[1], call["Slot", 1],
+		intLiteral[3], intLiteral[5], call["List", 2], call["Divisible", 2], call["Pick", 2],
+		call["StringJoin", 1], call["List", 1], stringLiteral[""], intLiteral[1], call["Slot", 1],
+		call["Rule", 2], call["ReplaceAll", 2], call["Function", 1], intLiteral[100],
+		call["Array", 2], call["StringRiffle", 1]}
 	,
-	TestID->"Expression compress/Sledgehammer`decompression"
+	TestID->"Huffman compression and decompression"
 ]
 
 VerificationTest[(* 3 *)
@@ -26,6 +31,14 @@ VerificationTest[(* 3 *)
 	List[True, True]
 	,
 	TestID->"Converting between WL form and postfix"
+]
+
+VerificationTest[
+	postfixToken /@ {Hold[-42], Hold["foo"], Hold[3.14], Hold[Pick], Hold[Internal`AbsSquare], Hold[Combinatorica`Josephus], Hold[Pick][]}
+	,
+	{intLiteral[-42], stringLiteral["foo"], realLiteral[3.14], symbolLiteral["Pick"], symbolLiteral["Internal`AbsSquare"], symbolLiteral["Combinatorica`Josephus"], call["Pick", 0]}
+	,
+	TestID->"postfixToken"
 ]
 
 VerificationTest[
@@ -46,7 +59,7 @@ VerificationTest[
 	expr = expr // RightComposition[
 		Sledgehammer`preprocess,
 		Sledgehammer`wToPostfix,
-		Sledgehammer`compress, 
+		Sledgehammer`compress,
 		Sledgehammer`decompress,
 		Sledgehammer`postfixToW,
 		Sledgehammer`postprocess];
@@ -82,4 +95,4 @@ End[]
 EndTestSection[]
 
 
-Sledgehammer`compress[{intLiteral[1],symbolLiteral["ss1"], call["Function", 1]}] // Sledgehammer`decompress
+

@@ -341,5 +341,15 @@ VerificationTest[
 ]
 
 
+VerificationTest[
+	expr = {Combinatorica`FirstLexicographicTableau};
+	expr
+	,
+	{Combinatorica`FirstLexicographicTableau}
+	,
+	TestID->"TODO: Write novel token test"
+]
+
+
 End[]
 EndTestSection[]
