@@ -3,6 +3,12 @@
 Get["Sledgehammer`", Path -> ParentDirectory@ParentDirectory@NotebookDirectory[]];
 
 
+Begin["Sledgehammer`Private`"]
+
+
+End[]
+
+
 Once@Get["Sledgehammer`", Path -> ParentDirectory@ParentDirectory@NotebookDirectory[]];
 
 (* Preprocesses the expression, then converts to postfix form *)
@@ -33,9 +39,6 @@ makeClassifyTrainingData[corpus_Association] := Module[{},
 makeSeqPrTrainingData[Take[myCorpus, 10]]
 
 
-HoldComplete[Function["abc\(xyz"+1]] /. s_String :> RuleCondition[StringReplace[s, Thread[{"\("} -> {"\\("}]]]
-
-
 (* ::Subsection:: *)
 (*Get corpus (HoldComplete[] expressions) from file*)
 
@@ -45,8 +48,8 @@ myCorpus = Get[Sledgehammer`Private`$PackageDirectory <> "/Development/training_
 
 Off[General::stop]
 myCorpus = Get[Sledgehammer`Private`$PackageDirectory <> "/Development/training_data.mx"];
-myCorpus = Take[myCorpus, All];
-successes[corpus_Association] := Select[corpus, postfixToW@decompress[compress[#]] === preprocess@#&];
+myCorpus = Take[myCorpus, 50];
+successes[corpus_Association] := Select[corpus, postfixToW@unMarkNovelTokens@decompress[compress[markNovelTokens@wToPostfix@preprocess@#, Method -> "Arithmetic"], Method -> "Arithmetic"] === preprocess@#&];
 Length[myCorpus] - Length[ succs = successes@myCorpus]
 (* 1.1992 for 100 answers *)
 fails = Complement[myCorpus, succs];
@@ -241,7 +244,7 @@ entropyDistribution // Histogram
 Print["Entropy lower bound ", Median@entropyDistribution, " bytes per token (excluding entropy from literals and novel tokens)"]
 
 
-rmLiteralRules = {(h:intLiteral | stringLiteral | realLiteral)[_] -> h[]};
+rmLiteralRules = {(h:intLiteral | stringLiteral | realLiteral)[_] :> h[]};
 novelTokens = Complement[Catenate[test /. rmLiteralRules ],Catenate[train /. rmLiteralRules]];
 Print[Length@novelTokens, " of ", Length@Catenate@test, " non-literal tokens in test set are novel"]
 

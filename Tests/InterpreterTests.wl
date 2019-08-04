@@ -54,6 +54,9 @@ VerificationTest[
 	TestID->"markNovelTokens"
 ]
 
+
+
+
 VerificationTest[
 	expr = HoldComplete[Function[x,MaximalBy[AdjacencyGraph[x,UnitStep[1-DistanceMatrix@x]]~FindShortestPath~##&@@@Tuples[x,2],Length]]];
 	expr = expr // RightComposition[
@@ -68,6 +71,23 @@ VerificationTest[
 	{{"bag", "bat", "cat", "cot", "dot", "dog"}, {"dog", "dot", "cot", "cat", "bat", "bag"}}
 	,
 	TestID->"Huffman, https://codegolf.stackexchange.com/a/187134/39328"
+]
+
+VerificationTest[
+	expr = HoldComplete[2+3];
+	expr = expr // RightComposition[
+		Sledgehammer`preprocess,
+		Sledgehammer`wToPostfix,
+		Sledgehammer`markNovelTokens,
+		Sledgehammer`compress[#, Method -> "Arithmetic"]&,
+		Sledgehammer`decompress[#, Method -> "Arithmetic"]&,
+		Sledgehammer`unMarkNovelTokens,
+		Sledgehammer`postfixToW,
+		Sledgehammer`postprocess]
+	,
+	HoldComplete[2+3]
+	,
+	TestID->"Arithcoder simple"
 ]
 
 VerificationTest[
@@ -93,6 +113,9 @@ VerificationTest[
 
 End[]
 EndTestSection[]
+
+
+
 
 
 

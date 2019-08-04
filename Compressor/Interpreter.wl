@@ -112,7 +112,7 @@ preprocess[expr_HoldComplete] :=
 	renameSlotVars,
 	undoTokenAliases];
 
-cgccPreprocess[expr_HoldComplete] := preprocess[expr];
+corpusPreprocess[expr_HoldComplete] := preprocess[expr];
 
 
 (* ::Subsubsection:: *)

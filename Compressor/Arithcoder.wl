@@ -36,13 +36,16 @@ On@Assert
 Some probability mass is uniformly distributed among tokens.
 Approaches optimality with large base.
 *)
-adjust[probs_Association, range_Integer] := Module[{nprobs}, 
+adjust[probs_Association, range_Integer] := Module[{nprobs},
 	If[Length@probs > range, Throw["Too many tokens for range" <> ToString@range]];
 	nprobs = probs / Total@probs;
 	nprobs*(range - Length@nprobs) + 1 // Round
 ];
 
-adjustedProbs[model: _Function | _tokenModel, prevTokens_, range_] := adjust[model[prevTokens], range];
+(* Manually set $Context to avoid bug with SequencePredict *)
+adjustedProbs[model: _Function | _tokenModel, prevTokens_, range_] := adjust[
+	Block[{$Context = "System`"}, model[prevTokens]],
+	range];
 
 intervalIndex[x_?IntegerQ, cumProbs_List] := Count[# <= x& /@ cumProbs, True]
 
@@ -60,7 +63,7 @@ updateIntervalD[model_, prevTokens_, x_Integer, state_Interval] := Module[{range
 	range = Max@state - Min@state + 1;
 	probs = adjustedProbs[model, prevTokens, range];
 	cutoffs = Min@state + Floor[ Flatten[{0, Most@Accumulate[Values@probs], range}] ] ; (* floats *)
-	idx = intervalIndex[x, cutoffs];
+	idx = intervalIndex[x , cutoffs];
 	token = Keys[probs][[idx]];
 	{token, Interval[cutoffs[[{idx, idx + 1}]] + {0, -1}]}
 ];
@@ -142,8 +145,8 @@ getBits[___] := Assert[False, "Arg error in getBits"];
 encodeToken =.
 encodeToken[token_, model: _Function | _tokenModel, prevTokens_List: {}] := Module[
 {range, probs, keys, stepInterval},
-	state = updateIntervalE[model, prevTokens, token, state];
-	state = growIntervalE[state];
+	state = updateIntervalE[model, prevTokens, token // show, state];
+	state = growIntervalE[state] // show;
 ];
 
 encodeToken[a___] := Throw["Type error encoding token: "@a]
@@ -162,10 +165,12 @@ encodeStep[token_, model_, prevTokens_List, oldState_Interval] := Block[{head, d
 	state
 ];
 
+rmLiteralRules = {(h:intLiteral | stringLiteral | realLiteral)[_] :> h[]};
+
 pfxpairs=.
 (* Creates a list of {prefix, next_element} pairs *)
 pfxpairs[l_List] := With[{order = 5}, Thread[{
-	Partition[l,order,1,{order+1, order+1},{}],
+	Partition[l,order,1,{order+1, order+1},{}] /. rmLiteralRules,
 	l
 }]];
 

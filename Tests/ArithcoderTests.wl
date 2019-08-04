@@ -78,9 +78,9 @@ VerificationTest[
 ]
 
 VerificationTest[
-	Map[pfxpairs, Range[List[0, 3, 10]]]
+	Map[pfxpairs, {{}, {1, 2, 3}, {intLiteral[5], call["Map", 2], 3, 1, 4, stringLiteral[""]}}]
 	,
-	List[List[], List[List[List[], 1], List[List[1], 2], List[List[1, 2], 3]], List[List[List[], 1], List[List[1], 2], List[List[1, 2], 3], List[List[1, 2, 3], 4], List[List[1, 2, 3, 4], 5], List[List[1, 2, 3, 4, 5], 6], List[List[2, 3, 4, 5, 6], 7], List[List[3, 4, 5, 6, 7], 8], List[List[4, 5, 6, 7, 8], 9], List[List[5, 6, 7, 8, 9], 10]]]
+	{{},{{{},1},{{1},2},{{1,2},3}},{{{},intLiteral[5]},{{intLiteral[]},call["Map",2]},{{intLiteral[],call["Map",2]},3},{{intLiteral[],call["Map",2],3},1},{{intLiteral[],call["Map",2],3,1},4},{{intLiteral[],call["Map",2],3,1,4},stringLiteral[""]}}}
 	,
 	TestID -> "pfxpairs"
 ]
@@ -349,6 +349,8 @@ VerificationTest[
 	,
 	TestID->"TODO: Write novel token test"
 ]
+
+
 
 
 End[]
