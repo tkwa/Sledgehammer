@@ -26,7 +26,7 @@ show := If[TrueQ[printShows], Echo, #&];
 show[#, "Token list length = "]& @Length@tokToBitsDict; (* 8324 fixed, 6k more  *)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Preprocessing*)
 
 
@@ -201,6 +201,8 @@ postfixToW[pfToks_List, sow_:False] := Block[{f, $Context = "Sledgehammer`Privat
 		Delete[{1,#,0}& /@ Range@Length@#][HoldComplete@#]]&  (* turn multiple to list *)
 ];
 
+
+
 (* ::Subsubsection:: *)
 (*Novel token marking*)
 
@@ -288,7 +290,7 @@ decompress[bits_List, OptionsPattern[]] := Switch[OptionValue[Method],
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Converting between Braille, binary file, and compressed forms*)
 
 
@@ -325,6 +327,7 @@ eval[expr_HoldComplete, args_List, OptionsPattern[]] := Module[{f},
 
 (* ::Subsection:: *)
 (*Interactive app*)
+
 
 formatRPRules = {intLiteral[i_] :> i, realLiteral[r_] :> r, stringLiteral[s_] :> s,
 	call[c___] :> "call"[c], symbolLiteral[s___] :> "sym"[s]};
