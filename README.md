@@ -3,7 +3,7 @@
 Sledgehammer is a stack-based code-golf language written in, and based on, Wolfram Language. Its goal is to minimize size of compressed source. Sledgehammer consists of two parts:
 
 * A compressor/decompressor for Wolfram Language expressions
-* A code-golf library (not yet implemented as of 0.4)
+* A code-golf library (not yet implemented as of 0.5.1)
 
 ### Prior art
 

@@ -6,8 +6,7 @@
 
 
 SetDirectory[DirectoryName[$InputFileName /. "" :> NotebookFileName[]]];
-Get["save.mx", Path -> Directory[]];
-With[{printShows = False}, Get["SHinterpreter`", Path -> Directory[]]];
+Get["Sledgehammer`", Path -> Directory[]];
 On@Assert
 
 flags  = $ScriptCommandLine[[2]] // Characters;
@@ -68,4 +67,3 @@ If[printDebug,
 	codeLength = Length@compressed;
 	Print["Code length: ", codeLength, " bits = ", N@codeLength/8, " bytes"];
 	Export["_debugHistory.mx", debugHistory // Map[OutputForm], "Table"] ]
-

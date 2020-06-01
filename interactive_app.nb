@@ -10,196 +10,25 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     16143,        326]
-NotebookOptionsPosition[     15794,        311]
-NotebookOutlinePosition[     16160,        327]
-CellTagsIndexPosition[     16117,        324]
+NotebookDataLength[     24935,        530]
+NotebookOptionsPosition[     24365,        511]
+NotebookOutlinePosition[     24727,        527]
+CellTagsIndexPosition[     24684,        524]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
+
+Cell[CellGroupData[{
 Cell[BoxData[{
  RowBox[{
-  RowBox[{"SetDirectory", "[", " ", 
-   RowBox[{"DirectoryName", "@", 
-    RowBox[{"NotebookFileName", "[", "]"}]}], "]"}], 
+  RowBox[{"Get", "[", 
+   RowBox[{"\"\<Sledgehammer`\>\"", ",", " ", 
+    RowBox[{"Path", " ", "\[Rule]", " ", 
+     RowBox[{"ParentDirectory", "@", 
+      RowBox[{"NotebookDirectory", "[", "]"}]}]}]}], "]"}], 
   ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"Get", "[", "\"\<SHInterpreter`\>\"", "]"}], 
-  ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"Needs", "[", "\"\<SHUtils`\>\"", "]"}], 
-  ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{
-   RowBox[{
-    RowBox[{"expr", "[", "b_", "]"}], ":=", 
-    RowBox[{"preprocess", "[", 
-     RowBox[{"MakeExpression", "[", 
-      RowBox[{
-       RowBox[{"StripBoxes", "@", "b"}], ",", "StandardForm"}], "]"}], 
-     "]"}]}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"pfCode", " ", ":=", " ", 
-   RowBox[{"wToPostfix", "@", 
-    RowBox[{"expr", "@", "code"}]}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"cmpCode", " ", ":=", " ", 
-   RowBox[{"compress", "@", 
-    RowBox[{"wToPostfix", "@", 
-     RowBox[{"expr", "@", "code"}]}]}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"brCode", " ", ":=", " ", 
-   RowBox[{"bitsToBraille", "@", "cmpCode"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"lenBits", " ", ":=", " ", 
-   RowBox[{"Length", "@", "cmpCode"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"lenBytes", " ", ":=", " ", 
-   RowBox[{".125", " ", "*", " ", "lenBits"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"decompCode", " ", ":=", " ", 
-   RowBox[{
-    RowBox[{
-     RowBox[{
-      RowBox[{"brCode", " ", "//", " ", "brailleToBits"}], " ", "//", " ", 
-      "decompress"}], " ", "//", " ", "postfixToW"}], " ", "//", " ", 
-    "postprocess"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{
-   RowBox[{"result", " ", ":=", " ", 
-    RowBox[{"TimeConstrained", "[", 
-     RowBox[{
-      RowBox[{"eval", "[", 
-       RowBox[{"decompCode", ",", " ", "input"}], "]"}], ",", " ", "10"}], 
-     "]"}]}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
- RowBox[{"Panel", "@", 
-  RowBox[{"Column", "[", 
-   RowBox[{"{", 
-    RowBox[{"\"\<Put code below:\>\"", ",", "\[IndentingNewLine]", 
-     RowBox[{"EventHandler", "[", "\[IndentingNewLine]", "\t", 
-      RowBox[{
-       RowBox[{"InputField", "[", " ", 
-        RowBox[{
-         RowBox[{"Dynamic", "@", "code"}], ",", "Boxes", ",", 
-         RowBox[{"FieldSize", "\[Rule]", 
-          RowBox[{"{", 
-           RowBox[{
-            RowBox[{"{", 
-             RowBox[{"40", ",", "80"}], "}"}], ",", 
-            RowBox[{"{", 
-             RowBox[{"5", ",", "\[Infinity]"}], "}"}]}], "}"}]}], ",", 
-         RowBox[{"BaseStyle", "\[Rule]", 
-          RowBox[{"{", 
-           RowBox[{"\"\<Notebook\>\"", ",", " ", "\"\<Input\>\"", ",", 
-            RowBox[{"InputFieldBoxOptions", "\[Rule]", 
-             RowBox[{"{", 
-              RowBox[{"\"\<ReturnEntersInput\>\"", "\[Rule]", "False"}], 
-              "}"}]}], ",", " ", 
-            RowBox[{"ShowCodeAssist", " ", "\[Rule]", "  ", "True"}], ",", 
-            " ", 
-            RowBox[{"ShowSyntaxStyles", " ", "\[Rule]", " ", "True"}]}], 
-           "}"}]}]}], "]"}], ",", 
-       RowBox[{"{", 
-        RowBox[{
-         RowBox[{"\"\<ReturnKeyDown\>\"", " ", "\[RuleDelayed]", " ", 
-          RowBox[{"Paste", "[", "\"\<\\n\>\"", "]"}]}], ",", "  ", 
-         RowBox[{
-          RowBox[{"{", 
-           RowBox[{
-           "\"\<MenuCommand\>\"", ",", " ", "\"\<HandleShiftReturn\>\""}], 
-           "}"}], " ", "\[RuleDelayed]", " ", 
-          RowBox[{"Paste", "[", "\"\<\\n\>\"", "]"}]}]}], "}"}]}], 
-      "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
-     RowBox[{"Style", "[", 
-      RowBox[{
-       RowBox[{"Row", "@", 
-        RowBox[{"{", 
-         RowBox[{
-          RowBox[{"Dynamic", "@", 
-           RowBox[{"Length", "@", "pfCode"}]}], ",", "\"\< tokens\>\""}], 
-         "}"}]}], ",", 
-       RowBox[{"FontSize", "\[Rule]", "Larger"}]}], "]"}], ",", 
-     "\[IndentingNewLine]", 
-     RowBox[{"Style", "[", 
-      RowBox[{
-       RowBox[{"Row", "@", 
-        RowBox[{"{", 
-         RowBox[{
-          RowBox[{"Dynamic", "@", "lenBits"}], ",", "\"\< bits = \>\"", ",", 
-          RowBox[{"Dynamic", "@", "lenBytes"}], " ", ",", " ", 
-          "\"\< bytes\>\""}], "}"}]}], ",", 
-       RowBox[{"FontSize", "\[Rule]", "Larger"}]}], "]"}], ",", 
-     "\[IndentingNewLine]", 
-     RowBox[{"Row", "[", 
-      RowBox[{"{", 
-       RowBox[{"\"\<Input (as a list): \>\"", ",", 
-        RowBox[{"InputField", "[", 
-         RowBox[{"Dynamic", "@", "input"}], "]"}]}], "}"}], "]"}], ",", 
-     "\[IndentingNewLine]", 
-     RowBox[{"Button", "[", "\"\<Update\>\"", "]"}], ",", 
-     "\[IndentingNewLine]", 
-     RowBox[{"CheckboxBar", "[", 
-      RowBox[{
-       RowBox[{"Dynamic", "@", "cbs"}], ",", 
-       RowBox[{"{", 
-        RowBox[{
-        "\"\<Show postfix\>\"", ",", "\"\<Show bits\>\"", ",", 
-         "\"\<Show Braille\>\"", ",", "\"\<Decompress\>\"", ",", " ", 
-         "\"\<Eval\>\""}], "}"}]}], "]"}], ",", "\[IndentingNewLine]", 
-     RowBox[{"Dynamic", "@", 
-      RowBox[{"If", "[", 
-       RowBox[{
-        RowBox[{"MemberQ", "[", 
-         RowBox[{"cbs", ",", "\"\<Show postfix\>\""}], "]"}], ",", "pfCode", 
-        ",", "\"\<\>\""}], "]"}]}], ",", "\[IndentingNewLine]", 
-     RowBox[{"Dynamic", "@", 
-      RowBox[{"If", "[", 
-       RowBox[{
-        RowBox[{"MemberQ", "[", 
-         RowBox[{"cbs", ",", "\"\<Show bits\>\""}], "]"}], ",", "cmpCode", 
-        ",", "\"\<\>\""}], "]"}]}], ",", "\[IndentingNewLine]", 
-     RowBox[{"Dynamic", "@", 
-      RowBox[{"If", "[", 
-       RowBox[{
-        RowBox[{"MemberQ", "[", 
-         RowBox[{"cbs", ",", "\"\<Show Braille\>\""}], "]"}], ",", "brCode", 
-        ",", "\"\<\>\""}], "]"}]}], ",", "\[IndentingNewLine]", 
-     RowBox[{"Dynamic", "@", 
-      RowBox[{"If", "[", 
-       RowBox[{
-        RowBox[{"MemberQ", "[", 
-         RowBox[{"cbs", ",", "\"\<Decompress\>\""}], "]"}], ",", 
-        RowBox[{"decompCode", " ", "//", " ", "InputForm"}], ",", 
-        "\"\<\>\""}], "]"}]}], ",", "\[IndentingNewLine]", 
-     RowBox[{"Dynamic", "@", 
-      RowBox[{"If", "[", 
-       RowBox[{
-        RowBox[{"MemberQ", "[", 
-         RowBox[{"cbs", ",", "\"\<Eval\>\""}], "]"}], ",", 
-        RowBox[{"Dynamic", "@", "result"}], ",", "\"\<\>\""}], "]"}]}], ",", 
-     "\[IndentingNewLine]", 
-     RowBox[{"OpenerView", "@", 
-      RowBox[{"{", 
-       RowBox[{"\"\<PPCG submission\>\"", ",", 
-        RowBox[{"Framed", "[", 
-         RowBox[{"Dynamic", "@", 
-          RowBox[{"Style", "[", 
-           RowBox[{
-            RowBox[{
-            "\"\<# [Sledgehammer](https://github.com/tkwa/Sledgehammer), \
-\>\"", " ", "<>", " ", 
-             RowBox[{"ToString", "@", "lenBytes"}], " ", "<>", " ", 
-             "\"\< bytes\\n\\n    \>\"", " ", "<>", " ", "brCode", " ", "<>", 
-             " ", "\"\<\\n\\nDecompresses into this Wolfram Language \
-function: \\n\\n    \>\"", "<>", " ", 
-             RowBox[{"ToString", "[", 
-              RowBox[{
-               RowBox[{"First", "@", "decompCode"}], ",", " ", "InputForm"}], 
-              "]"}], " ", "<>", " ", "\"\<\\n\>\""}], ",", " ", 
-            RowBox[{"FontFamily", "\[Rule]", " ", "\"\<Courier\>\""}]}], 
-           "]"}]}], "]"}]}], "}"}]}]}], "\[IndentingNewLine]", "}"}], 
-   "]"}]}]}], "Input",
+ RowBox[{"Sledgehammer`SledgehammerGUI", "[", "]"}]}], "Input",
  InitializationCell->True,
  CellChangeTimes->{{3.7674613148730574`*^9, 3.767461317557584*^9}, {
    3.767461364008748*^9, 3.7674613865786743`*^9}, {3.767461431823718*^9, 
@@ -306,11 +135,382 @@ function: \\n\\n    \>\"", "<>", " ",
    3.7691008900040083`*^9}, {3.76910096027248*^9, 3.76910108578094*^9}, {
    3.7691011306593733`*^9, 3.769101144086692*^9}, {3.769985388863101*^9, 
    3.769985392628992*^9}, {3.770741493363933*^9, 3.770741507259635*^9}, {
-   3.7708180897547064`*^9, 3.770818101958572*^9}},
- CellLabel->"In[31]:=",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641"]
+   3.7708180897547064`*^9, 3.770818101958572*^9}, {3.7727386669344716`*^9, 
+   3.7727386714976454`*^9}, {3.7727387851110992`*^9, 3.772738788056221*^9}, {
+   3.7727388203927593`*^9, 3.7727388410409937`*^9}, {3.773603566563089*^9, 
+   3.773603578133133*^9}, {3.773604957000003*^9, 3.773604958554843*^9}, {
+   3.7736054322438736`*^9, 3.7736054334758477`*^9}, {3.7736056176031446`*^9, 
+   3.7736056181227875`*^9}, {3.773605653255744*^9, 3.773605657044651*^9}, 
+   3.7736062337758784`*^9, {3.7998221883838882`*^9, 3.7998221927240076`*^9}},
+ CellLabel->"In[5]:=",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "General","compat",
+   "\"Combinatorica Graph and Permutations functionality has been superseded \
+by preloaded functionality. The package now being loaded may conflict with \
+this. Please see the Compatibility Guide for details.\"",2,5,3,
+   21361499603372916283,"Local"},
+  "MessageTemplate"]], "Message", "MSG",
+ CellChangeTimes->{{3.799822150343373*^9, 3.799822150700658*^9}, 
+   3.799822196853731*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"c05c0587-40fb-4295-8b43-cfe6b3e76eed"],
+
+Cell[BoxData[
+ DynamicModuleBox[{Sledgehammer`Private`boxContents$$ = "", 
+  Sledgehammer`Private`expr$$, Sledgehammer`Private`input$$ = {}, 
+  Sledgehammer`Private`code$$, Sledgehammer`Private`pfCode$$, 
+  Sledgehammer`Private`cmpCode$$, Sledgehammer`Private`brCode$$, 
+  Sledgehammer`Private`lenBits$$, Sledgehammer`Private`lenBytes$$, 
+  Sledgehammer`Private`decompCode$$, Sledgehammer`Private`cbs$$, 
+  Sledgehammer`Private`result$$, Sledgehammer`Private`cgccString$$}, 
+  TagBox[
+   PanelBox[
+    TagBox[GridBox[{
+       {"\<\"Put code below:\"\>"},
+       {
+        TagBox[
+         InputFieldBox[Dynamic[Sledgehammer`Private`boxContents$$], Boxes,
+          
+          BaseStyle->{
+           "Notebook", "Input", 
+            InputFieldBoxOptions -> {"ReturnEntersInput" -> False}, 
+            ShowCodeAssist -> True, ShowSyntaxStyles -> True},
+          FieldSize->{{40, 80}, {5, 
+             DirectedInfinity[1]}}],
+         EventHandlerTag[{
+          "ReturnKeyDown" :> 
+           Paste["\n"], {"MenuCommand", "HandleShiftReturn"} :> Paste["\n"], 
+           Method -> "Preemptive", PassEventsDown -> Automatic, PassEventsUp -> 
+           True}]]},
+       {
+        StyleBox[
+         TemplateBox[{DynamicBox[
+            ToBoxes[
+             Length[
+              Sledgehammer`Private`pfCode$$[]], StandardForm]],"\" tokens\""},
+          "RowDefault"],
+         StripOnInput->False,
+         FontSize->Larger]},
+       {
+        StyleBox[
+         TemplateBox[{DynamicBox[
+            ToBoxes[
+             Sledgehammer`Private`lenBits$$[], StandardForm]],"\" bits = \"",
+           DynamicBox[
+            ToBoxes[
+             Sledgehammer`Private`lenBytes$$[], StandardForm]],"\" bytes\""},
+          "RowDefault"],
+         StripOnInput->False,
+         FontSize->Larger]},
+       {
+        TemplateBox[{"\"Input (as a list): \"",InputFieldBox[
+           Dynamic[Sledgehammer`Private`input$$]]},
+         "RowDefault"]},
+       {
+        ButtonBox["\<\"Update\"\>",
+         Appearance->Automatic,
+         ButtonFunction:>(Sledgehammer`Private`code$$ = 
+          Sledgehammer`Private`boxContents$$),
+         Evaluator->Automatic,
+         Method->"Preemptive"]},
+       {
+        InterpretationBox[
+         StyleBox[
+          RowBox[{GridBox[{
+             {
+              CheckboxBox[Dynamic[
+                MemberQ[Sledgehammer`Private`cbs$$, "Show postfix"], 
+                BoxForm`TogglerBarFunction[
+                Sledgehammer`Private`cbs$$, "Show postfix"]& ],
+               DefaultBaseStyle->"CheckboxBar"], 
+              StyleBox["\<\"Show postfix\"\>", "CheckboxBarLabel",
+               StripOnInput->False]}
+            },
+            AutoDelete->False,
+            BaselinePosition->{1, 2},
+            GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+            
+            GridBoxItemSize->{
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+            GridBoxSpacings->{"Columns" -> {
+                Offset[0.27999999999999997`], {
+                 Offset[0.21]}, 
+                Offset[0.27999999999999997`]}, "Rows" -> {
+                Offset[0.2], {
+                 Offset[0.4]}, 
+                Offset[0.2]}}], "  ", GridBox[{
+             {
+              CheckboxBox[Dynamic[
+                MemberQ[Sledgehammer`Private`cbs$$, "Show bits"], 
+                BoxForm`TogglerBarFunction[
+                Sledgehammer`Private`cbs$$, "Show bits"]& ],
+               DefaultBaseStyle->"CheckboxBar"], 
+              StyleBox["\<\"Show bits\"\>", "CheckboxBarLabel",
+               StripOnInput->False]}
+            },
+            AutoDelete->False,
+            BaselinePosition->{1, 2},
+            GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+            
+            GridBoxItemSize->{
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+            GridBoxSpacings->{"Columns" -> {
+                Offset[0.27999999999999997`], {
+                 Offset[0.21]}, 
+                Offset[0.27999999999999997`]}, "Rows" -> {
+                Offset[0.2], {
+                 Offset[0.4]}, 
+                Offset[0.2]}}], "  ", GridBox[{
+             {
+              CheckboxBox[Dynamic[
+                MemberQ[Sledgehammer`Private`cbs$$, "Show Braille"], 
+                BoxForm`TogglerBarFunction[
+                Sledgehammer`Private`cbs$$, "Show Braille"]& ],
+               DefaultBaseStyle->"CheckboxBar"], 
+              StyleBox["\<\"Show Braille\"\>", "CheckboxBarLabel",
+               StripOnInput->False]}
+            },
+            AutoDelete->False,
+            BaselinePosition->{1, 2},
+            GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+            
+            GridBoxItemSize->{
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+            GridBoxSpacings->{"Columns" -> {
+                Offset[0.27999999999999997`], {
+                 Offset[0.21]}, 
+                Offset[0.27999999999999997`]}, "Rows" -> {
+                Offset[0.2], {
+                 Offset[0.4]}, 
+                Offset[0.2]}}], "  ", GridBox[{
+             {
+              CheckboxBox[Dynamic[
+                MemberQ[Sledgehammer`Private`cbs$$, "Decompress"], 
+                BoxForm`TogglerBarFunction[
+                Sledgehammer`Private`cbs$$, "Decompress"]& ],
+               DefaultBaseStyle->"CheckboxBar"], 
+              StyleBox["\<\"Decompress\"\>", "CheckboxBarLabel",
+               StripOnInput->False]}
+            },
+            AutoDelete->False,
+            BaselinePosition->{1, 2},
+            GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+            
+            GridBoxItemSize->{
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+            GridBoxSpacings->{"Columns" -> {
+                Offset[0.27999999999999997`], {
+                 Offset[0.21]}, 
+                Offset[0.27999999999999997`]}, "Rows" -> {
+                Offset[0.2], {
+                 Offset[0.4]}, 
+                Offset[0.2]}}], "  ", GridBox[{
+             {
+              CheckboxBox[Dynamic[
+                MemberQ[Sledgehammer`Private`cbs$$, "Eval"], 
+                BoxForm`TogglerBarFunction[
+                Sledgehammer`Private`cbs$$, "Eval"]& ],
+               DefaultBaseStyle->"CheckboxBar"], 
+              StyleBox["\<\"Eval\"\>", "CheckboxBarLabel",
+               StripOnInput->False]}
+            },
+            AutoDelete->False,
+            BaselinePosition->{1, 2},
+            GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Baseline}}},
+            
+            GridBoxItemSize->{
+             "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+            GridBoxSpacings->{"Columns" -> {
+                Offset[0.27999999999999997`], {
+                 Offset[0.21]}, 
+                Offset[0.27999999999999997`]}, "Rows" -> {
+                Offset[0.2], {
+                 Offset[0.4]}, 
+                Offset[0.2]}}]}], "Deploy"],
+         CheckboxBar[
+          Dynamic[Sledgehammer`Private`cbs$$], {
+          "Show postfix", "Show bits", "Show Braille", "Decompress", 
+           "Eval"}]]},
+       {
+        DynamicBox[ToBoxes[
+          If[
+           MemberQ[Sledgehammer`Private`cbs$$, "Show postfix"], 
+           ReplaceAll[
+            Sledgehammer`Private`pfCode$$[], 
+            Sledgehammer`Private`formatRPRules], ""], StandardForm],
+         ImageSizeCache->{0., {0., 9.}}]},
+       {
+        DynamicBox[ToBoxes[
+          If[
+           MemberQ[Sledgehammer`Private`cbs$$, "Show bits"], 
+           Sledgehammer`Private`cmpCode$$[], ""], StandardForm],
+         ImageSizeCache->{0., {0., 9.}}]},
+       {
+        DynamicBox[ToBoxes[
+          If[
+           MemberQ[Sledgehammer`Private`cbs$$, "Show Braille"], 
+           Sledgehammer`Private`brCode$$[], ""], StandardForm],
+         ImageSizeCache->{0., {0., 9.}}]},
+       {
+        DynamicBox[ToBoxes[
+          If[
+           MemberQ[Sledgehammer`Private`cbs$$, "Decompress"], 
+           InputForm[
+            Sledgehammer`Private`decompCode$$[]], ""], StandardForm],
+         ImageSizeCache->{0., {0., 9.}}]},
+       {
+        DynamicBox[ToBoxes[
+          If[
+           MemberQ[Sledgehammer`Private`cbs$$, "Eval"], 
+           Dynamic[
+            Sledgehammer`Private`result$$[]], ""], StandardForm],
+         ImageSizeCache->{0., {0., 9.}}]},
+       {
+        TagBox[
+         DynamicModuleBox[{Typeset`var$$ = False}, 
+          InterpretationBox[
+           StyleBox[
+            PaneSelectorBox[{False->GridBox[{
+               {
+                OpenerBox[Dynamic[Typeset`var$$],
+                 Appearance->Automatic,
+                 AutoAction->False,
+                 ContinuousAction->False,
+                 Enabled->Automatic], "\<\"CGCC submission\"\>"}
+              },
+              AutoDelete->False,
+              BaselinePosition->{1, 1},
+              GridBoxAlignment->{"Columns" -> {{Left}}},
+              GridBoxBackground->{"Columns" -> {{Automatic}}},
+              
+              GridBoxItemSize->{
+               "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+              GridBoxSpacings->{"Columns" -> {{0.2}}, "Rows" -> {{0.5}}}], 
+             True->GridBox[{
+               {
+                OpenerBox[Dynamic[Typeset`var$$],
+                 Appearance->Automatic,
+                 AutoAction->False,
+                 ContinuousAction->False,
+                 Enabled->Automatic], "\<\"CGCC submission\"\>"},
+               {"", 
+                PaneBox[
+                 TagBox[GridBox[{
+                    {
+                    ButtonBox["\<\"Copy\"\>",
+                    Appearance->Automatic,
+                    ButtonFunction:>CopyToClipboard[
+                    Sledgehammer`Private`cgccString$$[]],
+                    Evaluator->Automatic,
+                    Method->"Preemptive"]},
+                    {
+                    FrameBox[
+                    DynamicBox[ToBoxes[
+                    Style[
+                    Sledgehammer`Private`cgccString$$[], FontFamily -> 
+                    "Courier"], StandardForm]],
+                    StripOnInput->False]}
+                   },
+                   DefaultBaseStyle->"Column",
+                   GridBoxAlignment->{"Columns" -> {{Left}}},
+                   
+                   GridBoxItemSize->{
+                    "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+                  "Column"],
+                 ImageMargins->0]}
+              },
+              AutoDelete->False,
+              BaselinePosition->{1, 1},
+              GridBoxAlignment->{"Columns" -> {{Left}}},
+              GridBoxBackground->{"Columns" -> {{Automatic}}},
+              
+              GridBoxItemSize->{
+               "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+              GridBoxSpacings->{"Columns" -> {{0.2}}, "Rows" -> {{0.5}}}]}, 
+             Dynamic[Typeset`var$$],
+             Alignment->Automatic,
+             BaseStyle->{},
+             BaselinePosition->Baseline,
+             DefaultBaseStyle->"OpenerView",
+             ImageMargins->0,
+             ImageSize->Automatic],
+            Deployed->False,
+            StripOnInput->False],
+           OpenerView[{"CGCC submission", 
+             Column[{
+               Button["Copy", 
+                CopyToClipboard[
+                 Sledgehammer`Private`cgccString$$[]]], 
+               Framed[
+                Dynamic[
+                 Style[
+                  Sledgehammer`Private`cgccString$$[], FontFamily -> 
+                  "Courier"]]]}]}, False]],
+          DynamicModuleValues:>{}],
+         Setting[#, {0}]& ]}
+      },
+      DefaultBaseStyle->"Column",
+      GridBoxAlignment->{"Columns" -> {{Left}}},
+      GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+     "Column"]],
+   Deploy,
+   DefaultBaseStyle->"Deploy"],
+  DynamicModuleValues:>{{
+    DownValues[Sledgehammer`Private`expr$$] = {HoldPattern[
+         Sledgehammer`Private`expr$$[
+          Pattern[Sledgehammer`Private`b, 
+           Blank[]]]] :> Sledgehammer`preprocess[
+         MakeExpression[
+          StripBoxes[Sledgehammer`Private`b], StandardForm]]}}, {
+    DownValues[Sledgehammer`Private`pfCode$$] = {HoldPattern[
+         Sledgehammer`Private`pfCode$$[]] :> Sledgehammer`wToPostfix[
+         Sledgehammer`Private`expr$$[Sledgehammer`Private`code$$]]}}, {
+    DownValues[Sledgehammer`Private`cmpCode$$] = {HoldPattern[
+         Sledgehammer`Private`cmpCode$$[]] :> Sledgehammer`compress[
+         Sledgehammer`wToPostfix[
+          Sledgehammer`Private`expr$$[Sledgehammer`Private`code$$]]]}}, {
+    DownValues[Sledgehammer`Private`brCode$$] = {HoldPattern[
+         Sledgehammer`Private`brCode$$[]] :> 
+       Sledgehammer`Private`bitsToBraille[
+         Sledgehammer`Private`cmpCode$$[]]}}, {
+    DownValues[Sledgehammer`Private`lenBits$$] = {HoldPattern[
+         Sledgehammer`Private`lenBits$$[]] :> Length[
+         Sledgehammer`Private`cmpCode$$[]]}}, {
+    DownValues[Sledgehammer`Private`lenBytes$$] = {HoldPattern[
+         Sledgehammer`Private`lenBytes$$[]] :> 
+       0.125 Sledgehammer`Private`lenBits$$[]}}, {
+    DownValues[Sledgehammer`Private`decompCode$$] = {HoldPattern[
+         Sledgehammer`Private`decompCode$$[]] :> Sledgehammer`postprocess[
+         Sledgehammer`postfixToW[
+          Sledgehammer`decompress[
+           Sledgehammer`Private`brailleToBits[
+            Sledgehammer`Private`brCode$$[]]]]]}}, {
+    DownValues[Sledgehammer`Private`result$$] = {HoldPattern[
+         Sledgehammer`Private`result$$[]] :> TimeConstrained[
+         Sledgehammer`eval[
+          Sledgehammer`Private`decompCode$$[], Sledgehammer`Private`input$$], 
+         10]}}, {DownValues[Sledgehammer`Private`cgccString$$] = {HoldPattern[
+         Sledgehammer`Private`cgccString$$[]] :> 
+       StringJoin["# [Sledgehammer](https://github.com/tkwa/Sledgehammer), ", 
+         ToString[
+          Ceiling[
+           Sledgehammer`Private`lenBytes$$[]]], " bytes\n\n    ", 
+         Sledgehammer`Private`brCode$$[], 
+         "\n\nDecompresses into this Wolfram Language function: \n\n    ", 
+         ToString[
+          First[
+           Sledgehammer`Private`decompCode$$[]], InputForm], "\n"]}}},
+  UnsavedVariables:>{}]], "Output",
+ CellChangeTimes->{{3.799822150423295*^9, 3.799822150713874*^9}, 
+   3.7998221986187716`*^9},
+ CellLabel->"Out[6]=",ExpressionUUID->"fccdad4e-dd73-453d-b21c-963ae0931ac5"]
+}, Open  ]]
 },
-WindowSize->{1439, 1347},
-WindowMargins->{{-6, Automatic}, {1074, Automatic}},
+WindowSize->{929, 988},
+WindowMargins->{{69, Automatic}, {Automatic, 45}},
 Magnification->1.5,
 FrontEndVersion->"12.0 for Microsoft Windows (64-bit) (April 8, 2019)",
 StyleDefinitions->"Default.nb"
@@ -326,8 +526,12 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[558, 20, 15232, 289, 1112, "Input",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641",
- InitializationCell->True]
+Cell[CellGroupData[{
+Cell[580, 22, 8784, 122, 97, "Input",ExpressionUUID->"e6f65d0c-15d1-459a-85d8-afacb43b0641",
+ InitializationCell->True],
+Cell[9367, 146, 541, 12, 94, "Message",ExpressionUUID->"c05c0587-40fb-4295-8b43-cfe6b3e76eed"],
+Cell[9911, 160, 14438, 348, 579, "Output",ExpressionUUID->"fccdad4e-dd73-453d-b21c-963ae0931ac5"]
+}, Open  ]]
 }
 ]
 *)
